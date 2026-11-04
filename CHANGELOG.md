@@ -3,7 +3,7 @@
 Versions are `0.UPDATE.CHANGE` (e.g. v0.4.11). The last number goes up with every single change;
 the middle number goes up each time an update goes live. Each section below is one update.
 
-## v0.4 – butterflies, life bar, Neon, prettier night, cleaner menus (testing on `hawk-test`)
+## v0.4 (live as v0.4.11, 2026-11-04) – butterflies, life bar, Neon, prettier night, cleaner menus
 - Level 5: small butterflies cross the lane like the hawks but steer away from you.
 - Catching a butterfly fills the life bar under the score (5 butterflies = 1 life, up to 3 lives).
 - A full life saves you from one crash: you bounce up with 1.5 seconds of safety.
