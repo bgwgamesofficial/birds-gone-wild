@@ -64,6 +64,9 @@ desktop browser and a Galaxy Z Fold.
 - Hawks cross the player's lane sideways (position `f.x`, independent of pipe speed). Height markers ("!") on
   the screen edge show where each hawk will cross. Hawk kinds (mode 5): hunter, feint, dash, sweeper, plus
   pincer pairs. Hawks learn the player's habitual height (`HAB` bins, `habitY()`).
+  Since v0.6.3 `aiHunt5()` predicts with gravity, uses swoop offsets (`f.sw`), group cut-off (`f.cut`), and at the
+  lock distance commits to a crossing height `f.ty` (shown by the "!" marker). Hawks with `f.wantRet` U-turn once
+  after missing (`f.tt` turn timer, `f.ret` done); `f.pc`/`f.sc` stay set so they count and pay once.
 - Mode 5 butterflies (`flies`, `spawnFly()`, `aiFlee()`): small, cross like hawks (speed `FLYV`) but steer away from
   the player's predicted height. Catching one adds `FLY_GAIN` to `lifePts` (bar `#life`, 3 segments of `LIFE_SEG`).
   In `die()`, a full segment is spent to survive (like the shield). Reset clears lives.

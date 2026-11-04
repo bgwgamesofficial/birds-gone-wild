@@ -4,6 +4,11 @@ Versions are `0.UPDATE.CHANGE` (e.g. v0.4.11). The last number goes up with ever
 the middle number goes up each time an update goes live. Each section below is one update.
 
 ## v0.6 (in progress on `hawk-test`)
+- 10% harder across the board: every level's difficulty is about 10% higher and hawks come about 10% more often;
+  the fairness limits stay. (v0.6.3)
+- Smarter hawks (v0.6.3): they predict where you will fall between flaps, swoop in from above or below, one
+  hawk in a group cuts off the direction you are heading, and hawks that miss may bank into a U-turn and come back
+  once (more often on higher levels; counted and paid only once). The red ! now shows where a hawk will cross.
 - Levels redesigned to be short (about 25-60 s) and varied (v0.6.2), replacing the 200-hawk levels below:
   - Dodge levels: get past 17 (level 1) to 41 (level 49) hawks.
   - Butterfly levels (5, 15, 25, 35, 45): catch 6-11 butterflies; fewer hawks, more butterflies.
