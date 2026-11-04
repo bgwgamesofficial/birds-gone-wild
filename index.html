@@ -928,7 +928,7 @@ function loop(now){
     for(let i=flies.length-1;i>=0;i--){const f=flies[i];aiFlee(f,dt);f.x-=f.dir*FLYV*HS()*dt;const fy=f.y+Math.sin(gt*f.fq*2+f.ph)*.3;f.fy=fy;f.g.position.set(f.x,fy,0);f.g.rotation.y=-f.dir*Math.PI/2;
       if(Math.abs(f.x)<.8&&Math.abs(y-fy)<.75){catchFly(f);scene.remove(f.g);flies.splice(i,1);continue;}
       if(f.dir*f.x<-24){scene.remove(f.g);flies.splice(i,1);}}
-    if(y>CEIL){y=CEIL;if(vy>0)vy=0;}if(y<BOT+0.5)die();
+    if(y>CEIL){y=CEIL;if(vy>0)vy=0;}if(y<BOT+0.5){die();if(state==='play'){y=BOT+0.5;if(vy<0)vy=FLAP*.6;}} // ground is solid: if a crash was blocked (shield/life/revive safety), bounce
     // recycle
     while(pipes.length&&pipes[0].z>11){
       const old=pipes.shift();scene.remove(old.g);old.pm.p.dispose();old.pm.c.dispose();
@@ -970,6 +970,7 @@ function loop(now){
   camL+=(y*(mode===5?1:.85)-camL)*(1-Math.exp(-5*dt));
   const shk=S.shake?shake:0;vb+=(((viewSide||mode===5)?1:0)-vb)*(1-Math.exp(-4*dt));cam.position.set(vb*8+Math.sin(now/40)*shk*0.25,camY+Math.cos(now/47)*shk*0.25,8);
   {const el=(now-flapAt)/1000;let a;if(state==='ready')a=Math.sin(now/110)*.5;else if(state==='dead')a=.6;else a=Math.max(0,1-el*2.2)*Math.sin(el*38)*.9+(vy<0?.25:0);wings[0].rotation.z=-a;wings[1].rotation.z=a;}
+  if(y<BOT+0.5)y=BOT+0.5; // never below the ground, in any state
   bird.position.set(0,y,0);bird.userData.bank=curv*.12;backL.position.set(0,y+1.6,-4.5);backL.intensity=.3+nt*.3;{const fl=Math.max(0,1-(now-flapAt)/170);bird.scale.set(1-.08*fl,1+.12*fl,1-.08*fl);}bird.rotation.set(tilt*1.6,0,state==='dead'?-tilt*1.2:Math.sin(now/500)*.05-bird.userData.bank);bird.visible=!(ghost>gt)||Math.floor(now/90)%2===0;
   shadow.scale.setScalar(Math.max(.3,1.4-(y+6)*.09));shadow.material.opacity=Math.max(.08,.35-(y+6)*.02);
   {const tf=S.fov+Math.min(.45,gt*.0025)*18+(state==='play'?Math.max(0,1-(now-flapAt)/200)*1.5:0);if(Math.abs(cam.fov-tf)>.02){cam.fov+=(tf-cam.fov)*(1-Math.exp(-6*dt));cam.updateProjectionMatrix();}}
