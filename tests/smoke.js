@@ -1,7 +1,7 @@
 const fs=require('fs'),vm=require('vm');
 const html=fs.readFileSync(require('path').join(__dirname,'..','index.html'),'utf8');
 let code=html.match(/<script>\n\(function\(\)\{[\s\S]*?<\/script>/)[0].replace(/^<script>/,'').replace(/<\/script>$/,'');
-code=code.replace("reset();showCard('Birds Gone Wild'","window.__fn={renderSettings,applyAll,applyRes,applyShadows,applyAniso,presetMatch,capFps,modeCap,spawnFoe:()=>spawnFoe(-60,3,.8),setMode:(m)=>{mode=m;applyMode();reset();},getFoes:()=>foes.length};window.__dbg=()=>({state,score,wallet,level,foes:foes.length,pipes:pipes.length,revives});reset();showCard('Birds Gone Wild'");
+code=code.replace("reset();showCard('Birds Gone Wild'","window.__fn={renderSettings,applyAll,applyRes,applyShadows,applyAniso,presetMatch,capFps,modeCap,spawnFoe:()=>spawnFoe(-60,3,.8),setMode:(m)=>{mode=m;applyMode();reset();},getFoes:()=>foes.length,spawnFly,getFlies:()=>flies.length,flyAtBird:()=>{spawnFly();const f=flies[flies.length-1];f.x=f.dir*.3;f.y=y;},setLife:v=>{lifePts=v;state='play';ghost=0;},getLife:()=>lifePts,die};window.__dbg=()=>({state,score,wallet,level,foes:foes.length,pipes:pipes.length,revives});reset();showCard('Birds Gone Wild'");
 const f=function(){};
 const p=new Proxy(f,{get(t,k){if(k===Symbol.toPrimitive)return()=>0;if(k==='then')return undefined;if(k==='length'||k==='count')return 0;return p;},apply(){return p;},construct(){return p;},set(){return true;}});
 const listeners={};const raf=[];
@@ -27,5 +27,13 @@ console.log(JSON.stringify(sb.__dbg()));
 const F=sb.__fn;for(const k of ['renderSettings','applyAll','applyRes','applyShadows','applyAniso','presetMatch','capFps','modeCap']){try{F[k]();}catch(e){errs.push('FN ERROR '+k+': '+e.message);}}
 for(const m of [1,2,3,4,5]){try{F.setMode(m);F.spawnFoe();for(let i=0;i<300;i++){t+=16;if(i%20===0)key('Space');const cb=raf.shift();cb&&cb(t);}}catch(e){errs.push('MODE '+m+' ERROR: '+e.stack.split('\n').slice(0,3).join(' | '));}}
 console.log('modes ok, foes:',F.getFoes());
+// Mode 5 butterflies + life bar: spawn and fly, then check a full life segment saves the player from one crash.
+try{F.setMode(5);F.spawnFly();for(let i=0;i<300;i++){t+=16;if(i%20===0)key('Space');const cb=raf.shift();cb&&cb(t);}
+ F.setLife(0);const n0=F.getFlies();F.flyAtBird();{const cb=raf.shift();t+=16;cb&&cb(t);}
+ if(F.getLife()!==20||F.getFlies()!==n0)errs.push('LIFE: touching a butterfly did not add life (life '+F.getLife()+')');
+ F.setLife(100);F.die();
+ if(F.getLife()!==0||sb.__dbg().state==='dead')errs.push('LIFE: a full segment did not save the player (state '+sb.__dbg().state+', life '+F.getLife()+')');
+ else console.log('butterflies ok, flies:',F.getFlies(),'- catching adds life, a full segment saved the player');}
+catch(e){errs.push('BUTTERFLY ERROR: '+e.stack.split('\n').slice(0,3).join(' | '));}
 console.log(errs.length?errs.join('\n'):'NO RUNTIME ERRORS in 4000 simulated frames');
 if(errs.length)process.exit(1);

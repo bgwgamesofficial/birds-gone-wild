@@ -106,6 +106,11 @@ body.dual #lvl .panel,body.dual #shop .panel{pointer-events:auto;width:min(420px
 #xp span{background:var(--card);padding:2px 10px;border-radius:999px;display:inline-block}
 #xp .bar{height:10px;border-radius:999px;background:rgba(0,0,0,.3);overflow:hidden;margin-top:5px;box-shadow:0 2px 0 rgba(0,0,0,.2)}
 #xp .fill{height:100%;background:var(--accent)}
+#life{position:absolute;top:calc(env(safe-area-inset-top,0px) + 98px);left:50%;transform:translateX(-50%);display:none;align-items:center;gap:6px;pointer-events:none;font-size:16px}
+#life.on{display:flex}
+#life .seg{width:min(52px,15vw);height:12px;border-radius:999px;background:rgba(0,0,0,.3);overflow:hidden;box-shadow:0 2px 0 rgba(0,0,0,.2)}
+#life .seg i{display:block;height:100%;width:0;background:linear-gradient(90deg,#ff4f86,#ffa3c4);transition:width .25s}
+#life.full .seg i{box-shadow:0 0 8px #ff8ab0}
 #count{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:140px;font-weight:900;color:#fff;text-shadow:0 8px 0 rgba(0,0,0,.3);pointer-events:none;z-index:7}
 #count.b{animation:cb .8s ease-out}
 @keyframes cb{from{transform:scale(1.7);opacity:0}25%{opacity:1}to{transform:scale(1);opacity:1}}
@@ -123,6 +128,7 @@ body.dual #lvl .panel,body.dual #shop .panel{pointer-events:auto;width:min(420px
 <div id="vig"></div>
 <div id="cloudfx"></div>
 <div id="hud">0</div>
+<div id="life"><b>&#10084;&#65039;</b><div class="seg"><i></i></div><div class="seg"><i></i></div><div class="seg"><i></i></div></div>
 <div id="warn">!</div>
 <div id="warn2">!</div>
 <div id="wallet"></div>
@@ -148,7 +154,7 @@ body.dual #lvl .panel,body.dual #shop .panel{pointer-events:auto;width:min(420px
 <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/UnrealBloomPass.js"></script>
 <script>
 (function(){
-const VERSION='0.3'; // shown on the start screen; add 1 after the dot for every update to main (0.9 -> 0.10). 1.0 = first real release
+const VERSION='0.4'; // shown on the start screen; add 1 after the dot for every update to main (0.9 -> 0.10). 1.0 = first real release
 const SKY=0x9fd8f0;
 const DEF={res:'1440p',fps:'auto',adaptive:true,shadows:'high',bloom:true,particles:'high',aniso:8,vignette:true,shake:true,fov:65,master:1,music:1,sfx:1,musicOn:true,sfxOn:true,dyn:true};
 const S=Object.assign({},DEF);try{Object.assign(S,JSON.parse(localStorage.getItem('flappyset')||'{}'))}catch(e){}
@@ -297,7 +303,44 @@ for(let i=0;i<34;i++){const b=new THREE.Sprite(new THREE.SpriteMaterial({map:clo
 const skyT=new THREE.Color();let lastBase=2.5,hawkT=2.2,lastDir=0,dirRun=0;
 const pipeMat=new THREE.MeshLambertMaterial({color:0x3fae3f});
 const capMat=new THREE.MeshLambertMaterial({color:0x2f8f2f});
-const pipes=[],foes=[];
+const pipes=[],foes=[],FVX=7.5;
+// Butterflies (mode 5 / HAWK TEST only): small, cross the lane like hawks but steer AWAY from the player.
+// Catching one fills the life bar; each full segment (LIFE_SEG points) saves you from one crash.
+const flies=[],LIFE_SEG=100,LIFE_MAX=300,FLY_GAIN=20,FLYV=FVX*.55,lifeEl=document.getElementById('life');let flyT=3,lifePts=0,lifeShown='';
+const FLYC=[[0xff8a3d,0x2a1a10],[0x5ec8ff,0x123048],[0xffd23f,0x3a2a08],[0xff6fb5,0x40102a],[0xb48cff,0x24164a]];
+function mkFly(){
+ const P=FLYC[Math.floor(Math.random()*FLYC.length)],g=new THREE.Group(),w=[];
+ const body=new THREE.Mesh(new THREE.CylinderGeometry(.045,.035,.44,6),new THREE.MeshBasicMaterial({color:P[1]}));body.rotation.x=Math.PI/2;g.add(body);
+ const WM=new THREE.MeshBasicMaterial({color:P[0],side:THREE.DoubleSide});
+ [-1,1].forEach(sx=>{const pv=new THREE.Group();
+  const a=new THREE.Mesh(new THREE.CircleGeometry(.26,12),WM);a.rotation.x=-Math.PI/2;a.position.set(sx*.24,0,.09);a.scale.set(1,1.15,1);pv.add(a);
+  const b=new THREE.Mesh(new THREE.CircleGeometry(.17,10),WM);b.rotation.x=-Math.PI/2;b.position.set(sx*.18,0,-.15);pv.add(b);
+  g.add(pv);w.push(pv);});
+ const gl=glowSprite(P[0],1.6);gl.material.opacity=.75;g.add(gl);
+ return {g,w,gl,col:P[0]};}
+function spawnFly(){
+ const o=mkFly(),dir=Math.random()<.5?-1:1,yy=BOT+3+Math.random()*(CEIL-BOT-4);
+ o.g.position.set(dir*FVX*2.6,yy,0);scene.add(o.g);
+ flies.push({g:o.g,w:o.w,gl:o.gl,col:o.col,dir,x:dir*FVX*2.6,y:yy,ph:Math.random()*6.28,fq:1.4+Math.random()*.8});}
+function aiFlee(f,dt){
+ // Like the hawks' aiHunt5 but reversed: predict where the player will be when the butterfly reaches the lane, and steer away.
+ const ax=Math.abs(f.x);if(f.dir*f.x<-.5||ax>FVX*1.8)return;
+ const T=Math.min(ax/FLYV,1.2),py=y+vy*T*.5,d=f.y-py;
+ if(Math.abs(d)>3.2)return;
+ let away=d>=0?1:-1;
+ if(away>0&&f.y>CEIL-1.6)away=-1;else if(away<0&&f.y<BOT+3.2)away=1; // cornered: dodge the other way
+ const vm=(1.6+1.4*AI.skill)*dt;
+ f.y=Math.max(BOT+2.5,Math.min(CEIL-.8,f.y+away*vm));}
+function updLife(){
+ const on=mode===5,k=on+'|'+lifePts;if(k===lifeShown)return;lifeShown=k;
+ lifeEl.classList.toggle('on',on);lifeEl.classList.toggle('full',lifePts>=LIFE_MAX);
+ lifeEl.querySelectorAll('.seg i').forEach((el,i)=>{el.style.width=Math.max(0,Math.min(1,(lifePts-i*LIFE_SEG)/LIFE_SEG))*100+'%';});}
+function catchFly(f){
+ const was=Math.floor(lifePts/LIFE_SEG);lifePts=Math.min(LIFE_MAX,lifePts+FLY_GAIN);
+ sfx.coin();burst(f.x,f.fy,0,16,f.col,3.5,.6);
+ if(Math.floor(lifePts/LIFE_SEG)>was)popText('+1 Life!','#ff7aa8');else popText(lifePts>=LIFE_MAX?'Life full':'+Life','#ffa3c4');
+ updLife();}
+function clearFlies(){flies.forEach(f=>scene.remove(f.g));flies.length=0;}
 const HAWK=[
  {b:0x7a4a26,w:0x5e3a1c,t:0x9a5a2a,v:0xf0e0c4,k:0xf2c230},
  {b:0x5a6470,w:0x434c57,t:0x7c8794,v:0xe8eaee,k:0xf2c230},
@@ -334,7 +377,6 @@ function foeHit(f){
  else die();
 }
 function foeSlot(z0){let bz=z0,bc=-1;for(let k=-4;k<=4;k++){const z=z0+k*2.5,T=-z/(sp()+4);let cl=99;pipes.forEach(p=>{const r=((p.z+sp()*T)%SPACING+SPACING)%SPACING;cl=Math.min(cl,r,SPACING-r);});if(cl>bc){bc=cl;bz=z;}}return bz;}
-const FVX=7.5;
 function HS(){return (fxOn('slow')&&mode===5?.55:1)*(1-.06*perks.steady*(mode===5?1:0));}
 function habitY(){let bi=0;for(let i=1;i<HAB.length;i++)if(HAB[i]>HAB[bi])bi=i;return BOT+(bi+.5)*(CEIL-BOT)/HAB.length;}
 function aiHunt5(f,dt){
@@ -712,7 +754,7 @@ function updPipe(p){
   p.coins.forEach(c=>{if(c.got)return;const m=c.m;const rng=fxOn('magnet')?14:perks.pull*3.5;if(rng>0){const pz=p.z+m.position.z;if(pz>-rng&&pz<3){const k=1-Math.exp(-7*dtg);m.position.y+=(y-gy-m.position.y)*k;m.position.z+=(-p.z-m.position.z)*k;}}const cz=p.z+m.position.z;if(Math.abs(cz)<1.6&&Math.abs(y-(gy+m.position.y))<1.9){c.got=true;m.visible=false;const v=1.5*MM()*(fxOn('double')?2:1)*(Math.random()<perks.lucky*.15?2:1);wallet+=v;run+=v;saveW();sfx.coin();popText('+$'+fm(v));gainXp(1);wEl.classList.remove('bump');void wEl.offsetWidth;wEl.classList.add('bump');burst(0,gy+m.position.y,cz,14,0xffd23f,5,.6);}});
 }
 function reset(){
-  pipes.forEach(p=>{scene.remove(p.g);p.pm.p.dispose();p.pm.c.dispose();});pipes.length=0;foes.forEach(f=>scene.remove(f.g));foes.length=0;lastBase=2.5;hawkT=2.2;lastDir=0;dirRun=0;AI.y=1;AI.skill=.5;HAB.fill(0);
+  pipes.forEach(p=>{scene.remove(p.g);p.pm.p.dispose();p.pm.c.dispose();});pipes.length=0;foes.forEach(f=>scene.remove(f.g));foes.length=0;clearFlies();flyT=3;lifePts=0;updLife();lastBase=2.5;hawkT=2.2;lastDir=0;dirRun=0;AI.y=1;AI.skill=.5;HAB.fill(0);
   if(mode!==5)for(let i=0;i<7;i++)pipes.push(makePipe(-25-i*SPACING));
   used={};RS=0;y=1;camY=3.2;vy=0;score=0;speed=0;tilt=0;run=0;gt=0;incT=0;fx={};ghost=0;tod0=Math.random();hud.textContent='0';
 }
@@ -735,6 +777,7 @@ addEventListener('resize',()=>{cam.aspect=innerWidth/innerHeight;cam.updateProje
 function die(){
   if(state==='dead'||gt<ghost)return;
   if(fx.shield){fx.shield=false;ghost=gt+1.5;vy=FLAP*1.1;y=Math.max(BOT+.8,Math.min(CEIL-.3,y));shake=.5;sfx.shield();burst(0,y,0,26,0x7fd0ff,5,.8);updFx();return;}
+  if(mode===5&&lifePts>=LIFE_SEG){lifePts-=LIFE_SEG;ghost=gt+1.5;vy=FLAP*1.1;y=Math.max(BOT+.8,Math.min(CEIL-.3,y));shake=.5;sfx.shield();burst(0,y,0,26,0xff7aa8,5,.8);popText('Life used!','#ff7aa8');updLife();return;}
   state='dead';time=0;speed=0;shake=0.6;sfx.crash();burst(0,y,0,44,COLORS[birdCol][0],7,1.2);
   if(score>best){best=score;try{localStorage.setItem(bkey(),best)}catch(e){}}
   if(wallet>=reviveCost()){offer=true;card.innerHTML='<h1>Crash!</h1><p>Score: <b>'+score+'</b> &nbsp; Level: <b>'+level+'</b></p><p>Revive now to keep your score, level and upgrades. Give up and you start over from zero.</p><button id="revbtn">&#10084;&#65039; Revive for $'+reviveCost()+'</button> <button id="giveup">Give up</button> <button id="restartbtn">&#8635; Restart</button><p>Wallet: <b>$'+fm(wallet)+'</b></p>';msg.style.display='flex';}else gameOver();
@@ -768,6 +811,10 @@ function loop(now){
       hawkT=Math.max(1,2.4-score*.03)+n*.5;}
       foes.forEach(f=>{if(!f.sc&&!f.hit&&f.dir*f.x<-.4){f.sc=true;score++;hud.textContent=score;hud.classList.remove('bump');void hud.offsetWidth;hud.classList.add('bump');sfx.score();gainXp(2);AI.skill+=(Math.max(0,1-Math.abs(y-(f.fy||f.y))/3)-AI.skill)*.2;const v=1.5*MM()*(fxOn('double')?2:1)*(1+.25*perks.pull)*(Math.random()<perks.lucky*.15?2:1);wallet+=v;run+=v;saveW();popText('+$'+fm(v));}});}
     for(let i=foes.length-1;i>=0;i--){const f=foes[i];if(f.dir*f.x<-24){scene.remove(f.g);foes.splice(i,1);}}
+    if(mode===5){flyT-=dt;if(flyT<=0){spawnFly();flyT=2.6+Math.random()*2.4;}}
+    for(let i=flies.length-1;i>=0;i--){const f=flies[i];aiFlee(f,dt);f.x-=f.dir*FLYV*HS()*dt;const fy=f.y+Math.sin(gt*f.fq*2+f.ph)*.3;f.fy=fy;f.g.position.set(f.x,fy,0);f.g.rotation.y=-f.dir*Math.PI/2;
+      if(Math.abs(f.x)<.8&&Math.abs(y-fy)<.75){catchFly(f);scene.remove(f.g);flies.splice(i,1);continue;}
+      if(f.dir*f.x<-24){scene.remove(f.g);flies.splice(i,1);}}
     if(y>CEIL){y=CEIL;if(vy>0)vy=0;}if(y<BOT+0.5)die();
     // recycle
     while(pipes.length&&pipes[0].z>11){
@@ -783,6 +830,7 @@ function loop(now){
   if(state==='dead'){vy+=GRAV*dt;y=Math.max(BOT+0.5,y+vy*dt);tilt+=(-0.6-tilt)*(1-Math.exp(-3*dt));}
   pipes.forEach(p=>p.coins.forEach(c=>{c.m.rotation.y=now/250;}));
   updP(dt,state==='play'?sp():0);
+  flies.forEach(f=>{const a=Math.sin(now/45+f.ph)*.9;f.w[0].rotation.z=-a;f.w[1].rotation.z=a;});
   foes.forEach(f=>{const a=Math.sin(now/70+f.ph)*.7;f.w[0].rotation.z=-a;f.w[1].rotation.z=a;f.gl.scale.setScalar(2.6+Math.sin(now/120+f.ph)*.4);});
   if(state!=='play')props.forEach(g=>{if(g.userData.bx===undefined)g.userData.bx=g.position.x;g.position.x=g.userData.bx+bendOff(g.position.z);});
   clouds.forEach(c=>{if(state==='play'){c.position.z+=speed*0.3*dt;if(c.position.z>10)c.position.z=-90;}});

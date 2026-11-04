@@ -57,6 +57,9 @@ desktop browser and a Galaxy Z Fold.
 - Hawks cross the player's lane sideways (position `f.x`, independent of pipe speed). Height markers ("!") on
   the screen edge show where each hawk will cross. Hawk kinds (mode 5): hunter, feint, dash, sweeper, plus
   pincer pairs. Hawks learn the player's habitual height (`HAB` bins, `habitY()`).
+- Mode 5 butterflies (`flies`, `spawnFly()`, `aiFlee()`): small, cross like hawks (speed `FLYV`) but steer away from
+  the player's predicted height. Catching one adds `FLY_GAIN` to `lifePts` (bar `#life`, 3 segments of `LIFE_SEG`).
+  In `die()`, a full segment is spent to survive (like the shield). Reset clears lives.
 - Player flight ceiling is `CEIL`=16 (pipes still use `TOP`=11). Touching the ceiling does not kill you; hawks can
   fly as high as the player. Cloud banks (`banks`) thicken above about height 9.5 and white out the screen
   if the camera passes through them.
