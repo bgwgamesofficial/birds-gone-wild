@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## v1.1.0 – version number, automatic tests, testing guide
 - Project notes (`CLAUDE.md`) and tests added.
 - Version number shown on the start screen (v1.1.0).
 - GitHub runs both tests automatically on every push (Actions tab).
