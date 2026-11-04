@@ -3,7 +3,7 @@
 Versions are `0.UPDATE.CHANGE` (e.g. v0.4.11). The last number goes up with every single change;
 the middle number goes up each time an update goes live. Each section below is one update.
 
-## v0.5 (in progress on `hawk-test`)
+## v0.5 (live as v0.5.4, 2026-11-04) – level 5 only, Start countdown, menus fit the screen, Download App
 - Start screen: "Download App" button. Opens the browser's own install box where available, otherwise the
   picture guide (install.html). Hidden once the game is installed. (v0.5.1)
 - Fix: touching the start menu no longer starts the game, so the menu can be scrolled on short screens (e.g. the
