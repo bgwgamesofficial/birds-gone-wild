@@ -355,7 +355,7 @@ function neonApply(){
  
  hemi.color.lerp(cNeoHemi,k);hemi.intensity+=(.5-hemi.intensity)*k;sun.color.lerp(cNeoSun,k);sun.intensity+=(.4-sun.intensity)*k;
  ground.material.color.setRGB(1-.82*k,1-.88*k,1-.7*k);path.material.color.setRGB(1-.75*k,1-.8*k,1-.6*k);
- ground.material.emissive.setRGB(.95*k,.15*k,.85*k);path.material.emissive.setRGB(.1*k,.85*k,1*k);
+ {const pk=k*(.8+.4*neoPulse);ground.material.emissive.setRGB(.95*pk,.15*pk,.85*pk);path.material.emissive.setRGB(.1*pk,.85*pk,1*pk);}
  cloudMat.color.lerp(cNeoCloud,k);ffMat.color.copy(cFF).lerp(cFFNeo,k);
  if(bloomPass){bloomPass.strength=.5+.45*k;bloomPass.threshold=.93-.15*k;}}
 function bendOff(z){if(mode!==5)return 0;const d=Math.max(0,-z)/BDS,i=Math.min(BN-1,Math.floor(d)),f=Math.min(1,d-i);return bTab[i]+(bTab[i+1]-bTab[i])*f;}
@@ -560,12 +560,26 @@ function mkick(t){const o=AC.createOscillator(),g=AC.createGain();o.frequency.se
 function mtof(m){return 440*Math.pow(2,(m-69)/12);}
 function mnote(m,t,d,type,v){const o=AC.createOscillator(),g=AC.createGain();o.type=type;o.frequency.value=mtof(m);g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(v,t+.012);g.gain.exponentialRampToValueAtTime(.0001,t+d);o.connect(g);g.connect(mBus);o.start(t);o.stop(t+d+.03);}
 function mhat(t,v){const s=AC.createBufferSource(),g=AC.createGain();s.buffer=hatBuf;g.gain.setValueAtTime(v,t);g.gain.exponentialRampToValueAtTime(.0001,t+.05);s.connect(g);g.connect(mBus);s.start(t);}
+// Neon music: upbeat synthwave loop (C - G - Am - F), steady 120 bpm, plays while Neon is on.
+const NSPB=60/120/2,NROOT=[48,43,45,41],NCH=[[0,4,7,12],[0,4,7,12],[0,3,7,12],[0,4,7,12]],NARP=[0,1,2,3,1,2,3,2],
+ NMEL=[76,0,79,0,81,79,76,0, 74,0,79,0,0,74,71,0, 72,0,76,0,79,0,84,0, 81,0,79,0,77,76,0,0],nKick=[];let mNeonOn=false;
+function neonStep(s,t){const sp=NSPB,ch=s>>3,r=NROOT[ch],C=NCH[ch],b=r-12+(s%2?12:0);
+ mnote(b,t,sp*.85,'triangle',.22);mnote(b,t,sp*.6,'sawtooth',.05);
+ mnote(r+24+C[NARP[s%8]],t,sp*.45,'square',.028);mnote(r+24+C[NARP[(s+3)%8]],t+sp/2,sp*.4,'square',.02);
+ if(NMEL[s]){mnote(NMEL[s],t,sp*1.7,'triangle',.13);mnote(NMEL[s]+12,t,sp*1.2,'sine',.03);}
+ if(s%8===0)[0,1,2].forEach(i=>mnote(r+12+C[i],t,sp*7.6,'sine',.045));
+ if(s%2===0){mkick(t);nKick.push(t);if(nKick.length>8)nKick.shift();}
+ if(s%4===2){mhat(t,.15);mnote(50,t,.09,'triangle',.07);}
+ if(s%2===1)mhat(t,.06);mhat(t+sp/2,.022);}
+function beatPulse(now){if(AC&&nKick.length){const ct=AC.currentTime;let kt=-1;for(let i=nKick.length-1;i>=0;i--)if(nKick[i]<=ct){kt=nKick[i];break;}if(kt>=0&&ct-kt<1)return Math.exp(-(ct-kt)*7);}return Math.exp(-((now/1000)%.5)*7);}
 function musTick(){
  if(!AC||AC.state!=='running')return;
  const st=S.dyn?mStress:.15,cx=S.dyn?mCx:.2,spb=60/(118+st*52)/2;
  if(mNext<AC.currentTime-.3)mNext=AC.currentTime+.05;
  while(mNext<AC.currentTime+.3){
   const s=mStep%32,ch=s>>3,t=mNext;
+  if(s%8===0)mNeonOn=neo>.5;
+  if(mNeonOn){neonStep(s,t);mNext+=NSPB;mStep++;continue;}
   if(s===0)mMinor=st>.42;
   const R=mMinor?ROOT_T:ROOT,C=mMinor?CHT_T:CHT,ML=mMinor?MEL_T:MEL,r=R[ch];
   if(st>.35)mnote(r+(s%2?12:0),t,spb*.9,'triangle',.3);
@@ -922,7 +936,7 @@ function loop(now){
    if(mode===5){const k=Math.max(0,Math.min(1,(y-CLO)/1.2));wh=k*k*(3-2*k)*.97;}cloudFx.style.opacity=Math.min(mode===5?.97:.88,wh);cloudFx.style.background='rgb('+Math.round(bankTint.r*255)+','+Math.round(bankTint.g*255)+','+Math.round(bankTint.b*255)+')';}
   cloudMat.color.setRGB(.2+.8*dd+.1*tw,.25+.75*dd-.08*tw,.4+.6*dd-.2*tw);
   
-  neonApply();updMountains(dd,nt0,tw,neo,neoPulse);ffMat.opacity=S.particles==='off'?0:nt*.9;
+  neoPulse=neo>0?beatPulse(now):0;neonApply();updMountains(dd,nt0,tw,neo,neoPulse);ffMat.opacity=S.particles==='off'?0:nt*.9;
   if(ffMat.opacity>.02){const wz=state==='play'?sp()*dt:0;for(let i=0;i<FF;i++){ffPos[i*3+2]+=wz;if(ffPos[i*3+2]>12)ffPos[i*3+2]-=100;ffPos[i*3+1]+=Math.sin(now/700+ffSeed[i])*.003;ffPos[i*3]+=Math.cos(now/900+ffSeed[i])*.004;}ffGeo.attributes.position.needsUpdate=true;}
   updFx();shake*=Math.exp(-5*dt);
   {let tg=0;if(state==='play'){tg=Math.min(1,score/35)*.55;let nz=99;foes.forEach(f=>{if(!f.hit&&f.z<2&&f.z>-30)nz=Math.min(nz,-f.z);});if(nz<99)tg+=.3*(1-Math.max(0,nz)/30);if(score>=2&&wallet<5+Math.floor(score/4))tg+=.1;}mStress+=(Math.min(1,tg)-mStress)*(1-Math.exp(-1.2*dt));mCx=Math.min(1,(score+level*3)/60);}
