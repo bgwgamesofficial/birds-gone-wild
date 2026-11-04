@@ -24,7 +24,8 @@ for(let i=0;i<4000;i++){
   try{cb&&cb(t);}catch(e){errs.push('frame '+i+': '+e.stack.split('\n').slice(0,3).join(' | '));break;}
 }
 console.log(JSON.stringify(sb.__dbg()));
-const F=sb.__fn;for(const k of ['renderSettings','applyAll','applyRes','applyShadows','applyAniso','presetMatch','capFps','modeCap']){try{F[k]();}catch(e){console.log('FN ERROR',k,e.message);}}
-for(const m of [1,2,3,4,5]){try{F.setMode(m);F.spawnFoe();for(let i=0;i<300;i++){t+=16;if(i%20===0)key('Space');const cb=raf.shift();cb&&cb(t);}}catch(e){console.log('MODE',m,'ERROR',e.stack.split('\n').slice(0,3).join(' | '));}}
+const F=sb.__fn;for(const k of ['renderSettings','applyAll','applyRes','applyShadows','applyAniso','presetMatch','capFps','modeCap']){try{F[k]();}catch(e){errs.push('FN ERROR '+k+': '+e.message);}}
+for(const m of [1,2,3,4,5]){try{F.setMode(m);F.spawnFoe();for(let i=0;i<300;i++){t+=16;if(i%20===0)key('Space');const cb=raf.shift();cb&&cb(t);}}catch(e){errs.push('MODE '+m+' ERROR: '+e.stack.split('\n').slice(0,3).join(' | '));}}
 console.log('modes ok, foes:',F.getFoes());
 console.log(errs.length?errs.join('\n'):'NO RUNTIME ERRORS in 4000 simulated frames');
+if(errs.length)process.exit(1);
