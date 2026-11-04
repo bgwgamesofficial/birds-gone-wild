@@ -6,6 +6,8 @@ the middle number goes up each time an update goes live. Each section below is o
 ## v0.5 (in progress on `hawk-test`)
 - Start screen: "Download App" button. Opens the browser's own install box where available, otherwise the
   picture guide (install.html). Hidden once the game is installed. (v0.5.1)
+- Fix: touching the start menu no longer starts the game, so the menu can be scrolled on short screens (e.g. the
+  Galaxy Z Fold). On the start screen only the Start button (or Space) starts a game. (v0.5.2)
 - New install guide page with Android screenshots: https://bgwgamesofficial.github.io/birds-gone-wild/install.html
   (already live).
 

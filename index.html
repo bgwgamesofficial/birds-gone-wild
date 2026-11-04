@@ -177,7 +177,7 @@ body:not([data-st=play]) #wallet,body:not([data-st=play]) #xp,body[data-st=ready
 <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/UnrealBloomPass.js"></script>
 <script>
 (function(){
-const VERSION='0.5.1'; // RELEASE.UPDATE.CHANGE - raise the last number with EVERY change (tests/version.js checks it). Shown on the start screen and pause menu.
+const VERSION='0.5.2'; // RELEASE.UPDATE.CHANGE - raise the last number with EVERY change (tests/version.js checks it). Shown on the start screen and pause menu.
 const VER_TXT='v'+VERSION+((typeof location!=='undefined'&&location.hostname==='bgwgamesofficial.github.io')?'':' \u00b7 test build');
 const SKY=0x9fd8f0;
 const DEF={res:'1440p',fps:'auto',adaptive:true,shadows:'high',bloom:true,particles:'high',aniso:8,vignette:true,shake:true,fov:65,master:1,music:1,sfx:1,musicOn:true,sfxOn:true,dyn:true};
@@ -660,7 +660,7 @@ function openShop(){shopOpen=true;renderShop();shopEl.classList.add('on');}
 function closeShop(){shopOpen=false;shopEl.classList.remove('on');if(state==='play'&&paused&&!lvlOpen)pauseEl.classList.add('on');document.querySelectorAll('.wv').forEach(e=>{e.textContent='$'+fm(wallet);});}
 shopEl.addEventListener('pointerdown',e=>e.stopPropagation());
 shopEl.addEventListener('click',e=>{if(e.target===shopEl){if(!lvlOpen)closeShop();return;}if(e.target.closest('#shopnext')){shopOpen=false;shopEl.classList.remove('on');lvlStage='perk';renderLvl();lvlEl.classList.add('on');return;}const b=e.target.closest('button');if(!b)return;if(b.id==='shopclose'){closeShop();return;}if(b.id==='shopset'){openSettings();return;}const it=ITEMS.find(i=>i.id===b.dataset.buy);if(it&&wallet>=pr(it)&&((inv[it.id]||0)+(used[it.id]||0))<9){wallet-=pr(it);if(state==='play'){used[it.id]=(used[it.id]||0)+1;if(it.id==='shield')fx.shield=true;else fx[it.id]=gt+it.dur;}else inv[it.id]++;saveW();saveInv();sfx.buy();renderShop();updFx();}});
-card.addEventListener('pointerdown',e=>{if(e.target.closest('button'))e.stopPropagation();});
+card.addEventListener('pointerdown',e=>{e.stopPropagation();}); // touching the menu card never flaps, so it can be scrolled
 card.addEventListener('click',e=>{if(e.target.closest('.sw')){birdCol=e.target.closest('.sw').dataset.col;try{localStorage.setItem('flappycolor',birdCol)}catch(x){}setBirdColor(birdCol);card.querySelectorAll('.sw').forEach(b=>b.classList.toggle('on',b.dataset.col===birdCol));}else if(e.target.closest('.md')){mode=+e.target.closest('.md').dataset.m;try{localStorage.setItem('flappymode',mode)}catch(x){}applyMode();reset();card.querySelectorAll('.md').forEach(b=>b.classList.toggle('on',+b.dataset.m===mode));const cp=card.querySelector('#modecap');if(cp)cp.textContent=modeCap();const bs=card.querySelector('#best');if(bs)bs.innerHTML='Best: '+best+' &nbsp; Wallet: <b class="wv">$'+fm(wallet)+'</b>';}else if(e.target.closest('#dlbtn')){downloadApp();}else if(e.target.closest('#setbtn')){openSettings();}else if(e.target.closest('#startbtn')){ac();flap();}else if(e.target.closest('#revbtn'))doRevive();else if(e.target.closest('#giveup'))gameOver();else if(e.target.closest('#restartbtn'))restartGame();});
 
 // restart
@@ -694,7 +694,7 @@ function gameOver(){
  offer=false;
  const lv=level;
  level=1;xp=0;pending=0;Object.keys(perks).forEach(k=>{perks[k]=0;});revives=0;fx={};ghost=0;wallet=0;saveW();saveProg();updXp();updFx();
- showCard('Game over','<p>Score: <b>'+score+'</b> &nbsp; Coins: <b>+$'+fm(run)+'</b></p><p>You reached level '+lv+' on mode '+mode+'. Your wallet, level and upgrades have been reset.</p><p>Tap to start over.</p><button id="restartbtn">&#8635; Restart</button>');
+ showCard('Game over','<p>Score: <b>'+score+'</b> &nbsp; Coins: <b>+$'+fm(run)+'</b></p><p>You reached level '+lv+' on mode '+mode+'. Your wallet, level and upgrades have been reset.</p><p>Tap Restart to start over.</p><button id="restartbtn">&#8635; Restart</button>');
  msg.style.display='flex';
 }
 
@@ -898,7 +898,8 @@ function flap(){
   else if(state==='dead'&&time>0.5&&!offer){reset();state='ready';showCard('Birds Gone Wild','<p><b>Tap</b>, click or press <b>Space</b> to flap.</p>');}
 }
 addEventListener('keydown',e=>{if(e.code==='Space'||e.code==='ArrowUp'){e.preventDefault();if(!e.repeat)flap();}});
-addEventListener('pointerdown',e=>{e.preventDefault();flap();});
+addEventListener('pointerdown',e=>{if(state==='ready'&&msg.style.display!=='none')return; // start screen: only the Start button (or Space) starts
+ e.preventDefault();flap();});
 addEventListener('resize',()=>{cam.aspect=innerWidth/innerHeight;cam.updateProjectionMatrix();applyRes();});
 
 function die(){
