@@ -1,0 +1,72 @@
+# Birds Gone Wild – project notes for Claude
+
+## What this is
+A 3D third-person flappy-bird game (toucan player, hawk enemies) built with Three.js r128.
+It ships as a static web app on GitHub Pages and installs to phone home screens (PWA).
+Live: https://bgwgamesofficial.github.io/birds-gone-wild/  (served from the `main` branch, root folder)
+
+## About the owner
+The owner is not a programmer. Explain things in plain words, give exact click-by-click steps for anything
+done on github.com, and say plainly what you could not test. Claude cannot see the game rendered unless a
+browser is available, so say "untested visually" instead of claiming it looks right. The owner tests on a
+desktop browser and a Galaxy Z Fold.
+
+## Files
+- `index.html` – the entire game: HTML, CSS and one big script (`<script>\n(function(){ ... })();</script>`).
+  Lines are very long. It also has the start-screen logo embedded as a base64 JPEG (`const LOGO=`).
+- `sw.js` – service worker (offline). Pages: network first. Everything else (icons, Three.js from CDN): cache first.
+- `manifest.webmanifest`, `icons/` – install info and icons (made from the logo).
+- `tests/check.js` – syntax check. `tests/smoke.js` – headless stub run (4,000 simulated frames across modes 1–5).
+- `.nojekyll` – needed by GitHub Pages. Keep it.
+
+## Rules of the road (IMPORTANT)
+1. `main` is the live game. Never push directly to `main` without the owner's OK for that change.
+   Work on a branch (e.g. `feature-name`), tell the owner how to test it, and merge only after they approve.
+2. Before every commit run: `node tests/check.js && node tests/smoke.js`. Both must pass.
+3. If you change `manifest.webmanifest`, icons, or `sw.js` itself, bump `CACHE` (`bgw-v1` → `bgw-v2`) in `sw.js`.
+4. After an approved release: add a line to `CHANGELOG.md`, tag it (`v1.x.0`), and create a GitHub Release.
+5. Keep commits small and described in plain English.
+6. Do not add new network dependencies casually. Three.js and its post-processing add-ons load from
+   cdnjs/jsdelivr (see the `<script src>` tags); bloom falls back gracefully if they fail.
+
+## Run it locally
+`python3 -m http.server 8000` in this folder, then open http://localhost:8000/ (the service worker needs http, not file://).
+
+## Game design in brief
+- Difficulty modes 1–5 live in the `MODES` array: `s` speed, `gap` pipe gap, `f` foe frequency, `m` reward
+  multiplier (also scales prices, steal amounts, revive cost, XP), `mv` pipe movement, `dj` max gap-height jump,
+  `ai` AI strength, `hb` hitbox adjustment. Best score is stored per mode.
+- **Mode 5 is the "HAWK TEST" mode**: no pipes, side camera locked, hawks only, curving road, higher ceiling,
+  hawk-themed shop and perk text (`HITEM` / `HPERK`). The owner wants to try ideas here first and roll them out
+  to other modes only after approving them.
+- Hawks cross the player's lane sideways (position `f.x`, independent of pipe speed). Height markers ("!") on
+  the screen edge show where each hawk will cross. Hawk kinds (mode 5): hunter, feint, dash, sweeper, plus
+  pincer pairs. Hawks learn the player's habitual height (`HAB` bins, `habitY()`).
+- Player flight ceiling is `CEIL`=16 (pipes still use `TOP`=11). Touching the ceiling does not kill you; hawks can
+  fly as high as the player. Cloud banks (`banks`) thicken above about height 9.5 and white out the screen
+  if the camera passes through them.
+- Mode 5 road bend: a fixed winding shape scrolls toward the player (`kap()`, `buildBend()`, `bendOff()`,
+  `RS` = distance travelled). Ground and path planes are subdivided and bent on the CPU each frame. Props are
+  shifted with the same function. Never animate the bend over time (it makes the road sway).
+- Economy: coins, passive income ($0.25 per 2 s x `MM()`), marketplace (`ITEMS`), permanent perks (`PERKS`),
+  revive with rising cost, enemies steal coins (die if you cannot pay).
+- Level-up flow: marketplace (Next only) → perk choice (select, then Complete) → 3-second countdown.
+- Camera: back view or 45-degree side view (button / V key); mode 5 forces side view.
+
+## Code gotchas
+- `S` is the settings object. Do not reuse that name for anything else.
+- Everything is inside one IIFE; functions rely on hoisting, but `const`/`let` are in the temporal dead zone
+  until their line runs. Watch declaration order.
+- Game speed is `sp()`, which includes mode speed, slow-mo and perks. Hawks use `HS()` instead.
+- Frame loop is dt-based with a frame limiter (`capFps`) and adaptive resolution (`adaptK`).
+- Saved data (localStorage keys): `flappyset`, `flappymode`, `flappycolor`, `flappyview`, `flappymute`,
+  `flappywallet`, `flappyinv`, `flappyprog`, `flappyfpv` (+ `_m<mode>` best scores). Changing a key's format
+  can break existing players' saves – keep it backward compatible.
+- `tests/smoke.js` runs against a stubbed Three.js, so it catches script errors, not visual problems.
+
+## Backlog (suggested, not started)
+- Split `index.html` into separate CSS / JS / data files.
+- Vendor Three.js into the repo so the game does not depend on CDNs.
+- Visible version number on the start screen, `CHANGELOG.md`, GitHub Actions running the two tests on each push.
+- A beta repository/Pages site for phone testing before releasing to `main`.
+- Possible store packaging later (Android via Trusted Web Activity, iOS via Capacitor).
