@@ -21,6 +21,8 @@ desktop browser and a Galaxy Z Fold.
 - `.nojekyll` – needed by GitHub Pages. Keep it.
 - `.github/workflows/tests.yml` – GitHub Actions runs both tests on every push and pull request.
 - `TESTING.md` – the owner's step-by-step guide for testing a branch and releasing it.
+- `install.html` + `install/` – public "how to install" page (Android screenshots from the owner, cropped, with
+  the tap target circled). Live at https://bgwgamesofficial.github.io/birds-gone-wild/install.html
 
 ## Rules of the road (IMPORTANT)
 1. `main` is the live game. Never push directly to `main` without the owner's OK for that change.
