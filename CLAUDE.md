@@ -43,12 +43,13 @@ desktop browser and a Galaxy Z Fold.
 
 ## Branches
 - `main` – the live game.
-- `hawk-test` – the owner's "Hawk Test" branch for trying ideas. **Changes here must only affect difficulty
-  level 5** (mode 5, `mode===5`). Guard new behaviour with `mode===5` checks so modes 1–4 play exactly as on
-  `main`. Shared code (settings, saving, the version label) is only changed if mode 5 needs it, and then without
-  changing how modes 1–4 behave. Test link: https://raw.githack.com/bgwgamesofficial/birds-gone-wild/hawk-test/index.html
-  When the owner approves, merge `hawk-test` into `main` via a pull request; ideas the owner wants in all modes
-  are rolled out afterwards as a separate change.
+- `hawk-test` – the working/test branch. Test link: https://raw.githack.com/bgwgamesofficial/birds-gone-wild/hawk-test/index.html
+  When the owner approves, merge `hawk-test` into `main` via a pull request.
+- `classic-modes` – holding branch: the full game with difficulty levels 1–5 as of v0.5.3. Do not delete.
+  The owner may want levels 1–4 back later.
+
+**Since v0.5.4 the game is level 5 only** (`let mode=5`, no difficulty picker). The code for modes 1–4
+(pipes, `MODES[0..3]`, back camera) is still inside `index.html` but unreachable; don't spend effort on it.
 
 ## Run it locally
 `python3 -m http.server 8000` in this folder, then open http://localhost:8000/ (the service worker needs http, not file://).

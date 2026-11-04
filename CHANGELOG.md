@@ -3,6 +3,21 @@
 Versions are `0.UPDATE.CHANGE` (e.g. v0.4.11). The last number goes up with every single change;
 the middle number goes up each time an update goes live. Each section below is one update.
 
+## v0.5 (live as v0.5.4, 2026-11-04) – level 5 only, Start countdown, menus fit the screen, Download App
+- Start screen: "Download App" button. Opens the browser's own install box where available, otherwise the
+  picture guide (install.html). Hidden once the game is installed. (v0.5.1)
+- Fix: touching the start menu no longer starts the game, so the menu can be scrolled on short screens (e.g. the
+  Galaxy Z Fold). On the start screen only the Start button (or Space) starts a game. (v0.5.2)
+- Only the Start button starts a game (taps and Space no longer do), followed by a 3-2-1-GO countdown. (v0.5.3)
+- No scrolling in any menu: menus fit the screen. On short wide screens the start menu, settings and shop use
+  two or three columns; any menu that is still too big shrinks to fit. (v0.5.3)
+- The game is now level 5 only: the difficulty buttons are gone and Start goes straight into it. Levels 1-4 are
+  kept on the `classic-modes` branch. Your level-5 best score is kept. (v0.5.4)
+- The pause button now works during every 3-2-1 countdown (start, after pause, after level-up); resuming starts a
+  fresh countdown. (v0.5.4)
+- New install guide page with Android screenshots: https://bgwgamesofficial.github.io/birds-gone-wild/install.html
+  (already live).
+
 ## v0.4 (live as v0.4.11, 2026-11-04) – butterflies, life bar, Neon, prettier night, cleaner menus
 - Level 5: small butterflies cross the lane like the hawks but steer away from you.
 - Catching a butterfly fills the life bar under the score (5 butterflies = 1 life, up to 3 lives).
