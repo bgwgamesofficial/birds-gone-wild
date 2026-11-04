@@ -35,6 +35,15 @@ desktop browser and a Galaxy Z Fold.
 6. Do not add new network dependencies casually. Three.js and its post-processing add-ons load from
    cdnjs/jsdelivr (see the `<script src>` tags); bloom falls back gracefully if they fail.
 
+## Branches
+- `main` – the live game.
+- `hawk-test` – the owner's "Hawk Test" branch for trying ideas. **Changes here must only affect difficulty
+  level 5** (mode 5, `mode===5`). Guard new behaviour with `mode===5` checks so modes 1–4 play exactly as on
+  `main`. Shared code (settings, saving, the version label) is only changed if mode 5 needs it, and then without
+  changing how modes 1–4 behave. Test link: https://raw.githack.com/bgwgamesofficial/birds-gone-wild/hawk-test/index.html
+  When the owner approves, merge `hawk-test` into `main` via a pull request; ideas the owner wants in all modes
+  are rolled out afterwards as a separate change.
+
 ## Run it locally
 `python3 -m http.server 8000` in this folder, then open http://localhost:8000/ (the service worker needs http, not file://).
 
