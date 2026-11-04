@@ -1,7 +1,7 @@
 const fs=require('fs'),vm=require('vm');
 const html=fs.readFileSync(require('path').join(__dirname,'..','index.html'),'utf8');
 let code=html.match(/<script>\n\(function\(\)\{[\s\S]*?<\/script>/)[0].replace(/^<script>/,'').replace(/<\/script>$/,'');
-code=code.replace("reset();showCard('Birds Gone Wild'","window.__fn={lvl:{get:()=>({level,hawksDone,hawksSpawned,lvlOpen,d1:(()=>{const l=level;level=1;const a=lvD();level=50;const b=lvD();level=l;return [a,b];})()}),set:(l,h)=>{level=l;hawksDone=h;state='play';paused=false;lvlOpen=false;shopOpen=false;},pass:()=>hawkPassed(),over:()=>gameOver()},start:()=>startGame(),pause:()=>pauseGame(),resume:()=>resumeGame(),toStart:()=>restartGame(),renderSettings,applyAll,applyRes,applyShadows,applyAniso,presetMatch,capFps,modeCap,spawnFoe:()=>spawnFoe(-60,3,.8),setMode:(m)=>{mode=m;applyMode();reset();},getFoes:()=>foes.length,spawnFly,getFlies:()=>flies.length,flyAtBird:()=>{y=2;vy=0;spawnFly();const f=flies[flies.length-1];f.x=f.dir*.3;f.y=y;},setLife:v=>{lifePts=v;state='play';ghost=0;paused=false;hold=false;},getLife:()=>lifePts,ghostFall:()=>{state='play';paused=false;hold=false;ghost=gt+5;y=BOT+.6;vy=-13;},getY:()=>y,BOT,die};window.__dbg=()=>({cd:cdEnd,paused,mode,state,score,wallet,level,foes:foes.length,pipes:pipes.length,revives});reset();showCard('Birds Gone Wild'");
+code=code.replace("reset();showCard('Birds Gone Wild'","window.__fn={lvl:{get:()=>({level,lvProg,lvlOpen,paused,cd:cdEnd,need:lvNeed(),type:lvType(),ds:(()=>{const l=level,a=[];for(let i=1;i<=50;i++){level=i;a.push(lvD());}level=l;return a;})()}),set:(l,h)=>{level=l;lvProg=h;state='play';paused=false;cdEnd=0;lvlOpen=false;shopOpen=false;},pass:()=>lvAdd(),over:()=>gameOver(),boss:()=>{spawnBoss();return foes[foes.length-1].kind;}},start:()=>startGame(),pause:()=>pauseGame(),resume:()=>resumeGame(),toStart:()=>restartGame(),renderSettings,applyAll,applyRes,applyShadows,applyAniso,presetMatch,capFps,modeCap,spawnFoe:()=>spawnFoe(-60,3,.8),setMode:(m)=>{mode=m;applyMode();reset();},getFoes:()=>foes.length,spawnFly,getFlies:()=>flies.length,flyAtBird:()=>{y=2;vy=0;spawnFly();const f=flies[flies.length-1];f.x=f.dir*.3;f.y=y;},setLife:v=>{lifePts=v;state='play';ghost=0;paused=false;hold=false;},getLife:()=>lifePts,ghostFall:()=>{state='play';paused=false;hold=false;ghost=gt+5;y=BOT+.6;vy=-13;},getY:()=>y,BOT,die};window.__dbg=()=>({cd:cdEnd,paused,mode,state,score,wallet,level,foes:foes.length,pipes:pipes.length,revives});reset();showCard('Birds Gone Wild'");
 const f=function(){};
 const p=new Proxy(f,{get(t,k){if(k===Symbol.toPrimitive)return()=>0;if(k==='then')return undefined;if(k==='length'||k==='count')return 0;return p;},apply(){return p;},construct(){return p;},set(){return true;}});
 const listeners={};const raf=[];
@@ -52,11 +52,17 @@ catch(e){errs.push('BUTTERFLY ERROR: '+e.stack.split('\n').slice(0,3).join(' | '
 for(const m of [2,5]){try{F.setMode(m);F.ghostFall();let lo=99;for(let i=0;i<120;i++){t+=16;const cb=raf.shift();cb&&cb(t);lo=Math.min(lo,F.getY());}
  if(lo<F.BOT+.5-1e-6)errs.push('GROUND: mode '+m+' toucan fell to y='+lo.toFixed(2)+' (ground limit '+(F.BOT+.5)+')');else console.log('ground ok in mode',m,'- lowest y',lo.toFixed(2));}
  catch(e){errs.push('GROUND TEST ERROR: '+e.message);}}
-// Levels: difficulty spans 0..1, passing the 200th hawk finishes the level, game over keeps the level.
-try{const L=F.lvl;F.setMode(5);const g=L.get();if(g.d1[0]!==0||g.d1[1]!==1)errs.push('LEVELS: difficulty should go 0 (level 1) to 1 (level 50), got '+g.d1);
- L.set(3,199);L.pass();let q=L.get();if(q.level!==4||q.hawksDone!==0||!q.lvlOpen)errs.push('LEVELS: passing hawk 200 did not finish level 3 '+JSON.stringify(q));
- L.set(4,57);L.over();q=L.get();if(q.level!==4)errs.push('LEVELS: game over lost the level '+JSON.stringify(q));
- if(!errs.some(e=>e.startsWith('LEVELS')))console.log('levels ok: 200 hawks finishes a level, game over keeps the level');}
+// Levels: short varied levels, difficulty within 0..1 and mostly rising, finishing a level, shop every 5 levels, game over keeps the level.
+try{const L=F.lvl;F.setMode(5);const g=L.get(),ds=g.ds;
+ if(ds[0]!==0||ds[49]<.85||ds[49]>1||ds.some(v=>v<0||v>1))errs.push('LEVELS: difficulty out of range '+ds[0]+'..'+ds[49]);
+ if(!(ds[48]>ds[20]&&ds[20]>ds[5]))errs.push('LEVELS: difficulty does not rise overall');
+ L.set(3,0);const n3=L.get().need;L.set(3,n3-1);L.pass();let q=L.get();
+ if(q.level!==4||q.lvProg!==0||q.lvlOpen||!q.cd)errs.push('LEVELS: finishing level 3 should go straight to a countdown into level 4 '+JSON.stringify(q).slice(0,120));
+ L.set(5,0);if(L.get().type!=='fly')errs.push('LEVELS: level 5 should be a butterfly level');L.set(5,L.get().need-1);L.pass();q=L.get();
+ if(q.level!==6||!q.lvlOpen)errs.push('LEVELS: finishing level 5 should open the marketplace/upgrade flow');
+ L.set(10,0);if(L.get().type!=='boss'||L.boss()!=='boss')errs.push('LEVELS: level 10 should be a boss level with the Hawk Chief');
+ L.set(4,7);L.over();q=L.get();if(q.level!==4)errs.push('LEVELS: game over lost the level '+JSON.stringify(q).slice(0,120));
+ if(!errs.some(e=>e.startsWith('LEVELS')))console.log('levels ok: types, difficulty curve, finishing levels, shop every 5, game over keeps level');}
 catch(e){errs.push('LEVELS TEST ERROR: '+e.message);}
 console.log(errs.length?errs.join('\n'):'NO RUNTIME ERRORS in 4000 simulated frames');
 if(errs.length)process.exit(1);
