@@ -3,6 +3,12 @@
 Versions are `0.UPDATE.CHANGE` (e.g. v0.4.11). The last number goes up with every single change;
 the middle number goes up each time an update goes live. Each section below is one update.
 
+## v0.5 (in progress on `hawk-test`)
+- Start screen: "Download App" button. Opens the browser's own install box where available, otherwise the
+  picture guide (install.html). Hidden once the game is installed. (v0.5.1)
+- New install guide page with Android screenshots: https://bgwgamesofficial.github.io/birds-gone-wild/install.html
+  (already live).
+
 ## v0.4 (live as v0.4.11, 2026-11-04) – butterflies, life bar, Neon, prettier night, cleaner menus
 - Level 5: small butterflies cross the lane like the hawks but steer away from you.
 - Catching a butterfly fills the life bar under the score (5 butterflies = 1 life, up to 3 lives).
