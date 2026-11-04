@@ -18,13 +18,17 @@ desktop browser and a Galaxy Z Fold.
 - `manifest.webmanifest`, `icons/` – install info and icons (made from the logo).
 - `tests/check.js` – syntax check. `tests/smoke.js` – headless stub run (4,000 simulated frames across modes 1–5).
 - `.nojekyll` – needed by GitHub Pages. Keep it.
+- `.github/workflows/tests.yml` – GitHub Actions runs both tests on every push and pull request.
+- `TESTING.md` – the owner's step-by-step guide for testing a branch and releasing it.
 
 ## Rules of the road (IMPORTANT)
 1. `main` is the live game. Never push directly to `main` without the owner's OK for that change.
    Work on a branch (e.g. `feature-name`), tell the owner how to test it, and merge only after they approve.
 2. Before every commit run: `node tests/check.js && node tests/smoke.js`. Both must pass.
 3. If you change `manifest.webmanifest`, icons, or `sw.js` itself, bump `CACHE` (`bgw-v1` → `bgw-v2`) in `sw.js`.
-4. After an approved release: add a line to `CHANGELOG.md`, tag it (`v1.x.0`), and create a GitHub Release.
+4. After an approved release: set `VERSION` (top of the game script in `index.html`, shown on the start screen),
+   add a line to `CHANGELOG.md`, tag it (`v1.x.0`), and create a GitHub Release.
+   Give the owner a test link: https://raw.githack.com/bgwgamesofficial/birds-gone-wild/BRANCH/index.html
 5. Keep commits small and described in plain English.
 6. Do not add new network dependencies casually. Three.js and its post-processing add-ons load from
    cdnjs/jsdelivr (see the `<script src>` tags); bloom falls back gracefully if they fail.
@@ -67,6 +71,5 @@ desktop browser and a Galaxy Z Fold.
 ## Backlog (suggested, not started)
 - Split `index.html` into separate CSS / JS / data files.
 - Vendor Three.js into the repo so the game does not depend on CDNs.
-- Visible version number on the start screen, `CHANGELOG.md`, GitHub Actions running the two tests on each push.
 - A beta repository/Pages site for phone testing before releasing to `main`.
 - Possible store packaging later (Android via Trusted Web Activity, iOS via Capacitor).
