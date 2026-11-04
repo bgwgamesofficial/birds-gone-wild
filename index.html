@@ -33,6 +33,20 @@ button,input{font-family:inherit}
 #shop .tx{flex:1;font-size:15px;line-height:1.3}
 #shop small{opacity:.8}
 #shop .note{font-size:13px;opacity:.8}
+#shop .ph{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:6px}
+#shop .ph h2{margin:0}
+#shop .bal{background:rgba(128,128,128,.2);padding:5px 12px;border-radius:999px;font-weight:800;white-space:nowrap}
+#shop .tx b{font-size:16px}
+#shop .tx small{display:block;margin-top:2px}
+#shop .own{display:inline-block;font-size:12px;font-weight:800;background:var(--accent);color:#fff;border-radius:999px;padding:1px 7px;margin-left:6px;vertical-align:2px}
+#shop .buy{flex:none;min-width:84px;min-height:44px;font-size:16px}
+.foot{display:flex;gap:10px;align-items:center;margin-top:14px}
+#shop .foot .gear,#lvl .foot .gear{flex:none;width:48px;height:48px;min-height:48px;padding:0;border-radius:50%;background:rgba(128,128,128,.25);color:var(--ink);font-size:20px;box-shadow:0 3px 0 rgba(0,0,0,.2)}
+#shop .foot .main,#lvl .foot .main{flex:1;min-height:50px;font-size:18px;font-weight:800;border-radius:999px;background:var(--accent);color:#fff;box-shadow:0 3px 0 rgba(0,0,0,.25)}
+#lvl .perk{position:relative;padding-right:46px;min-height:64px}
+#lvl .perk .chk{position:absolute;right:12px;top:50%;transform:translateY(-50%);width:24px;height:24px;border-radius:50%;border:2px solid rgba(128,128,128,.6);box-sizing:border-box}
+#lvl .perk.sel .chk{background:var(--accent);border-color:var(--accent)}
+#lvl .perk.sel .chk::after{content:'\2713';color:#fff;font-weight:900;font-size:14px;position:absolute;left:0;right:0;top:1px;text-align:center}
 #shop button,#card button{border:0;border-radius:999px;background:var(--accent);color:#fff;font-weight:800;font-size:15px;padding:8px 14px;cursor:pointer;box-shadow:0 3px 0 rgba(0,0,0,.25)}
 #shop button{min-height:40px}
 #shop button:disabled{opacity:.4;cursor:default}
@@ -42,7 +56,7 @@ button,input{font-family:inherit}
 #card #revbtn,#card #giveup,#card #restartbtn{min-height:44px}
 #card #giveup{background:rgba(120,130,140,.85)}
 #swatches{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin:6px 0 4px}
-#lvl .perk.sel{outline:3px solid #ffd23f;transform:scale(1.02)}
+#lvl .perk.sel{outline:3px solid var(--accent);transform:scale(1.02)}
 #lvldone:disabled{opacity:.4;cursor:default}
 #card .logo{display:block;width:auto;max-width:100%;max-height:min(24vh,170px);margin:-4px auto 8px;border-radius:16px;box-shadow:0 6px 18px rgba(0,0,0,.35)}
 #modes{display:flex;gap:8px;justify-content:center;margin:6px 0 2px}
@@ -638,7 +652,7 @@ function useItems(){ITEMS.forEach(it=>{if(inv[it.id]>0){inv[it.id]--;used[it.id]
 const fxEl=document.getElementById('fx');let fxLast='';
 function updFx(){let s='';ITEMS.map(iv).forEach(it=>{if(it.id==='shield'){if(fx.shield)s+='<span>'+it.icon+'</span>';}else if(fx[it.id]>gt)s+='<span>'+it.icon+' '+Math.ceil(fx[it.id]-gt)+'s</span>';});if(ghost>gt)s+='<span>👻 '+Math.ceil(ghost-gt)+'s</span>';if(s!==fxLast){fxLast=s;fxEl.innerHTML=s;}}
 const shopEl=document.getElementById('shop');
-function renderShop(){shopEl.innerHTML='<div class="panel"><h2>Marketplace</h2><p class="bal">Wallet: <b>$'+fm(wallet)+'</b></p>'+ITEMS.map(iv).map(it=>'<div class="item"><div class="ic">'+it.icon+'</div><div class="tx"><b>'+it.name+'</b> <i>x'+((inv[it.id]||0)+(used[it.id]||0))+'</i><br><small>'+it.desc+'</small></div><button data-buy="'+it.id+'"'+(wallet<pr(it)||((inv[it.id]||0)+(used[it.id]||0))>=9?' disabled':'')+'>$'+pr(it)+'</button></div>').join('')+'<p class="note">Items you buy activate right away and last for the rest of this game.</p><button id="shopset">&#9881; Settings</button> '+(lvlOpen&&lvlStage==='shop'?'<button id="shopnext">Next &#9654;</button>':'<button id="shopclose">Close</button>')+'</div>';}
+function renderShop(){shopEl.innerHTML='<div class="panel"><div class="ph"><h2>Marketplace</h2><span class="bal">&#128176; $'+fm(wallet)+'</span></div>'+ITEMS.map(iv).map(it=>{const n=(inv[it.id]||0)+(used[it.id]||0),mx=n>=9;return '<div class="item"><div class="ic">'+it.icon+'</div><div class="tx"><b>'+it.name+'</b>'+(n?'<span class="own">x'+n+'</span>':'')+'<small>'+it.desc+'</small></div><button class="buy" data-buy="'+it.id+'"'+(wallet<pr(it)||mx?' disabled':'')+'>'+(mx?'Max':'$'+pr(it))+'</button></div>';}).join('')+'<p class="note">Items you buy activate right away and last for the rest of this game.</p><div class="foot"><button id="shopset" class="gear" aria-label="Settings">&#9881;&#65039;</button>'+(lvlOpen&&lvlStage==='shop'?'<button id="shopnext" class="main">Next &#9654;</button>':'<button id="shopclose" class="main">Close</button>')+'</div></div>';}
 function openShop(){shopOpen=true;renderShop();shopEl.classList.add('on');}
 function closeShop(){shopOpen=false;shopEl.classList.remove('on');if(state==='play'&&paused&&!lvlOpen)pauseEl.classList.add('on');document.querySelectorAll('.wv').forEach(e=>{e.textContent='$'+fm(wallet);});}
 shopEl.addEventListener('pointerdown',e=>e.stopPropagation());
@@ -698,7 +712,7 @@ function saveProg(){try{localStorage.setItem('flappyprog',JSON.stringify({level,
 function updXp(){xpEl.innerHTML='<span>Lv '+level+' &middot; '+Math.floor(xp)+'/'+need(level)+' XP</span><div class="bar"><div class="fill" style="width:'+Math.min(100,xp/need(level)*100)+'%"></div></div>';}
 function gainXp(n){xp+=n*MM()*(1+.35*perks.learner);let up=false;while(xp>=need(level)){xp-=need(level);level++;pending++;up=true;}saveProg();updXp();if(up&&!lvlOpen)showLevelUp();}
 function renderLvl(){
- lvlEl.innerHTML='<div class="panel"><h2>Level '+(level-pending+1)+'!</h2><p class="sub">Choose one permanent upgrade.</p>'+lvlCh.map(pv).map(p=>'<button class="perk'+(lvlSel===p.id?' sel':'')+'" data-perk="'+p.id+'"><span class="ic">'+p.icon+'</span><span><b>'+p.name+'</b>'+(p.max>1?' <i>(Lv '+(perks[p.id]+1)+'/'+p.max+')</i>':'')+'<br><small>'+p.desc+'</small></span></button>').join('')+'<button id="lvlset">&#9881; Settings</button> <button id="lvldone"'+(lvlSel?'':' disabled')+'>Complete</button></div>';
+ lvlEl.innerHTML='<div class="panel"><h2>Level '+(level-pending+1)+'!</h2><p class="sub">Choose one permanent upgrade.</p>'+lvlCh.map(pv).map(p=>'<button class="perk'+(lvlSel===p.id?' sel':'')+'" data-perk="'+p.id+'"><span class="ic">'+p.icon+'</span><span><b>'+p.name+'</b>'+(p.max>1?' <i>(Lv '+(perks[p.id]+1)+'/'+p.max+')</i>':'')+'<br><small>'+p.desc+'</small></span><span class="chk"></span></button>').join('')+'<div class="foot"><button id="lvlset" class="gear" aria-label="Settings">&#9881;&#65039;</button><button id="lvldone" class="main"'+(lvlSel?'':' disabled')+'>'+(lvlSel?'Complete &#10003;':'Pick an upgrade')+'</button></div></div>';
 }
 function showLevelUp(){
  paused=true;lvlOpen=true;

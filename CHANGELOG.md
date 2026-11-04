@@ -10,7 +10,14 @@ gets the next number: 0.1, 0.2, 0.3 … 0.9, 0.10, 0.11 and so on.
 - Level 5: ceiling raised from 16 to 20; a thin cloud layer starts at 16 and hides the toucan when you fly into it.
 - Level 5: hawks are a bit easier (lock their path earlier, steer slower, fewer triple waves, slightly smaller hitbox).
 - New random "Neon" look (all levels): dark purple sky, neon sun, glowing grid ground.
-- Prettier night (all levels): twinkling coloured stars, Milky Way, aurora, cratered moon, shooting stars.
+- Night (all levels): calm sky with softly twinkling stars, a bright cratered moon with a halo, soft blue moonlight
+  and an occasional shooting star.
+- New mountains (all levels): three curved layers with snow caps, haze at the base, moonlit edges at night and
+  glowing outlines in Neon; they follow the road bend in level 5.
+- Neon: its own upbeat synthwave music, glowing horizon, light strips along the road, neon-tinted trees,
+  grid pulsing with the beat.
+- Marketplace and level-up menus: bigger buy buttons (show "Max" when full), owned-count badges, tick circles on
+  upgrades, one clear main button with a small settings button beside it.
 - Cleaner menus (all levels): only Pause (and the camera button in levels 1–4) during play; sound, restart and
   settings moved into the pause menu; bigger Start button and easier colour/difficulty buttons.
 

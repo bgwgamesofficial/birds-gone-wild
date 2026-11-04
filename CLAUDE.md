@@ -65,7 +65,11 @@ desktop browser and a Galaxy Z Fold.
   you. Modes 1–4: cloud banks white out the screen when the camera passes through them. Mode 5: the screen whites
   out when the bird itself is above `CLO` (the toucan is hidden in the clouds).
 - Sky cycles: day/night from `tod`, plus a random NEON cycle (`neo` 0..1, `neonTick()`/`neonApply()`/`neonReset()`).
-  Night extras live in `updNightSky()` (shader stars, Milky Way, aurora, moon texture, shooting stars).
+  Night extras live in `updNightSky()` (shader stars, moon texture/halo, shooting stars). The owner preferred a calm
+  night: no aurora or Milky Way. Sun/moon/stars sit far away (`SKYZ`, `SKYK`) behind the mountains.
+- Mountains: `mtns` (3 curved layers from `mkMountains()`, shader `MTN_FS`), coloured each frame in `updMountains()`.
+- Neon extras: horizon glow (`skyU.hk`), road light strips (`roadEdges`), prop tint (`neonMats`), beat pulse
+  (`neoPulse` from `beatPulse()`). Neon music: `neonStep()` inside `musTick()` (switches each bar when `neo>.5`).
 - UI: top bar shows only Pause (+ camera in modes 1–4) while playing (`body[data-st]`, `body.m5`); sound, restart
   (tap twice) and settings are in the pause menu.
 - Mode 5 road bend: a fixed winding shape scrolls toward the player (`kap()`, `buildBend()`, `bendOff()`,
