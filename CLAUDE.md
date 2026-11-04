@@ -82,6 +82,11 @@ desktop browser and a Galaxy Z Fold.
 - Mode 5 road bend: a fixed winding shape scrolls toward the player (`kap()`, `buildBend()`, `bendOff()`,
   `RS` = distance travelled). Ground and path planes are subdivided and bent on the CPU each frame. Props are
   shifted with the same function. Never animate the bend over time (it makes the road sway).
+- LEVELS (since v0.6): `level` = 1..50 (`LVL_MAX`), saved as `stage` in `flappyprog`. Pass `LVL_N`=200 hawks
+  (`hawksDone`, counted in `hawkPassed()` when a hawk crosses, hit or not) to finish; `levelComplete()` then runs
+  the reward flow (shop -> perk -> countdown). Difficulty comes from `lvD()` (0 on level 1 .. 1 on level 50):
+  spawn rate, group size, hawk kinds, `lvSpd()`, hunt strength, lock distance, hitbox, steal. Old XP levels are
+  gone (`gainXp` is a no-op). Game over keeps level/coins/perks; `restartGame()` wipes everything.
 - Economy: coins, passive income ($0.25 per 2 s x `MM()`), marketplace (`ITEMS`), permanent perks (`PERKS`),
   revive with rising cost, enemies steal coins (die if you cannot pay).
 - Level-up flow: marketplace (Next only) → perk choice (select, then Complete) → 3-second countdown.

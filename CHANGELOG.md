@@ -3,6 +3,16 @@
 Versions are `0.UPDATE.CHANGE` (e.g. v0.4.11). The last number goes up with every single change;
 the middle number goes up each time an update goes live. Each section below is one update.
 
+## v0.6 (in progress on `hawk-test`)
+- 50 levels. Each level = get past 200 hawks (hits you survive count too). Level 1 is very easy, level 50 nearly
+  impossible: hawk speed, chasing strength, how late they lock their path, group size, hitbox and steal amount all
+  rise with the level; feints from level 6, crossing pairs from 10, dashers from 14, sweepers from 20.
+  Rounds take about 4.7 min on level 1 down to about 2.2 min on level 50; no timer. (v0.6.1)
+- Finishing a level opens the marketplace and an upgrade choice, then a 3-2-1 into the next level. This replaces
+  the old XP levels; "Fast Learner" is no longer offered. (v0.6.1)
+- Game over keeps your level, coins and upgrades: you retry the same level. Pause > Restart (tap twice) starts
+  over from level 1 with nothing. Start screen shows your level; the bottom bar shows hawks passed. (v0.6.1)
+
 ## v0.5 (live as v0.5.4, 2026-11-04) – level 5 only, Start countdown, menus fit the screen, Download App
 - Start screen: "Download App" button. Opens the browser's own install box where available, otherwise the
   picture guide (install.html). Hidden once the game is installed. (v0.5.1)
