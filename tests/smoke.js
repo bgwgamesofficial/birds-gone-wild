@@ -1,7 +1,7 @@
 const fs=require('fs'),vm=require('vm');
 const html=fs.readFileSync(require('path').join(__dirname,'..','index.html'),'utf8');
 let code=html.match(/<script>\n\(function\(\)\{[\s\S]*?<\/script>/)[0].replace(/^<script>/,'').replace(/<\/script>$/,'');
-code=code.replace("reset();showCard('Birds Gone Wild'","window.__fn={renderSettings,applyAll,applyRes,applyShadows,applyAniso,presetMatch,capFps,modeCap,spawnFoe:()=>spawnFoe(-60,3,.8),setMode:(m)=>{mode=m;applyMode();reset();},getFoes:()=>foes.length,spawnFly,getFlies:()=>flies.length,flyAtBird:()=>{y=2;vy=0;spawnFly();const f=flies[flies.length-1];f.x=f.dir*.3;f.y=y;},setLife:v=>{lifePts=v;state='play';ghost=0;paused=false;hold=false;},getLife:()=>lifePts,ghostFall:()=>{state='play';paused=false;hold=false;ghost=gt+5;y=BOT+.6;vy=-13;},getY:()=>y,BOT,die};window.__dbg=()=>({state,score,wallet,level,foes:foes.length,pipes:pipes.length,revives});reset();showCard('Birds Gone Wild'");
+code=code.replace("reset();showCard('Birds Gone Wild'","window.__fn={start:()=>startGame(),toStart:()=>restartGame(),renderSettings,applyAll,applyRes,applyShadows,applyAniso,presetMatch,capFps,modeCap,spawnFoe:()=>spawnFoe(-60,3,.8),setMode:(m)=>{mode=m;applyMode();reset();},getFoes:()=>foes.length,spawnFly,getFlies:()=>flies.length,flyAtBird:()=>{y=2;vy=0;spawnFly();const f=flies[flies.length-1];f.x=f.dir*.3;f.y=y;},setLife:v=>{lifePts=v;state='play';ghost=0;paused=false;hold=false;},getLife:()=>lifePts,ghostFall:()=>{state='play';paused=false;hold=false;ghost=gt+5;y=BOT+.6;vy=-13;},getY:()=>y,BOT,die};window.__dbg=()=>({cd:cdEnd,state,score,wallet,level,foes:foes.length,pipes:pipes.length,revives});reset();showCard('Birds Gone Wild'");
 const f=function(){};
 const p=new Proxy(f,{get(t,k){if(k===Symbol.toPrimitive)return()=>0;if(k==='then')return undefined;if(k==='length'||k==='count')return 0;return p;},apply(){return p;},construct(){return p;},set(){return true;}});
 const listeners={};const raf=[];
@@ -19,13 +19,22 @@ const key=c=>(listeners.keydown||[]).forEach(fn=>fn({code:c,repeat:false,prevent
 let t=1000,states={};
 for(let i=0;i<4000;i++){
   t+=16;
-  if(i%22===0)key('Space');
+  if(i%22===0){if(sb.__dbg().state==='ready')sb.__fn.start();else key('Space');}
   const cb=raf.shift();
   try{cb&&cb(t);}catch(e){errs.push('frame '+i+': '+e.stack.split('\n').slice(0,3).join(' | '));break;}
 }
 console.log(JSON.stringify(sb.__dbg()));
-const F=sb.__fn;for(const k of ['renderSettings','applyAll','applyRes','applyShadows','applyAniso','presetMatch','capFps','modeCap']){try{F[k]();}catch(e){errs.push('FN ERROR '+k+': '+e.message);}}
-for(const m of [1,2,3,4,5]){try{F.setMode(m);F.spawnFoe();for(let i=0;i<300;i++){t+=16;if(i%20===0)key('Space');const cb=raf.shift();cb&&cb(t);}}catch(e){errs.push('MODE '+m+' ERROR: '+e.stack.split('\n').slice(0,3).join(' | '));}}
+const F=sb.__fn;
+// Start rules: Space/taps must NOT start the game from the start screen; Start runs a 3-second countdown first.
+try{F.setMode(2);F.toStart();
+ const s0=sb.__dbg().state;key('Space');for(let i=0;i<10;i++){t+=16;const cb=raf.shift();cb&&cb(t);}
+ if(s0==='ready'&&sb.__dbg().state!=='ready')errs.push('START: Space started the game from the start screen');
+ F.start();for(let i=0;i<60;i++){t+=16;const cb=raf.shift();cb&&cb(t);}
+ if(sb.__dbg().state!=='ready')errs.push('START: game began before the 3-second countdown finished');
+ for(let i=0;i<200;i++){t+=16;const cb=raf.shift();cb&&cb(t);}
+ if(sb.__dbg().state==='ready')errs.push('START: game did not begin after the countdown');else console.log('start ok: only Start begins the game, after a 3-second countdown');}
+catch(e){errs.push('START TEST ERROR: '+e.message);}for(const k of ['renderSettings','applyAll','applyRes','applyShadows','applyAniso','presetMatch','capFps','modeCap']){try{F[k]();}catch(e){errs.push('FN ERROR '+k+': '+e.message);}}
+for(const m of [1,2,3,4,5]){try{F.setMode(m);F.spawnFoe();for(let i=0;i<300;i++){t+=16;if(i%20===0){if(sb.__dbg().state==='ready')F.start();else key('Space');}const cb=raf.shift();cb&&cb(t);}}catch(e){errs.push('MODE '+m+' ERROR: '+e.stack.split('\n').slice(0,3).join(' | '));}}
 console.log('modes ok, foes:',F.getFoes());
 // Mode 5 butterflies + life bar: spawn and fly, then check a full life segment saves the player from one crash.
 try{F.setMode(5);F.spawnFly();for(let i=0;i<300;i++){t+=16;if(i%20===0)key('Space');const cb=raf.shift();cb&&cb(t);}

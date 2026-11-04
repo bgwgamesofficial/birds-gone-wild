@@ -8,6 +8,9 @@ the middle number goes up each time an update goes live. Each section below is o
   picture guide (install.html). Hidden once the game is installed. (v0.5.1)
 - Fix: touching the start menu no longer starts the game, so the menu can be scrolled on short screens (e.g. the
   Galaxy Z Fold). On the start screen only the Start button (or Space) starts a game. (v0.5.2)
+- Only the Start button starts a game (taps and Space no longer do), followed by a 3-2-1-GO countdown. (v0.5.3)
+- No scrolling in any menu: menus fit the screen. On short wide screens the start menu, settings and shop use
+  two or three columns; any menu that is still too big shrinks to fit. (v0.5.3)
 - New install guide page with Android screenshots: https://bgwgamesofficial.github.io/birds-gone-wild/install.html
   (already live).
 
