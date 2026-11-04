@@ -17,6 +17,7 @@ desktop browser and a Galaxy Z Fold.
 - `sw.js` – service worker (offline). Pages: network first. Everything else (icons, Three.js from CDN): cache first.
 - `manifest.webmanifest`, `icons/` – install info and icons (made from the logo).
 - `tests/check.js` – syntax check. `tests/smoke.js` – headless stub run (4,000 simulated frames across modes 1–5).
+- `tests/version.js` – fails if a game file changed but `VERSION` was not raised.
 - `.nojekyll` – needed by GitHub Pages. Keep it.
 - `.github/workflows/tests.yml` – GitHub Actions runs both tests on every push and pull request.
 - `TESTING.md` – the owner's step-by-step guide for testing a branch and releasing it.
@@ -24,12 +25,15 @@ desktop browser and a Galaxy Z Fold.
 ## Rules of the road (IMPORTANT)
 1. `main` is the live game. Never push directly to `main` without the owner's OK for that change.
    Work on a branch (e.g. `feature-name`), tell the owner how to test it, and merge only after they approve.
-2. Before every commit run: `node tests/check.js && node tests/smoke.js`. Both must pass.
+2. Before every commit run: `node tests/check.js && node tests/smoke.js && node tests/version.js`. All must pass.
 3. If you change `manifest.webmanifest`, icons, or `sw.js` itself, bump `CACHE` (`bgw-v1` → `bgw-v2`) in `sw.js`.
-4. Versions: the game is pre-release. Every update merged to `main` gets the next `0.N` number (0.3 → 0.4 …
-   0.9 → 0.10). Set `VERSION` (top of the game script in `index.html`, shown on the start screen) on the branch,
-   add a section to `CHANGELOG.md`, and after merging tag it (`v0.N`). No GitHub Releases until the owner
-   declares 1.0.
+4. Versions: `VERSION` (top of the game script in `index.html`) is `0.UPDATE.CHANGE`, e.g. `0.4.11`.
+   - Raise CHANGE (last number) with EVERY commit that touches a game file (index.html, sw.js, manifest, icons).
+     `tests/version.js` enforces this. The owner uses it to see whether their device has the newest build.
+   - UPDATE = the release being built. After an update is merged to `main`, the next work starts at `0.(N+1).1`.
+   - The start screen and pause menu show `v0.4.11`, plus "· test build" anywhere except the live Pages site.
+   - Add a section to `CHANGELOG.md` per update (`v0.N`), and after merging tag it (`v0.N.C`). No GitHub
+     Releases until the owner declares 1.0.
    Give the owner a test link: https://raw.githack.com/bgwgamesofficial/birds-gone-wild/BRANCH/index.html
 5. Keep commits small and described in plain English.
 6. Do not add new network dependencies casually. Three.js and its post-processing add-ons load from

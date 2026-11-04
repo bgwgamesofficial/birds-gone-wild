@@ -1,7 +1,7 @@
 # Changelog
 
-Until the game is ready for its first real release (1.0), every update to the live game
-gets the next number: 0.1, 0.2, 0.3 … 0.9, 0.10, 0.11 and so on.
+Versions are `0.UPDATE.CHANGE` (e.g. v0.4.11). The last number goes up with every single change;
+the middle number goes up each time an update goes live. Each section below is one update.
 
 ## v0.4 – butterflies, life bar, Neon, prettier night, cleaner menus (testing on `hawk-test`)
 - Level 5: small butterflies cross the lane like the hawks but steer away from you.
@@ -16,6 +16,7 @@ gets the next number: 0.1, 0.2, 0.3 … 0.9, 0.10, 0.11 and so on.
   glowing outlines in Neon; they follow the road bend in level 5.
 - Neon: its own upbeat synthwave music, glowing horizon, light strips along the road, neon-tinted trees,
   grid pulsing with the beat.
+- Version numbers now have three parts and change with every change (v0.4.11); test links show "test build".
 - Fix (all levels): the toucan could fall through the ground during the safety time after a shield, a life or a
   revive. The ground is now always solid; you bounce off it instead.
 - Marketplace and level-up menus: bigger buy buttons (show "Max" when full), owned-count badges, tick circles on

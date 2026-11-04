@@ -1,4 +1,4 @@
-# Runs the two game tests on every push and pull request.
+# Runs the game tests on every push and pull request.
 # Results show as a green tick or red cross next to each commit on github.com.
 name: Tests
 on:
@@ -9,6 +9,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
       - uses: actions/setup-node@v4
         with:
           node-version: 20
@@ -16,3 +18,5 @@ jobs:
         run: node tests/check.js
       - name: Smoke test (4,000 simulated frames, modes 1-5)
         run: node tests/smoke.js
+      - name: Version number was raised
+        run: node tests/version.js
