@@ -128,7 +128,7 @@ body[data-st=play]:not(.m5) #cbtn{display:flex}
 #cbtn{left:68px}
 #cbtn span{margin-left:6px}
 @media (max-width:520px){#cbtn span{display:none}#cbtn{width:44px;padding:0}}
-body:not([data-st=play]) #wallet,body:not([data-st=play]) #xp,body[data-st=ready] #hud{display:none}
+body:not([data-st=play]) #wallet,body:not([data-st=play]) #xp,body[data-st=ready] #hud,body[data-st=ready] #life{display:none}
 #lvl .perk{display:flex;align-items:center;gap:10px;width:100%;text-align:left;margin:8px 0;padding:10px 12px;border-radius:14px;background:rgba(128,128,128,.18);color:var(--ink);font-size:15px;line-height:1.3;box-shadow:0 3px 0 rgba(0,0,0,.2)}
 #lvl .perk:hover{background:rgba(128,128,128,.32)}
 #lvl .ic{font-size:30px;width:40px;text-align:center}
@@ -182,7 +182,7 @@ body:not([data-st=play]) #wallet,body:not([data-st=play]) #xp,body[data-st=ready
 <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/UnrealBloomPass.js"></script>
 <script>
 (function(){
-const VERSION='0.5.3'; // RELEASE.UPDATE.CHANGE - raise the last number with EVERY change (tests/version.js checks it). Shown on the start screen and pause menu.
+const VERSION='0.5.4'; // RELEASE.UPDATE.CHANGE - raise the last number with EVERY change (tests/version.js checks it). Shown on the start screen and pause menu.
 let cdEnd=0,cdLast=-1,fitT=0; // start countdown (ms timestamp when play begins), menu-fit timer
 const VER_TXT='v'+VERSION+((typeof location!=='undefined'&&location.hostname==='bgwgamesofficial.github.io')?'':' \u00b7 test build');
 const SKY=0x9fd8f0;
@@ -544,7 +544,8 @@ const MODES=[
 {n:'Expert',s:1.25,gap:5.8,f:1.7,m:2.5,mv:1.4,dj:5.5,ai:.75,hb:0},
 {n:'Insane',s:1.5,gap:4.8,f:2.4,m:4,mv:1.8,dj:6,ai:1,hb:.03}];
 const AI={y:1,skill:.5};const HAB=new Array(10).fill(0);
-let mode=2;try{const sm=+localStorage.getItem('flappymode');if(sm>=1&&sm<=5)mode=sm;}catch(e){}setCeil();
+let mode=5; // The game is level 5 ("HAWK TEST") only for now. Levels 1-4 are kept on the classic-modes branch.
+try{best=+localStorage.getItem(bkey())||0}catch(e){}setCeil();
 function MM(){return MODES[mode-1].m;}
 function pr(it){return Math.round(it.price*MM());}
 function bkey(){return 'flappyfpv'+(mode===2?'':'_m'+mode);}
@@ -700,7 +701,7 @@ function gameOver(){
  offer=false;
  const lv=level;
  level=1;xp=0;pending=0;Object.keys(perks).forEach(k=>{perks[k]=0;});revives=0;fx={};ghost=0;wallet=0;saveW();saveProg();updXp();updFx();
- showCard('Game over','<p>Score: <b>'+score+'</b> &nbsp; Coins: <b>+$'+fm(run)+'</b></p><p>You reached level '+lv+' on mode '+mode+'. Your wallet, level and upgrades have been reset.</p><p>Tap Restart to start over.</p><button id="restartbtn">&#8635; Restart</button>');
+ showCard('Game over','<p>Score: <b>'+score+'</b> &nbsp; Coins: <b>+$'+fm(run)+'</b></p><p>You reached level '+lv+'. Your wallet, level and upgrades have been reset.</p><p>Tap Restart to start over.</p><button id="restartbtn">&#8635; Restart</button>');
  msg.style.display='flex';
 }
 
@@ -735,9 +736,9 @@ lvlEl.addEventListener('click',e=>{if(e.target.closest('#lvlset')){openSettings(
  if(e.target.closest('#lvldone')){if(!lvlSel)return;const id=lvlSel;if(id==='cash'){wallet+=50;saveW();}else perks[id]++;saveProg();sfx.buy();pending--;lvlSel=null;lvlEl.classList.remove('on');lvlOpen=false;if(pending>0)showLevelUp();else resumeGame();}});
 
 // pause + countdown
-function pauseGame(){if(state!=='play'||paused||shopOpen||lvlOpen||setOpen)return;paused=true;pauseEl.classList.add('on');}
+function pauseGame(){if(state!=='play'||hold||shopOpen||lvlOpen||setOpen)return;if(paused&&!cdEnd)return;if(cdEnd){cdEnd=0;cntEl.textContent='';}paused=true;pauseEl.classList.add('on');} // also works during a 3-2-1 countdown (it stops it)
 function cdShow(t){cntEl.textContent=t;cntEl.classList.remove('b');void cntEl.offsetWidth;cntEl.classList.add('b');}
-function resumeGame(){pauseEl.classList.remove('on');let n=3;(function tick(){if(n===0){cdShow('GO!');tone(880,1320,.2,'square',.09);if(!setOpen)paused=false;setTimeout(()=>{if(!paused)cntEl.textContent='';},500);return;}cdShow(n);tone(520,520,.12,'square',.09);n--;setTimeout(tick,1000);})();}
+function resumeGame(){pauseEl.classList.remove('on');countdown(false);}
 pauseEl.addEventListener('pointerdown',e=>e.stopPropagation());
 document.getElementById('resume').addEventListener('click',resumeGame);
 document.getElementById('pshop').addEventListener('click',()=>{pauseEl.classList.remove('on');openShop();});
@@ -893,14 +894,16 @@ function downloadApp(){
  if(installEvt){const ev=installEvt;installEvt=null;ev.prompt();if(ev.userChoice)ev.userChoice.then(r=>{if(r&&r.outcome==='accepted')hideDl();}).catch(()=>{});}
  else location.href='install.html';}
 function showCard(title,body){
-  const T=title==='Birds Gone Wild';card.classList.toggle('cols',T);card.innerHTML=(T?'<div class="cl">':'')+(title==='Birds Gone Wild'?'<img class="logo" alt="Birds Gone Wild" src="'+LOGO+'">':'<h1>'+title+'</h1>')+body+'<p id="best">Best: '+best+' &nbsp; Wallet: <b class="wv">$'+fm(wallet)+'</b></p>'+(title==='Birds Gone Wild'?'</div><div class="cr"><p>Bird color</p><div id="swatches">'+Object.keys(COLORS).map(k=>'<button class="sw'+(k===birdCol?' on':'')+'" data-col="'+k+'" aria-label="'+k+' bird" style="background:#'+COLORS[k][0].toString(16).padStart(6,'0')+'"></button>').join('')+'</div><p>Difficulty</p><div id="modes">'+MODES.map((m,i)=>'<button class="md'+((i+1)===mode?' on':'')+'" data-m="'+(i+1)+'">'+(i+1)+'</button>').join('')+'</div><p id="modecap">'+modeCap()+'</p><button id="startbtn">Start</button> <div class="cardrow">'+(isInstalled()?'':'<button id="dlbtn" class="ghost">&#128242; Download App</button>')+'<button id="setbtn" class="ghost">&#9881; Settings</button></div><p class="ver">'+VER_TXT+'</p></div>':'');
+  const T=title==='Birds Gone Wild';card.classList.toggle('cols',T);card.innerHTML=(T?'<div class="cl">':'')+(title==='Birds Gone Wild'?'<img class="logo" alt="Birds Gone Wild" src="'+LOGO+'">':'<h1>'+title+'</h1>')+body+'<p id="best">Best: '+best+' &nbsp; Wallet: <b class="wv">$'+fm(wallet)+'</b></p>'+(title==='Birds Gone Wild'?'</div><div class="cr"><p>Bird color</p><div id="swatches">'+Object.keys(COLORS).map(k=>'<button class="sw'+(k===birdCol?' on':'')+'" data-col="'+k+'" aria-label="'+k+' bird" style="background:#'+COLORS[k][0].toString(16).padStart(6,'0')+'"></button>').join('')+'</div><button id="startbtn">Start</button> <div class="cardrow">'+(isInstalled()?'':'<button id="dlbtn" class="ghost">&#128242; Download App</button>')+'<button id="setbtn" class="ghost">&#9881; Settings</button></div><p class="ver">'+VER_TXT+'</p></div>':'');
   const lg=card.querySelector('.logo');if(lg&&lg.addEventListener)lg.addEventListener('load',fitMenus);fitMenus();
 }
-function startGame(){if(state!=='ready'||cdEnd)return;ac();startMusic();msg.style.display='none';cdEnd=Math.max(last,performance.now())+3000;cdLast=-1;} // same clock as the frame loop
-function cdTick(now){ // 3-2-1-GO before the run starts
+let cdHop=false;
+function countdown(hop){paused=true;cdHop=hop;cdEnd=Math.max(last,performance.now())+3000;cdLast=-1;} // 3-2-1-GO, game frozen meanwhile (same clock as the frame loop)
+function startGame(){if(state!=='ready'||cdEnd)return;ac();startMusic();msg.style.display='none';state='play';speed=SPEED;useItems();y=1;vy=0;countdown(true);}
+function cdTick(now){ // runs the 3-2-1-GO countdown
  const left=Math.min(3,Math.ceil((cdEnd-now)/1000));if(left!==cdLast&&left>0){cdLast=left;cdShow(left);tone(520,520,.12,'square',.09);}
  if(now>=cdEnd){cdEnd=0;cdShow('GO!');tone(880,1320,.2,'square',.09);setTimeout(()=>{if(cntEl.textContent==='GO!')cntEl.textContent='';},600);
-  state='play';speed=SPEED;useItems();y=1;vy=FLAP;sfx.flap();flapAt=performance.now();}}
+  if(!setOpen&&!shopOpen&&!lvlOpen)paused=false;if(cdHop){cdHop=false;vy=FLAP;sfx.flap();flapAt=performance.now();}}}
 // Every menu must fit on screen without scrolling: shrink any open panel that is too big.
 function fitEl(el){if(!el||!el.offsetHeight)return;el.style.maxHeight='none';el.style.overflow='hidden';
  const s=Math.min(1,(innerHeight-20)/el.offsetHeight,(innerWidth-16)/el.offsetWidth);el.style.transform=s<.999?'scale('+s.toFixed(3)+')':'';}
@@ -934,7 +937,8 @@ function loop(now){
   const fmS=1000/capFps();if(hzN>=90&&now<nextFrame-Math.min(2,fmS*.25))return;nextFrame=Math.max(nextFrame+fmS,now-fmS);
   const raw=now-last;const dt=paused?0:Math.min(raw/1000,0.05);last=now;time+=dt;dtg=dt;if(raw<200){fpsAcc+=raw;if(++fpsN>=90){const avg=fpsAcc/fpsN;fpsAcc=0;fpsN=0;if(S.adaptive&&hzN>=90&&avg>1000/Math.min(capFps(),hz)*1.3&&adaptK>.5){adaptK=Math.max(.5,adaptK-.12);applyRes();}}}
 
-  if(state==='ready'){y=1+Math.sin(now/300)*0.5;if(cdEnd)cdTick(now);}
+  if(state==='ready'){y=1+Math.sin(now/300)*0.5;}
+  if(cdEnd)cdTick(now);
   if(now-fitT>250){fitT=now;fitMenus();}
   if(state==='play'){
     vy+=GRAV*(fxOn('feather')?.7:1)*(1-.07*perks.wings)*dt;if(vy<-13)vy=-13;y+=vy*dt;gt+=dt;RS+=sp()*dt;incT+=dt;AI.y+=(y-AI.y)*(1-Math.exp(-.7*dt));{const bi=Math.max(0,Math.min(9,Math.floor((y-BOT)/(CEIL-BOT)*10)));for(let i=0;i<10;i++)HAB[i]*=Math.exp(-.15*dt);HAB[bi]+=dt;}while(incT>=2){incT-=2;{const inc=.25*MM();wallet+=inc;run+=inc;}saveW();}
@@ -1012,7 +1016,7 @@ function loop(now){
   {const ui=(state==='play'&&!hold?'play':state)+(mode===5?'5':'');if(ui!==uiLast){uiLast=ui;document.body.dataset.st=state==='play'&&!hold?'play':state;document.body.classList.toggle('m5',mode===5);}}
   if(composer&&S.bloom)composer.render(dt);else renderer.render(scene,cam);
 }
-initComposer();applyAll();reset();showCard('Birds Gone Wild','<p>You are the bird. Fly through the gaps and grab the coins. You also earn $0.25 every 2 seconds you survive.</p><p><b>Tap</b>, click or press <b>Space</b> to flap.</p>');
+initComposer();applyAll();reset();showCard('Birds Gone Wild','<p>Dodge the hawks (watch for the red <b>!</b> warnings) and catch butterflies to fill your life bar. You earn coins the longer you survive.</p><p><b>Tap</b>, click or press <b>Space</b> to flap.</p>');
 requestAnimationFrame(loop);
 })();
 </script>

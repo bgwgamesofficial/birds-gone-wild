@@ -11,6 +11,10 @@ the middle number goes up each time an update goes live. Each section below is o
 - Only the Start button starts a game (taps and Space no longer do), followed by a 3-2-1-GO countdown. (v0.5.3)
 - No scrolling in any menu: menus fit the screen. On short wide screens the start menu, settings and shop use
   two or three columns; any menu that is still too big shrinks to fit. (v0.5.3)
+- The game is now level 5 only: the difficulty buttons are gone and Start goes straight into it. Levels 1-4 are
+  kept on the `classic-modes` branch. Your level-5 best score is kept. (v0.5.4)
+- The pause button now works during every 3-2-1 countdown (start, after pause, after level-up); resuming starts a
+  fresh countdown. (v0.5.4)
 - New install guide page with Android screenshots: https://bgwgamesofficial.github.io/birds-gone-wild/install.html
   (already live).
 
