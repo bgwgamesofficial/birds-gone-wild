@@ -60,9 +60,14 @@ desktop browser and a Galaxy Z Fold.
 - Mode 5 butterflies (`flies`, `spawnFly()`, `aiFlee()`): small, cross like hawks (speed `FLYV`) but steer away from
   the player's predicted height. Catching one adds `FLY_GAIN` to `lifePts` (bar `#life`, 3 segments of `LIFE_SEG`).
   In `die()`, a full segment is spent to survive (like the shield). Reset clears lives.
-- Player flight ceiling is `CEIL`=16 (pipes still use `TOP`=11). Touching the ceiling does not kill you; hawks can
-  fly as high as the player. Cloud banks (`banks`) thicken above about height 9.5 and white out the screen
-  if the camera passes through them.
+- Player flight ceiling `CEIL` and cloud base `CLO` are set per mode in `setCeil()`: modes 1–4 `CEIL`=16, `CLO`=9.5
+  (pipes still use `TOP`=11); mode 5 `CEIL`=20, `CLO`=16 with a thin cloud sheet. Touching the ceiling does not kill
+  you. Modes 1–4: cloud banks white out the screen when the camera passes through them. Mode 5: the screen whites
+  out when the bird itself is above `CLO` (the toucan is hidden in the clouds).
+- Sky cycles: day/night from `tod`, plus a random NEON cycle (`neo` 0..1, `neonTick()`/`neonApply()`/`neonReset()`).
+  Night extras live in `updNightSky()` (shader stars, Milky Way, aurora, moon texture, shooting stars).
+- UI: top bar shows only Pause (+ camera in modes 1–4) while playing (`body[data-st]`, `body.m5`); sound, restart
+  (tap twice) and settings are in the pause menu.
 - Mode 5 road bend: a fixed winding shape scrolls toward the player (`kap()`, `buildBend()`, `bendOff()`,
   `RS` = distance travelled). Ground and path planes are subdivided and bent on the CPU each frame. Props are
   shifted with the same function. Never animate the bend over time (it makes the road sway).

@@ -13,13 +13,12 @@ canvas{display:block;width:100%;height:100%}
 button,input{font-family:inherit}
 #hud{position:absolute;top:env(safe-area-inset-top,0px);left:0;right:0;text-align:center;padding-top:18px;font-size:64px;font-weight:900;color:#fff;text-shadow:0 4px 0 rgba(0,0,0,.25);pointer-events:none}
 #msg{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;padding:20px}
-#card{background:var(--card);color:var(--ink);border-radius:18px;padding:22px 28px;text-align:center;max-width:340px;box-shadow:0 8px 0 rgba(0,0,0,.2)}
+#card{background:var(--card);color:var(--ink);border-radius:20px;padding:18px 22px;text-align:center;width:min(360px,100%);max-height:calc(100% - 8px);overflow:auto;box-sizing:border-box;box-shadow:0 8px 0 rgba(0,0,0,.2)}
 #card h1{margin:0 0 6px;font-size:38px;line-height:1.05;letter-spacing:.5px;text-shadow:0 3px 0 rgba(0,0,0,.12)}
 #card p{margin:6px 0;font-size:16px;line-height:1.4}
 #card p.ver{margin:10px 0 0;font-size:12px;opacity:.55}
 #card b{color:var(--accent)}
 #wallet{position:absolute;top:calc(env(safe-area-inset-top,0px) + 14px);right:14px;background:var(--card);color:var(--ink);font-weight:800;font-size:20px;padding:6px 14px;border-radius:999px;box-shadow:0 4px 0 rgba(0,0,0,.2);pointer-events:none}
-#snd{position:absolute;top:calc(env(safe-area-inset-top,0px) + 14px);left:14px;width:48px;height:38px;border:0;border-radius:999px;background:var(--card);color:var(--ink);font-size:18px;box-shadow:0 4px 0 rgba(0,0,0,.2);cursor:pointer}
 .pop{position:absolute;left:50%;top:42%;transform:translate(-50%,0);font-size:34px;font-weight:900;color:#ffd23f;text-shadow:0 3px 0 rgba(0,0,0,.35);opacity:1;transition:transform .8s ease-out,opacity .8s ease-out;pointer-events:none}
 .pop.go{transform:translate(-50%,-70px);opacity:0}
 #fx{position:absolute;top:calc(env(safe-area-inset-top,0px) + 62px);left:14px;display:flex;flex-direction:column;gap:6px;pointer-events:none}
@@ -35,20 +34,22 @@ button,input{font-family:inherit}
 #shop small{opacity:.8}
 #shop .note{font-size:13px;opacity:.8}
 #shop button,#card button{border:0;border-radius:999px;background:var(--accent);color:#fff;font-weight:800;font-size:15px;padding:8px 14px;cursor:pointer;box-shadow:0 3px 0 rgba(0,0,0,.25)}
+#shop button{min-height:40px}
 #shop button:disabled{opacity:.4;cursor:default}
 #card button{margin-top:8px}
+#card #startbtn{display:block;width:100%;font-size:22px;min-height:54px;margin-top:12px}
+#card #setbtn{display:inline-block;margin-top:10px;background:none;color:var(--ink);box-shadow:none;font-weight:700;opacity:.75;padding:8px 14px;min-height:40px}
+#card #revbtn,#card #giveup,#card #restartbtn{min-height:44px}
 #card #giveup{background:rgba(120,130,140,.85)}
-#swatches{display:flex;gap:8px;justify-content:center;margin:6px 0 4px}
+#swatches{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin:6px 0 4px}
 #lvl .perk.sel{outline:3px solid #ffd23f;transform:scale(1.02)}
 #lvldone:disabled{opacity:.4;cursor:default}
-#card .logo{display:block;width:min(420px,100%);margin:-6px auto 8px;border-radius:16px;box-shadow:0 6px 18px rgba(0,0,0,.35)}
-#modes{display:flex;gap:6px;justify-content:center;margin:6px 0 2px}
-#card .md{width:38px;height:38px;padding:0;margin:0;border-radius:12px;background:rgba(128,128,128,.28);color:var(--ink);box-shadow:0 2px 0 rgba(0,0,0,.2)}
+#card .logo{display:block;width:auto;max-width:100%;max-height:min(24vh,170px);margin:-4px auto 8px;border-radius:16px;box-shadow:0 6px 18px rgba(0,0,0,.35)}
+#modes{display:flex;gap:8px;justify-content:center;margin:6px 0 2px}
+#card .md{width:46px;height:46px;font-size:18px;padding:0;margin:0;border-radius:12px;background:rgba(128,128,128,.28);color:var(--ink);box-shadow:0 2px 0 rgba(0,0,0,.2)}
 #card .md.on{background:var(--accent);color:#fff;transform:scale(1.1)}
 #modecap{font-size:14px;opacity:.85}
 #card .ghost{background:rgba(120,130,140,.85)}
-#cbtn{position:absolute;top:calc(env(safe-area-inset-top,0px) + 14px);left:252px;min-width:48px;height:38px;border:0;border-radius:999px;background:var(--card);color:var(--ink);font-size:16px;font-weight:800;box-shadow:0 4px 0 rgba(0,0,0,.2);cursor:pointer;padding:0 10px}
-#gbtn{position:absolute;top:calc(env(safe-area-inset-top,0px) + 14px);left:196px;width:48px;height:38px;border:0;border-radius:999px;background:var(--card);color:var(--ink);font-size:20px;box-shadow:0 4px 0 rgba(0,0,0,.2);cursor:pointer}
 #set{position:absolute;inset:0;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,.55);-webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px);padding:16px;z-index:9}
 #set.on{display:flex}
 #set .panel{background:var(--card);color:var(--ink);border-radius:20px;padding:18px;width:min(460px,100%);max-height:90vh;overflow:auto;box-shadow:0 8px 0 rgba(0,0,0,.25)}
@@ -77,7 +78,7 @@ button,input{font-family:inherit}
 @keyframes wp{to{transform:translateY(-50%) scale(1.2)}}
 #shop,#lvl,#pause{-webkit-backdrop-filter:blur(3px);backdrop-filter:blur(3px)}
 body.dual #lvl{-webkit-backdrop-filter:none;backdrop-filter:none}
-#card .sw{width:30px;height:30px;padding:0;margin:0;border-radius:50%;border:3px solid transparent;box-shadow:0 2px 0 rgba(0,0,0,.25)}
+#card .sw{width:32px;height:32px;padding:0;margin:0;border-radius:50%;border:3px solid transparent;box-shadow:0 2px 0 rgba(0,0,0,.25)}
 #card .sw.on{border-color:var(--ink);transform:scale(1.15)}
 body.dual #lvl,body.dual #shop{pointer-events:none}
 body.dual #lvl{background:none;justify-content:flex-end;padding-right:calc(50% + 12px)}
@@ -89,15 +90,24 @@ body.dual #lvl .panel,body.dual #shop .panel{pointer-events:auto;width:min(420px
  body.dual #shop{align-items:flex-end}
  body.dual #lvl .panel,body.dual #shop .panel{width:min(420px,100%);max-height:47vh}
 }
-#rbtn{position:absolute;top:calc(env(safe-area-inset-top,0px) + 14px);left:126px;min-width:48px;height:38px;border:0;border-radius:999px;background:var(--card);color:var(--ink);font-size:18px;font-weight:800;box-shadow:0 4px 0 rgba(0,0,0,.2);cursor:pointer;padding:0 10px}
-#pbtn{position:absolute;top:calc(env(safe-area-inset-top,0px) + 14px);left:70px;width:48px;height:38px;border:0;border-radius:999px;background:var(--card);color:var(--ink);font-size:14px;box-shadow:0 4px 0 rgba(0,0,0,.2);cursor:pointer}
 #lvl,#pause{position:absolute;inset:0;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,.5);padding:16px;z-index:6}
 #lvl.on,#pause.on{display:flex}
 #lvl .panel,#pause .panel{background:var(--card);color:var(--ink);border-radius:18px;padding:18px;width:min(420px,100%);max-height:88vh;overflow:auto;box-shadow:0 8px 0 rgba(0,0,0,.25);text-align:center}
 #lvl h2,#pause h2{margin:0 0 4px;font-size:28px}
 #lvl .sub,#pause p{margin:0 0 12px;font-size:15px;line-height:1.4}
 #lvl button,#pause button{border:0;cursor:pointer;font-family:inherit}
-#pause button{background:var(--accent);color:#fff;font-weight:800;font-size:18px;padding:10px 24px;border-radius:999px;box-shadow:0 3px 0 rgba(0,0,0,.25)}
+#pause button{background:rgba(128,128,128,.22);color:var(--ink);font-weight:700;font-size:16px;min-height:48px;padding:8px 10px;border-radius:14px;box-shadow:0 3px 0 rgba(0,0,0,.2)}
+#pause #resume{display:block;width:100%;background:var(--accent);color:#fff;font-size:20px;font-weight:800;min-height:56px;margin-bottom:10px}
+#pause .pgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+#pause #rbtn.sure{background:#e5483b;color:#fff}
+.tb{position:absolute;top:calc(env(safe-area-inset-top,0px) + 14px);height:44px;min-width:44px;border:0;border-radius:999px;background:var(--card);color:var(--ink);font-size:16px;font-weight:800;box-shadow:0 4px 0 rgba(0,0,0,.2);cursor:pointer;display:none;align-items:center;justify-content:center;padding:0 12px;z-index:4}
+body[data-st=play] #pbtn{display:flex}
+body[data-st=play]:not(.m5) #cbtn{display:flex}
+#pbtn{left:14px;width:44px;padding:0}
+#cbtn{left:68px}
+#cbtn span{margin-left:6px}
+@media (max-width:520px){#cbtn span{display:none}#cbtn{width:44px;padding:0}}
+body:not([data-st=play]) #wallet,body:not([data-st=play]) #xp,body[data-st=ready] #hud{display:none}
 #lvl .perk{display:flex;align-items:center;gap:10px;width:100%;text-align:left;margin:8px 0;padding:10px 12px;border-radius:14px;background:rgba(128,128,128,.18);color:var(--ink);font-size:15px;line-height:1.3;box-shadow:0 3px 0 rgba(0,0,0,.2)}
 #lvl .perk:hover{background:rgba(128,128,128,.32)}
 #lvl .ic{font-size:30px;width:40px;text-align:center}
@@ -132,18 +142,15 @@ body.dual #lvl .panel,body.dual #shop .panel{pointer-events:auto;width:min(420px
 <div id="warn">!</div>
 <div id="warn2">!</div>
 <div id="wallet"></div>
-<button id="snd" aria-label="Toggle sound"></button>
 <div id="fx"></div>
 <div id="shop"></div>
-<div id="pause"><div class="panel"><h2>Paused</h2><p>Take a breath. You get a 3-2-1 countdown when you resume.</p><button id="resume">Resume</button> <button id="pshop">&#128722; Marketplace</button> <button id="pset">&#9881; Settings</button></div></div>
+<div id="pause"><div class="panel"><h2>Paused</h2><p>You get a 3-2-1 countdown when you resume.</p><button id="resume">&#9654; Resume</button><div class="pgrid"><button id="pshop">&#128722; Shop</button><button id="pset">&#9881;&#65039; Settings</button><button id="snd" aria-label="Toggle sound"></button><button id="rbtn">&#8635; Restart</button></div></div></div>
 <div id="lvl"></div>
 <div id="set"></div>
 <div id="xp"></div>
 <div id="count"></div>
-<button id="pbtn" aria-label="Pause">&#10074;&#10074;</button>
-<button id="rbtn" aria-label="Restart">&#8635;</button>
-<button id="gbtn" aria-label="Settings">&#9881;</button>
-<button id="cbtn" aria-label="Camera view"></button>
+<button id="pbtn" class="tb" aria-label="Pause">&#10074;&#10074;</button>
+<button id="cbtn" class="tb" aria-label="Camera view"></button>
 <div id="msg"><div id="card"><h1>Birds Gone Wild</h1><p>You are the bird. Fly through the gaps.</p><p><b>Tap</b>, click or press <b>Space</b> to flap.</p><p id="best"></p></div></div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/shaders/CopyShader.js"></script>
@@ -356,7 +363,7 @@ for(let i=0;i<14;i++){const c=puff();c.position.set((Math.random()-.5)*80,12+Mat
 const PIPE_W=3, R=1.5, SPACING=18, TOP=11, BOT=-6;let CEIL=16,CLO=9.5,GAP=7; // CEIL = flight ceiling, CLO = cloud base (both set per mode in applyMode)
 // cloud banks: soft sprites in the upper flight band that hide things when you climb
 const banks=[],bankTint=new THREE.Color(1,1,1),cloudFx=document.getElementById('cloudfx');
-function bankReset(b,far){const sz=14+Math.random()*14,thin=CLO>10;b.scale.set(sz*1.5,thin?sz*.55:sz,1);b.position.set((Math.random()-.5)*34,thin?CLO+.5+Math.random()*(CEIL+1-CLO-.5):CLO+Math.random()*(CEIL+3-CLO),far?-10-Math.random()*70:6-Math.random()*70);b.userData.o=.35+Math.random()*.5;b.userData.sz=sz;}
+function bankReset(b,far){const sz=14+Math.random()*14,thin=CLO>10;b.scale.set(sz*1.5,thin?sz*.35:sz,1);b.position.set((Math.random()-.5)*34,thin?CLO+1.5+Math.random()*(CEIL+1-CLO-1.5):CLO+Math.random()*(CEIL+3-CLO),far?-10-Math.random()*70:6-Math.random()*70);b.userData.o=.35+Math.random()*.5;b.userData.sz=sz;}
 for(let i=0;i<34;i++){const b=new THREE.Sprite(new THREE.SpriteMaterial({map:cloudMat.map,transparent:true,depthWrite:false,opacity:0}));bankReset(b,false);scene.add(b);banks.push(b);}
 const skyT=new THREE.Color();let lastBase=2.5,hawkT=2.2,lastDir=0,dirRun=0;
 const pipeMat=new THREE.MeshLambertMaterial({color:0x3fae3f});
@@ -564,7 +571,7 @@ function musTick(){
 }
 function startMusic(){if(mTimer)return;const a=ac();if(!a)return;mBus=a.createGain();mBus.gain.value=0;mBus.connect(a.destination);const n=a.sampleRate*.05|0;hatBuf=a.createBuffer(1,n,a.sampleRate);const d=hatBuf.getChannelData(0);for(let i=0;i<n;i++)d[i]=Math.random()*2-1;mNext=a.currentTime+.1;mTimer=setInterval(musTick,90);}
 const snd=document.getElementById('snd');
-function setSnd(){snd.textContent=muted?'\uD83D\uDD07':'\uD83D\uDD0A';}
+function setSnd(){snd.textContent=muted?'\uD83D\uDD07 Sound off':'\uD83D\uDD0A Sound on';}
 snd.addEventListener('pointerdown',e=>{e.stopPropagation();e.preventDefault();muted=!muted;try{localStorage.setItem('flappymute',muted?'1':'0')}catch(x){}setSnd();ac();});
 setW();setSnd();
 
@@ -617,7 +624,7 @@ function restartGame(){
 }
 const rb=document.getElementById('rbtn');let rbT=0;
 rb.addEventListener('pointerdown',e=>{e.stopPropagation();e.preventDefault();ac();if(shopOpen||lvlOpen||setOpen)return;
- if(state==='play'){if(rbT){clearTimeout(rbT);rbT=0;rb.textContent='\u21BB';restartGame();}else{rb.textContent='Sure?';rbT=setTimeout(()=>{rbT=0;rb.textContent='\u21BB';},2000);}}
+ if(state==='play'){if(rbT){clearTimeout(rbT);rbT=0;rb.textContent='\u21BB Restart';rb.classList.remove('sure');restartGame();}else{rb.textContent='Tap again';rb.classList.add('sure');rbT=setTimeout(()=>{rbT=0;rb.textContent='\u21BB Restart';rb.classList.remove('sure');},2500);}}
  else restartGame();});
 
 
@@ -678,9 +685,8 @@ pauseEl.addEventListener('pointerdown',e=>e.stopPropagation());
 document.getElementById('resume').addEventListener('click',resumeGame);
 document.getElementById('pshop').addEventListener('click',()=>{pauseEl.classList.remove('on');openShop();});
 document.getElementById('pset').addEventListener('click',()=>{openSettings();});
-document.getElementById('gbtn').addEventListener('pointerdown',e=>{e.stopPropagation();e.preventDefault();ac();openSettings();});
 const cbtn=document.getElementById('cbtn');
-function setView(v){viewSide=v;cbtn.textContent=(v||mode===5)?'\uD83C\uDFA5 Side'+(mode===5?' (locked)':''):'\uD83C\uDFA5 Back';try{localStorage.setItem('flappyview',v?'side':'back')}catch(e){}}
+function setView(v){viewSide=v;cbtn.innerHTML=(v||mode===5)?'\uD83C\uDFA5<span> Side</span>':'\uD83C\uDFA5<span> Back</span>';cbtn.title=(v||mode===5)?'Camera: side (V)':'Camera: back (V)';try{localStorage.setItem('flappyview',v?'side':'back')}catch(e){}}
 setView(viewSide);
 cbtn.addEventListener('pointerdown',e=>{e.stopPropagation();e.preventDefault();ac();setView(!viewSide);});
 document.getElementById('pbtn').addEventListener('pointerdown',e=>{e.stopPropagation();e.preventDefault();pauseGame();});
@@ -842,7 +848,7 @@ function die(){
   if(wallet>=reviveCost()){offer=true;card.innerHTML='<h1>Crash!</h1><p>Score: <b>'+score+'</b> &nbsp; Level: <b>'+level+'</b></p><p>Revive now to keep your score, level and upgrades. Give up and you start over from zero.</p><button id="revbtn">&#10084;&#65039; Revive for $'+reviveCost()+'</button> <button id="giveup">Give up</button> <button id="restartbtn">&#8635; Restart</button><p>Wallet: <b>$'+fm(wallet)+'</b></p>';msg.style.display='flex';}else gameOver();
 }
 
-let last=performance.now(),nextFrame=0,fpsAcc=0,fpsN=0,adaptK=1,hz=60,hzS=[],hzN=0,hzLast=0;
+let uiLast='',last=performance.now(),nextFrame=0,fpsAcc=0,fpsN=0,adaptK=1,hz=60,hzS=[],hzN=0,hzLast=0;
 function loop(now){
   requestAnimationFrame(loop);
   if(hzN<90){if(hzLast)hzS.push(now-hzLast);hzLast=now;if(++hzN===90){hzS.sort((a,b)=>a-b);const rhz=1000/hzS[hzS.length>>1];hz=[30,60,75,90,100,120,144,165,240,360].reduce((a,b)=>Math.abs(b-rhz)<Math.abs(a-rhz)?b:a);}}
@@ -901,7 +907,7 @@ function loop(now){
   updNightSky(Math.max(nt0*(1-neo),neo*.5),dt,now);glowMat.opacity=nt*.95;pipes.forEach(p=>{p.pm.p.emissiveIntensity=p.pm.c.emissiveIntensity=nt*.85;});birdGlow.material.opacity=.12+nt*.6;birdL.intensity=nt*2;{const ei=.05+nt*.7;birdMats.forEach(q=>{q.emissive.copy(q.color).lerp(bTint,.5);q.emissiveIntensity=ei;});}coinMat.emissiveIntensity=sideMat.emissiveIntensity=.35+nt*1.8;faceMat.emissiveIntensity=.2+nt*1.1;rimMat.uniforms.k.value=.22+nt*.28;
   bankTint.setRGB(.26+.74*dd+.1*tw,.3+.7*dd,.5+.5*dd).lerp(cBank,neo);
   {let wh=0;banks.forEach(b=>{if(state==='play'&&!paused)b.position.z+=sp()*dt*.9;if(b.position.z>9)bankReset(b,true);const a=mode===5?1:Math.max(0,Math.min(1,(b.position.y-CLO)/6)),op=b.userData.o*a*a*(3-2*a);b.material.opacity=op;b.material.color.copy(bankTint);const dx=b.position.x-cam.position.x,dy=b.position.y-cam.position.y,dz=b.position.z-cam.position.z,d=Math.sqrt(dx*dx+dy*dy+dz*dz),rr=b.userData.sz*.5;if(d<rr)wh+=(1-d/rr)*op*1.5;});
-   if(mode===5){const k=Math.max(0,Math.min(1,(y-CLO)/1.2));wh=Math.max(wh,k*k*(3-2*k)*.97);}cloudFx.style.opacity=Math.min(mode===5?.97:.88,wh);cloudFx.style.background='rgb('+Math.round(bankTint.r*255)+','+Math.round(bankTint.g*255)+','+Math.round(bankTint.b*255)+')';}
+   if(mode===5){const k=Math.max(0,Math.min(1,(y-CLO)/1.2));wh=k*k*(3-2*k)*.97;}cloudFx.style.opacity=Math.min(mode===5?.97:.88,wh);cloudFx.style.background='rgb('+Math.round(bankTint.r*255)+','+Math.round(bankTint.g*255)+','+Math.round(bankTint.b*255)+')';}
   cloudMat.color.setRGB(.2+.8*dd+.1*tw,.25+.75*dd-.08*tw,.4+.6*dd-.2*tw);
   ridgeA.material.color.copy(skyU.bot.value).multiplyScalar(.78);ridgeB.material.color.copy(skyU.bot.value).multiplyScalar(.62);
   neonApply();ffMat.opacity=S.particles==='off'?0:nt*.9;
@@ -912,8 +918,8 @@ function loop(now){
   if(state==='ready')tilt+=(0-tilt)*(1-Math.exp(-6*dt));
   curv=mode===5?kap(RS)/KAP:0;if(mode===5||curvApplied){buildBend();applyCurve();curvApplied=mode===5?1:0;}
   ridgeA.position.x=-curv*28;ridgeB.position.x=-curv*17;{const fn=mode===5?48:25,ff=mode===5?210:95,k=1-Math.exp(-1.5*dt);scene.fog.near+=(fn-scene.fog.near)*k;scene.fog.far+=(ff-scene.fog.far)*k;}
-  camY+=(3.5+y*0.7-camY)*(1-Math.exp(-4*dt));
-  camL+=(y*0.85-camL)*(1-Math.exp(-5*dt));
+  camY+=(3.5+y*(mode===5?.8:.7)-camY)*(1-Math.exp(-4*dt));
+  camL+=(y*(mode===5?1:.85)-camL)*(1-Math.exp(-5*dt));
   const shk=S.shake?shake:0;vb+=(((viewSide||mode===5)?1:0)-vb)*(1-Math.exp(-4*dt));cam.position.set(vb*8+Math.sin(now/40)*shk*0.25,camY+Math.cos(now/47)*shk*0.25,8);
   {const el=(now-flapAt)/1000;let a;if(state==='ready')a=Math.sin(now/110)*.5;else if(state==='dead')a=.6;else a=Math.max(0,1-el*2.2)*Math.sin(el*38)*.9+(vy<0?.25:0);wings[0].rotation.z=-a;wings[1].rotation.z=a;}
   bird.position.set(0,y,0);bird.userData.bank=curv*.12;backL.position.set(0,y+1.6,-4.5);backL.intensity=.3+nt*.3;{const fl=Math.max(0,1-(now-flapAt)/170);bird.scale.set(1-.08*fl,1+.12*fl,1-.08*fl);}bird.rotation.set(tilt*1.6,0,state==='dead'?-tilt*1.2:Math.sin(now/500)*.05-bird.userData.bank);bird.visible=!(ghost>gt)||Math.floor(now/90)%2===0;
@@ -922,6 +928,7 @@ function loop(now){
   cam.lookAt(bendOff(-40)*.9,camL,-8+vb*4.5);cam.rotateZ(-curv*.035);
   {const W=[null,null];if(state==='play'&&!paused&&!hold)foes.forEach(f=>{const si=f.dir<0?0:1;if(!f.hit&&f.dir*f.x>0&&f.dir*f.x<FVX*2.6&&(!W[si]||Math.abs(f.x)<Math.abs(W[si].x)))W[si]=f;});
   [warn2,warnEl].forEach((el,i)=>{const wf=W[i];if(wf){cam.updateMatrixWorld();wpv.set(0,wf.fy===undefined?wf.y:wf.fy,0).project(cam);el.style.display='block';el.style.top=Math.max(8,Math.min(88,(1-wpv.y)/2*100))+'%';if(!wf.warned){wf.warned=true;tone(880,880,.09,'square',.06);tone(880,880,.09,'square',.06,.14);}}else el.style.display='none';});}
+  {const ui=(state==='play'&&!hold?'play':state)+(mode===5?'5':'');if(ui!==uiLast){uiLast=ui;document.body.dataset.st=state==='play'&&!hold?'play':state;document.body.classList.toggle('m5',mode===5);}}
   if(composer&&S.bloom)composer.render(dt);else renderer.render(scene,cam);
 }
 initComposer();applyAll();reset();showCard('Birds Gone Wild','<p>You are the bird. Fly through the gaps and grab the coins. You also earn $0.25 every 2 seconds you survive.</p><p><b>Tap</b>, click or press <b>Space</b> to flap.</p>');

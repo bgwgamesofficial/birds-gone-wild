@@ -3,10 +3,16 @@
 Until the game is ready for its first real release (1.0), every update to the live game
 gets the next number: 0.1, 0.2, 0.3 … 0.9, 0.10, 0.11 and so on.
 
-## v0.4 – butterflies and life bar (level 5 only, testing on `hawk-test`)
+## v0.4 – butterflies, life bar, Neon, prettier night, cleaner menus (testing on `hawk-test`)
 - Level 5: small butterflies cross the lane like the hawks but steer away from you.
 - Catching a butterfly fills the life bar under the score (5 butterflies = 1 life, up to 3 lives).
 - A full life saves you from one crash: you bounce up with 1.5 seconds of safety.
+- Level 5: ceiling raised from 16 to 20; a thin cloud layer starts at 16 and hides the toucan when you fly into it.
+- Level 5: hawks are a bit easier (lock their path earlier, steer slower, fewer triple waves, slightly smaller hitbox).
+- New random "Neon" look (all levels): dark purple sky, neon sun, glowing grid ground.
+- Prettier night (all levels): twinkling coloured stars, Milky Way, aurora, cratered moon, shooting stars.
+- Cleaner menus (all levels): only Pause (and the camera button in levels 1–4) during play; sound, restart and
+  settings moved into the pause menu; bigger Start button and easier colour/difficulty buttons.
 
 ## v0.3 – version number, automatic tests, testing guide
 - Version number shown on the start screen.
