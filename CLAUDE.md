@@ -26,8 +26,10 @@ desktop browser and a Galaxy Z Fold.
    Work on a branch (e.g. `feature-name`), tell the owner how to test it, and merge only after they approve.
 2. Before every commit run: `node tests/check.js && node tests/smoke.js`. Both must pass.
 3. If you change `manifest.webmanifest`, icons, or `sw.js` itself, bump `CACHE` (`bgw-v1` → `bgw-v2`) in `sw.js`.
-4. After an approved release: set `VERSION` (top of the game script in `index.html`, shown on the start screen),
-   add a line to `CHANGELOG.md`, tag it (`v1.x.0`), and create a GitHub Release.
+4. Versions: the game is pre-release. Every update merged to `main` gets the next `0.N` number (0.3 → 0.4 …
+   0.9 → 0.10). Set `VERSION` (top of the game script in `index.html`, shown on the start screen) on the branch,
+   add a section to `CHANGELOG.md`, and after merging tag it (`v0.N`). No GitHub Releases until the owner
+   declares 1.0.
    Give the owner a test link: https://raw.githack.com/bgwgamesofficial/birds-gone-wild/BRANCH/index.html
 5. Keep commits small and described in plain English.
 6. Do not add new network dependencies casually. Three.js and its post-processing add-ons load from

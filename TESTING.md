@@ -29,5 +29,8 @@ Open this address (replace `BRANCH-NAME` with the branch name Claude gives you):
 4. On your phone, close and reopen the game (twice if needed) and check the version number changed.
 
 ## When bumping the version
+The game is not released yet, so versions count updates: 0.1, 0.2, 0.3 … 0.9, 0.10, 0.11 and so on
+(0.10 comes after 0.9 – it means "update number ten", not "zero point one").
 The number shown on the start screen is `VERSION` near the top of the script in `index.html`.
-Change it for every release and add a matching line to `CHANGELOG.md`.
+Each update to the live game gets the next number and a matching section in `CHANGELOG.md`.
+When the game is ready for a real release, it becomes 1.0.
