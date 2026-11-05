@@ -39,7 +39,7 @@ desktop browser and a Galaxy Z Fold.
    - The start screen and pause menu show `v0.4.11`, plus "· test build" anywhere except the live Pages site.
    - Add a section to `CHANGELOG.md` per update (`v0.N`), and after merging tag it (`v0.N.C`). No GitHub
      Releases until the owner declares 1.0. (Tag pushes are refused from Claude's cloud workspace; say so, don't retry.)
-   - Live now: v0.6.11 (2026-11-05). `hawk-test` is at v0.7.1 (dodge + power-up buttons); next change v0.7.2.
+   - Live now: v0.6.11 (2026-11-05). `hawk-test` is at v0.7.2 (dodge + power-up buttons); next change v0.7.3.
 7. Release routine the owner is used to: changelog line "live as v0.N.C" -> PR `hawk-test` -> `main` -> wait for the
    Tests check -> merge -> confirm "pages build and deployment" succeeded -> fast-forward `hawk-test` to `main`.
    Give the owner a test link: https://raw.githack.com/bgwgamesofficial/birds-gone-wild/BRANCH/index.html
@@ -66,8 +66,8 @@ Separate saves: Infinite uses the original keys
 the anti-camping fix (campT / spawnCloudHawk / aim straight at a camper) also runs in Infinite Run. Guard Boss-Run-only code with `BR`.
 
 **BOSS RUN CONTROLS (v0.7, Boss Run only, "BOSS RUN CONTROLS" block in index.html):** `#pad` bottom right holds the
-dodge button (`dodge(dir)`, top half up / bottom half down, keys W/S; 2 charges `DG_N`, each back after `DG_CD`=30 s;
-dash `DG_T`/`DG_V`; `knockOut(f)` kills a touched hawk, bosses only get `f.hit`) and 5 small buttons: 3 temporary
+dodge button (`dodge(dir)`, swipe up/down on it (`swp`, 16 px), keys W/S; no limit, `DG_GAP` between dodges;
+only `DGF_N`=3 butterfly dash-catches per `DGF_W`=60 s (`dgFly`, `dfLeft()`, badge); dash `DG_T`/`DG_V`; `knockOut(f)` kills a touched hawk, bosses only get `f.hit`) and 5 small buttons in a full ring (angles: items 126/198/270, upgrades 342/54): 3 temporary
 item slots `tSlots` (shop puts items there via `buyItem()`, `useSlot(i)` activates for `T_DUR`=30 s, keys 1-3) and
 2 permanent slots `pSlots`/`permSlots()` (max 2 perk kinds, `takePerk()`; `usePerk(i)` = 3 s burst `pb[id]`,
 cooldown 60 s `pcd[id]`, effects in `PBURST`, keys 4-5). `brTick(dt)` runs each Boss Run frame. Everything is
@@ -135,8 +135,8 @@ simulations in tests/tools do not use the dodge or bursts, so Boss Run is now ea
   from `lvType()`: 'dodge' (most), 'fly' (level%10==5, catch butterflies), 'boss' (level%10==0, the Hawk Chief =
   foe kind 'boss' from `spawnBoss()`, turns around at |x|>13 and comes back). Goal size `lvNeed()`, progress
   `lvProg` via `lvAdd()` (from `hawkPassed(f)` / `catchFly`). Boss levels: `bossLineup()` (Chief 10; Chief+Captain
-  20/30; Chief+2 Captains 40; 2 Chiefs+Captain 50). `levelComplete()` pays a coin bonus; every 5th
-  level opens shop -> perk, otherwise straight to `countdown()`. `showBanner()` shows the goal. Difficulty
+  20/30; Chief+2 Captains 40; 2 Chiefs+Captain 50). `levelComplete()` pays a coin bonus and then opens shop -> perk
+  after EVERY level (owner's choice, v0.7.2), then `countdown()`. `showBanner()` shows the goal. Difficulty
   `lvD()` comes from the `LV_TAB` table (about 0.03 on level 1 to 0.6 on level 50, small waves); it drives spawn
   rate, group size, kinds, `lvSpd()`, hunt, lock distance
   (>= ~0.9 s), hitbox, steal. Old XP levels are gone (`gainXp` no-op). Game over resets everything (see FRESH RUNS);
@@ -145,7 +145,7 @@ simulations in tests/tools do not use the dodge or bursts, so Boss Run is now ea
 - Economy: coins, passive income ($0.25 per 2 s x `MM()`), marketplace (`ITEMS`), permanent perks (`PERKS`),
   revive with rising cost. Hits steal coins; in Infinite Run you die if you cannot pay, in Boss Run hits cost hearts.
 - Level-up flow: marketplace (Next only) → perk choice (select, then Complete) → 3-second countdown. Infinite Run:
-  on XP level-ups. Boss Run: every 5th level (other levels go straight to the countdown).
+  on XP level-ups. Boss Run: after every level (since v0.7.2).
 - Camera: back view or 45-degree side view (button / V key); mode 5 forces side view.
 
 ## Code gotchas

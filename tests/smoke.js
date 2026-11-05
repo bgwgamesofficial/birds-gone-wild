@@ -3,7 +3,7 @@ const html=fs.readFileSync(require('path').join(__dirname,'..','index.html'),'ut
 let code=html.match(/<script>\n\(function\(\)\{[\s\S]*?<\/script>/)[0].replace(/^<script>/,'').replace(/<\/script>$/,'');
 code=code.replace("function foeHit(f){","function foeHit(f){if(gt>=ghost)window.__hits=(window.__hits||0)+1;");
 code=code.replace("reset();showCard('Birds Gone Wild'","window.__fn={rich:()=>{wallet=500;level=7;perks.wings=2;inv.shield=3;},runState:()=>({wallet,level,wings:perks.wings,shield:inv.shield}),game:b=>{BR=b;loadProg();},infXp:()=>{BR=false;level=1;xp=0;lvlOpen=false;state='play';gainXp(500);const r={level,lvlOpen};lvlOpen=false;shopOpen=false;paused=false;return r;},camp:(l)=>{level=l;reset();state='play';speed=SPEED;paused=false;cdEnd=0;window.__hits=0;},pin:(yy)=>{y=yy;vy=0;wallet=1e9;lifePts=0;lvlOpen=false;shopOpen=false;paused=false;cdEnd=0;state='play';},act:()=>hawksActive(),cap:()=>lvMaxActive(),ceil:()=>CEIL,bestReset:()=>{best=42;resetBest();return best;},uturn:()=>{level=12;lvProg=0;state='play';paused=false;cdEnd=0;lvlOpen=false;shopOpen=false;foes.forEach(q=>scene.remove(q.g));foes.length=0;spawnFoe(-(sp()+4)*2.4,10,.5);const f=foes[foes.length-1];f.kind='hunter';f.wantRet=true;f.turnX=7;f.y=10;return f;},keepSafe:()=>{ghost=gt+99;y=-3;vy=0;lifePts=0;hawkT=99;flyT=99;},prog:()=>lvProg,lvl:{get:()=>({level,lvProg,lvlOpen,paused,cd:cdEnd,need:lvNeed(),type:lvType(),ds:(()=>{const l=level,a=[];for(let i=1;i<=50;i++){level=i;a.push(lvD());}level=l;return a;})()}),set:(l,h)=>{level=l;lvProg=h;state='play';paused=false;cdEnd=0;lvlOpen=false;shopOpen=false;},pass:()=>lvAdd(),over:()=>gameOver(),boss:()=>{spawnBoss();return foes[foes.length-1].kind;}},start:()=>startGame(),pause:()=>pauseGame(),resume:()=>resumeGame(),toStart:()=>restartGame(),renderSettings,applyAll,applyRes,applyShadows,applyAniso,presetMatch,capFps,modeCap,spawnFoe:()=>spawnFoe(-60,3,.8),setMode:(m)=>{mode=m;applyMode();reset();},getFoes:()=>foes.length,spawnFly,getFlies:()=>flies.length,flyAtBird:()=>{y=2;vy=0;spawnFly();const f=flies[flies.length-1];f.x=f.dir*.3;f.y=y;},setLife:v=>{lifePts=v;state='play';ghost=0;paused=false;hold=false;},getLife:()=>lifePts,ghostFall:()=>{state='play';paused=false;hold=false;ghost=gt+5;y=BOT+.6;vy=-13;},getY:()=>y,BOT,die};window.__dbg=()=>({cd:cdEnd,paused,mode,state,score,wallet,level,foes:foes.length,pipes:pipes.length,revives});reset();showCard('Birds Gone Wild'");
-code=code.replace("window.__dbg=()=>","window.__br={setup:()=>{BR=true;mode=5;applyMode();reset();level=2;lvProg=0;state='play';speed=SPEED;paused=false;hold=false;cdEnd=0;lvlOpen=false;shopOpen=false;setOpen=false;lifePts=25;ghost=0;hawkT=99;flyT=99;y=6;vy=0;wallet=0;},infSetup:()=>{BR=false;mode=5;reset();state='play';paused=false;hold=false;cdEnd=0;lvlOpen=false;shopOpen=false;},dodge,left:()=>dgLeft(),on:()=>dgOn(),adv:s=>{gt+=s;},y:()=>y,hold:()=>{y=6;vy=0;hawkT=99;flyT=99;},hawkAt:()=>{spawnFoe(-(sp()+4)*2.4,y,.5);const f=foes[foes.length-1];f.kind='hunter';f.x=f.dir*.3;f.y=y;f.amp=0;f.mind=99;return f;},flyAt:()=>{spawnFly();const f=flies[flies.length-1];f.x=f.dir*1.1;f.y=y+1.1;return f;},nFoes:()=>foes.length,nFlies:()=>flies.length,life:()=>lifePts,prog:()=>lvProg,buy:id=>{wallet=1e4;return buyItem(id);},slots:()=>tSlots.slice(),use:i=>useSlot(i),fxOn,fx:()=>fx,take:takePerk,perm:()=>permSlots().slice(),usePerk,burst:id=>burstOn(id),choices:()=>{showLevelUp();const c=lvlCh.map(q=>q.id);lvlOpen=false;shopOpen=false;paused=false;pending=0;return c;},perks:()=>perks};window.__dbg=()=>");
+code=code.replace("window.__dbg=()=>","window.__br={setup:()=>{BR=true;mode=5;applyMode();reset();level=2;lvProg=0;state='play';speed=SPEED;paused=false;hold=false;cdEnd=0;lvlOpen=false;shopOpen=false;setOpen=false;lifePts=25;ghost=0;hawkT=99;flyT=99;y=6;vy=0;wallet=0;},infSetup:()=>{BR=false;mode=5;reset();state='play';paused=false;hold=false;cdEnd=0;lvlOpen=false;shopOpen=false;},dodge,left:()=>dfLeft(),on:()=>dgOn(),adv:s=>{gt+=s;},y:()=>y,hold:()=>{y=6;vy=0;hawkT=99;flyT=99;},hawkAt:()=>{spawnFoe(-(sp()+4)*2.4,y,.5);const f=foes[foes.length-1];f.kind='hunter';f.x=f.dir*.3;f.y=y;f.amp=0;f.mind=99;return f;},flyAt:()=>{spawnFly();const f=flies[flies.length-1];f.x=f.dir*1.1;f.y=y+1.1;return f;},nFoes:()=>foes.length,nFlies:()=>flies.length,life:()=>lifePts,prog:()=>lvProg,buy:id=>{wallet=1e4;return buyItem(id);},slots:()=>tSlots.slice(),use:i=>useSlot(i),fxOn,fx:()=>fx,take:takePerk,perm:()=>permSlots().slice(),usePerk,burst:id=>burstOn(id),choices:()=>{showLevelUp();const c=lvlCh.map(q=>q.id);lvlOpen=false;shopOpen=false;paused=false;pending=0;return c;},perks:()=>perks};window.__dbg=()=>");
 const f=function(){};
 const p=new Proxy(f,{get(t,k){if(k===Symbol.toPrimitive)return()=>0;if(k==='then')return undefined;if(k==='length'||k==='count')return 0;return p;},apply(){return p;},construct(){return p;},set(){return true;}});
 const listeners={};const raf=[];
@@ -74,13 +74,13 @@ try{const L=F.lvl;F.setMode(5);const g=L.get(),ds=g.ds;
  if(ds[0]>.1||ds[49]<.6||ds[49]>1||ds.some(v=>v<0||v>1))errs.push('LEVELS: difficulty out of range '+ds[0]+'..'+ds[49]);
  if(!(ds[48]>ds[20]&&ds[20]>ds[5]))errs.push('LEVELS: difficulty does not rise overall');
  L.set(3,0);const n3=L.get().need;L.set(3,n3-1);L.pass();let q=L.get();
- if(q.level!==4||q.lvProg!==0||q.lvlOpen||!q.cd)errs.push('LEVELS: finishing level 3 should go straight to a countdown into level 4 '+JSON.stringify(q).slice(0,120));
+ if(q.level!==4||q.lvProg!==0||!q.lvlOpen)errs.push('LEVELS: finishing level 3 should open the marketplace/upgrade flow (every level does) '+JSON.stringify(q).slice(0,120));
  L.set(5,0);if(L.get().type!=='fly')errs.push('LEVELS: level 5 should be a butterfly level');L.set(5,L.get().need-1);L.pass();q=L.get();
  if(q.level!==6||!q.lvlOpen)errs.push('LEVELS: finishing level 5 should open the marketplace/upgrade flow');
  L.set(10,0);if(L.get().type!=='boss'||L.boss()!=='boss')errs.push('LEVELS: level 10 should be a boss level with the Hawk Chief');
  L.set(4,7);L.over();q=L.get();if(q.level!==1||q.lvProg!==0)errs.push('LEVELS: game over should send you back to level 1 '+JSON.stringify(q).slice(0,120));
  if(F.bestReset()!==0)errs.push('SETTINGS: reset best score did not clear the best score');
- if(!errs.some(e=>e.startsWith('LEVELS')))console.log('levels ok: types, difficulty curve, finishing levels, shop every 5, game over back to level 1, reset best works');}
+ if(!errs.some(e=>e.startsWith('LEVELS')))console.log('levels ok: types, difficulty curve, finishing levels, shop after every level, game over back to level 1, reset best works');}
 catch(e){errs.push('LEVELS TEST ERROR: '+e.message);}
 // Smart hawks: a hawk that misses can U-turn and come back once; it is counted only once.
 try{F.setMode(5);const h=F.uturn(),d0=h.dir;let turned=false,back=false;
@@ -101,16 +101,16 @@ catch(e){errs.push('3-HAWK TEST ERROR: '+e.message);}
 // BOSS RUN CONTROLS (v0.7): dodge button, power-up buttons, 2 upgrade kinds.
 try{const B=sb.__br,fr=n=>{for(let i=0;i<n;i++){t+=16;const cb=raf.shift();cb&&cb(t);}};
  B.setup();fr(3);
- if(B.left()!==2)errs.push('DODGE: should start with 2 dodges, has '+B.left());
- const y0=B.y();B.dodge(1);fr(10);if(!(B.y()>y0+1.5))errs.push('DODGE: dodging up did not move the bird up ('+y0.toFixed(2)+' -> '+B.y().toFixed(2)+')');
- B.hold();B.dodge(-1);if(B.left()!==0)errs.push('DODGE: 2 dodges should leave 0, left '+B.left());
- if(B.dodge(1))errs.push('DODGE: a third dodge within 30 s was allowed');
- B.adv(31);if(B.left()!==2)errs.push('DODGE: dodges did not come back after 30 s (has '+B.left()+')');
+ let ok=0;for(let i=0;i<6;i++){B.hold();if(B.dodge(i%2?-1:1))ok++;B.adv(.5);}if(ok!==6)errs.push('DODGE: dodges should have no limit (only '+ok+' of 6 worked)');
+ B.hold();B.dodge(1);if(B.dodge(1))errs.push('DODGE: two dodges at the same instant (one swipe) should count once');
  B.setup();fr(2);sb.__hits=0;const h=B.hawkAt(),p0=B.prog();B.dodge(1);fr(4);
  if(!h.dead)errs.push('DODGE: dodging into a hawk did not knock it out');
  if(sb.__hits)errs.push('DODGE: the player was hit while dodging into a hawk');
  if(B.prog()!==p0+1)errs.push('DODGE: a knocked-out hawk did not count toward the level ('+p0+' -> '+B.prog()+')');
- B.setup();fr(2);const l0=B.life(),nf=B.nFlies();B.flyAt();B.dodge(1);fr(3);if(!(B.life()>l0))errs.push('DODGE: dodging into a butterfly did not give life');
+ B.setup();fr(2);for(let k=0;k<3;k++){B.hold();const l0=B.life();B.flyAt();B.dodge(1);fr(3);if(!(B.life()>l0))errs.push('DODGE: dash-catch '+(k+1)+' of a butterfly did not give life');B.adv(1);}
+ if(B.left()!==0)errs.push('DODGE: after 3 dash-catches the badge should show 0, shows '+B.left());
+ {B.hold();const l0=B.life();B.flyAt();B.dodge(1);fr(3);if(B.life()>l0)errs.push('DODGE: a 4th dash-catch within a minute was allowed');}
+ B.adv(61);{B.hold();const l0=B.life();B.flyAt();B.dodge(1);fr(3);if(!(B.life()>l0))errs.push('DODGE: dash-catching did not come back after a minute');}
  B.setup();sb.__hits=0;B.hawkAt();for(let i=0;i<6&&!sb.__hits;i++)fr(1);if(!sb.__hits)errs.push('DODGE: without a dodge, a hawk at the bird should still hit');
  // temporary power-ups: 3 slots, used one at a time, last 30 s
  B.setup();['magnet','slow','shield'].forEach(id=>B.buy(id));if(B.buy('double'))errs.push('POWERUPS: could buy a 4th temporary item (max 3)');
@@ -118,15 +118,15 @@ try{const B=sb.__br,fr=n=>{for(let i=0;i<n;i++){t+=16;const cb=raf.shift();cb&&c
  if(B.fxOn('magnet'))errs.push('POWERUPS: a bought item started before its button was tapped');
  B.use(0);if(!B.fxOn('magnet')||B.slots().join()!=='slow,shield')errs.push('POWERUPS: tapping slot 1 did not use it and move the others up ('+B.slots().join()+')');
  B.adv(29);if(!B.fxOn('magnet'))errs.push('POWERUPS: item ended before 30 s');B.adv(2);if(B.fxOn('magnet'))errs.push('POWERUPS: item lasted longer than 30 s');
- B.use(1);if(!B.fx().shield)errs.push('POWERUPS: shield button did not raise a shield');B.adv(31);fr(2);if(B.fx().shield)errs.push('POWERUPS: shield lasted longer than 30 s');
+ B.use(1);if(!B.fx().shield)errs.push('POWERUPS: shield button did not raise a shield');B.adv(31);fr(6);if(B.fx().shield)errs.push('POWERUPS: shield lasted longer than 30 s');
  // permanent: only 2 kinds; burst lasts 3 s, once every 60 s
  B.setup();B.take('wings');B.take('steady');const ch=B.choices();if(ch.some(c=>c!=='wings'&&c!=='steady'&&c!=='cash'))errs.push('UPGRADES: offered a 3rd upgrade kind: '+ch.join());
  if(B.perm().join()!=='wings,steady')errs.push('UPGRADES: upgrade buttons should be wings,steady, are '+B.perm().join());
  B.usePerk(1);if(!B.burst('steady'))errs.push('UPGRADES: power burst did not start');B.adv(3.1);if(B.burst('steady'))errs.push('UPGRADES: power burst lasted longer than 3 s');
  if(B.usePerk(1))errs.push('UPGRADES: power burst could be used again before 60 s');B.adv(57);if(!B.usePerk(1))errs.push('UPGRADES: power burst not ready again after 60 s');
  // Infinite Run must not get any of this
- B.infSetup();if(B.dodge(1)||B.left()!==2&&B.on())errs.push('INFINITE: dodge worked in Infinite Run');
- if(!errs.some(e=>/^(DODGE|POWERUPS|UPGRADES|INFINITE: dodge)/.test(e)))console.log('boss run controls ok: 2 dodges per 30 s, dodge knocks out hawks and catches butterflies, 3 item buttons (30 s), 2 upgrade kinds with 3 s bursts every 60 s, not in Infinite Run');}
+ B.infSetup();if(B.dodge(1)||B.on())errs.push('INFINITE: dodge worked in Infinite Run');
+ if(!errs.some(e=>/^(DODGE|POWERUPS|UPGRADES|INFINITE: dodge)/.test(e)))console.log('boss run controls ok: unlimited dodges, dodge knocks out hawks, max 3 dash-catches of butterflies a minute, 3 item buttons (30 s), 2 upgrade kinds with 3 s bursts every 60 s, not in Infinite Run');}
 catch(e){errs.push('BOSS RUN CONTROLS TEST ERROR: '+e.stack.split('\n').slice(0,3).join(' | '));}
 console.log(errs.length?errs.join('\n'):'NO RUNTIME ERRORS in 4000 simulated frames');
 if(errs.length)process.exit(1);
