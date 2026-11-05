@@ -80,7 +80,7 @@ the anti-camping fix (campT / spawnCloudHawk / aim straight at a camper) also ru
   one late re-aim after lock (`f.reaimed`). 3-HAWK RULE: `hawksActive()` (boss always counts) must stay <= 3 -
   check it before ANY spawn, U-turn or escort. Anti-camping: `campT` (time above `CLO`) -> `spawnCloudHawk()`;
   hawks aim straight at a bird riding the clouds/ceiling. Smart butterflies on 'fly' levels in `aiFlee()`.
-  `IS_TEST` (not the live host) shows a level picker `#lvpick` on the start card.
+  `IS_TEST` (not the live host) only adds "· test build" to the version label (the level picker was removed in v0.6.10).
 - Since v0.6.6: HEARTS. In mode 5 `foeHit()` steals coins and calls `die()`, which spends a heart (`LIFE_SEG` of
   `lifePts`) or ends the game. `levelHearts()` gives >= `START_HEARTS` (2; 3 on levels 1-3) at each level start.
   Hawk rule = 5 (`HAWK_MAX`), per-level limit `lvMaxActive()`. Difficulty table `LV_TAB` (levels 1,5,...,50);
