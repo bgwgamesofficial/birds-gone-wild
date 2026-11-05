@@ -3,6 +3,18 @@
 Versions are `0.UPDATE.CHANGE` (e.g. v0.4.11). The last number goes up with every single change;
 the middle number goes up each time an update goes live. Each section below is one update.
 
+## v0.7 (in testing on hawk-test) – Boss Run: dodge button and power-up buttons
+- Boss Run only (Infinite Run is unchanged, checked frame by frame against v0.6.11). (v0.7.1)
+  - Dodge: a big round button in the bottom-right corner (keys W / S). Tap its top half to dash up, bottom half
+    to dash down. Dashing into a hawk knocks it out (counts as passed, pays double); a boss is only blocked for
+    that pass. Dashing into a butterfly catches it from farther away. 2 dodges; each comes back 30 s after use.
+  - Power-up buttons around the dodge button (left side and top): 3 for shop items and 2 for upgrades.
+  - Shop items no longer start right away: they wait on a button (up to 3), you tap one to use it (keys 1-3),
+    it lasts 30 seconds and the remaining items move up.
+  - Upgrades: you can hold 2 kinds; after that the upgrade menu only offers those two. Each keeps its always-on
+    effect and adds a 3-second power burst on its button once every 60 s (keys 4-5): Butterfly Lure, Lucky Break
+    (hawks cannot hurt you), Hover, Freeze (hawks 75% slower), Shrink, Bash (hawks you touch are knocked out).
+
 ## v0.6 (live as v0.6.11, 2026-11-05) – Boss Run (50 levels, hearts, bosses) + Infinite Run, fresh runs
 - Every game starts from nothing in both modes: $0, level 1, no upgrades, no leftover shop items - also after
   closing and reopening the game. Game over resets everything. Best scores, settings, bird colour and the chosen

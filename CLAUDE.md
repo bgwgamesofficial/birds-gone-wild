@@ -39,7 +39,7 @@ desktop browser and a Galaxy Z Fold.
    - The start screen and pause menu show `v0.4.11`, plus "· test build" anywhere except the live Pages site.
    - Add a section to `CHANGELOG.md` per update (`v0.N`), and after merging tag it (`v0.N.C`). No GitHub
      Releases until the owner declares 1.0. (Tag pushes are refused from Claude's cloud workspace; say so, don't retry.)
-   - Live now: v0.6.11 (2026-11-05). The next change on `hawk-test` is v0.7.1.
+   - Live now: v0.6.11 (2026-11-05). `hawk-test` is at v0.7.1 (dodge + power-up buttons); next change v0.7.2.
 7. Release routine the owner is used to: changelog line "live as v0.N.C" -> PR `hawk-test` -> `main` -> wait for the
    Tests check -> merge -> confirm "pages build and deployment" succeeded -> fast-forward `hawk-test` to `main`.
    Give the owner a test link: https://raw.githack.com/bgwgamesofficial/birds-gone-wild/BRANCH/index.html
@@ -64,6 +64,15 @@ Separate saves: Infinite uses the original keys
 `flappywallet_boss`, `flappyfpv_boss`. Keep Infinite Run behaving exactly like before unless the owner asks
 (a seeded side-by-side run against the v0.5.4 file matched frame-for-frame). Exception the owner asked for (v0.6.9):
 the anti-camping fix (campT / spawnCloudHawk / aim straight at a camper) also runs in Infinite Run. Guard Boss-Run-only code with `BR`.
+
+**BOSS RUN CONTROLS (v0.7, Boss Run only, "BOSS RUN CONTROLS" block in index.html):** `#pad` bottom right holds the
+dodge button (`dodge(dir)`, top half up / bottom half down, keys W/S; 2 charges `DG_N`, each back after `DG_CD`=30 s;
+dash `DG_T`/`DG_V`; `knockOut(f)` kills a touched hawk, bosses only get `f.hit`) and 5 small buttons: 3 temporary
+item slots `tSlots` (shop puts items there via `buyItem()`, `useSlot(i)` activates for `T_DUR`=30 s, keys 1-3) and
+2 permanent slots `pSlots`/`permSlots()` (max 2 perk kinds, `takePerk()`; `usePerk(i)` = 3 s burst `pb[id]`,
+cooldown 60 s `pcd[id]`, effects in `PBURST`, keys 4-5). `brTick(dt)` runs each Boss Run frame. Everything is
+guarded by `BR&&mode===5` (`brOn()`, `burstOn()`, `dgOn()`), so Infinite Run is untouched. The difficulty
+simulations in tests/tools do not use the dodge or bursts, so Boss Run is now easier than those numbers say.
 
 **Since v0.5.4 the game is level 5 only** (`let mode=5`, no difficulty picker). The code for modes 1–4
 (pipes, `MODES[0..3]`, back camera) is still inside `index.html` but unreachable; don't spend effort on it.
