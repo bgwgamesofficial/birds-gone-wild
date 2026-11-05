@@ -48,6 +48,17 @@ desktop browser and a Galaxy Z Fold.
 - `classic-modes` – holding branch: the full game with difficulty levels 1–5 as of v0.5.3. Do not delete.
   The owner may want levels 1–4 back later.
 
+**GAME MODES (since v0.6.8):** `BR` = false -> "Infinite Run" (the original endless game: `aiHuntInf()`, the
+`mode===5&&!BR` spawn block, coin-steal deaths, XP levels via `gainXp()`, `gameOverInf()`, 5 butterflies per life);
+`BR` = true -> "Boss Run" (50 levels, hearts, bosses ... everything described under LEVELS/HEARTS below). Chosen on
+the start card (`.gm` buttons, `setGame()`, saved in `flappygame`). FRESH RUNS (v0.6.11, owner's rule): every new game starts with $0, level 1, no perks, no items - `freshRun()` runs at
+load, on mode switch, in `startGame()` and on game over. Never let a wallet, level or upgrades carry into a new game.
+Separate saves: Infinite uses the original keys
+`flappyprog` {level,xp,perks}, `flappywallet`, `flappyfpv_m5`; Boss Run uses `flappyboss` {stage,xp,perks},
+`flappywallet_boss`, `flappyfpv_boss`. Keep Infinite Run behaving exactly like before unless the owner asks
+(a seeded side-by-side run against the v0.5.4 file matched frame-for-frame). Exception the owner asked for (v0.6.9):
+the anti-camping fix (campT / spawnCloudHawk / aim straight at a camper) also runs in Infinite Run. Guard Boss-Run-only code with `BR`.
+
 **Since v0.5.4 the game is level 5 only** (`let mode=5`, no difficulty picker). The code for modes 1–4
 (pipes, `MODES[0..3]`, back camera) is still inside `index.html` but unreachable; don't spend effort on it.
 
@@ -64,8 +75,21 @@ desktop browser and a Galaxy Z Fold.
 - Hawks cross the player's lane sideways (position `f.x`, independent of pipe speed). Height markers ("!") on
   the screen edge show where each hawk will cross. Hawk kinds (mode 5): hunter, feint, dash, sweeper, plus
   pincer pairs. Hawks learn the player's habitual height (`HAB` bins, `habitY()`).
+  Since v0.6.3 `aiHunt5()` predicts with gravity, uses swoop offsets (`f.sw`), group cut-off (`f.cut`), and at the
+  lock distance commits to a crossing height `f.ty` (shown by the "!" marker). Hawks with `f.wantRet` U-turn once
+  after missing (`f.tt` turn timer, `f.ret` done); `f.pc`/`f.sc` stay set so they count and pay once.
+  Since v0.6.5: independent minds (`f.mind` timer -> `f.act` hunt/high/low/feint/stall/burst, speed `f.sv`->`f.svT`),
+  one late re-aim after lock (`f.reaimed`). HAWK RULE (now 5, see HEARTS below): `hawksActive()` (bosses always count)
+  must stay <= `lvMaxActive()` - check it before ANY spawn, U-turn or escort. Anti-camping: `campT` (time above `CLO`) -> `spawnCloudHawk()`;
+  hawks aim straight at a bird riding the clouds/ceiling. Smart butterflies on 'fly' levels in `aiFlee()`.
+  `IS_TEST` (not the live host) only adds "· test build" to the version label (the level picker was removed in v0.6.10).
+- Since v0.6.6: HEARTS. In mode 5 `foeHit()` steals coins and calls `die()`, which spends a heart (`LIFE_SEG` of
+  `lifePts`) or ends the game. `levelHearts()` gives >= `START_HEARTS` (2; 3 on levels 1-3) at each level start.
+  Hawk rule = 5 (`HAWK_MAX`), per-level limit `lvMaxActive()`. Difficulty table `LV_TAB` (levels 1,5,...,50);
+  bosses use `bossD()` x `BOSS_K`=1.4, lineup `bossLineup()` (Chief / Captain `f.cap`). These numbers were tuned
+  with a simulated player; change them in small steps.
 - Mode 5 butterflies (`flies`, `spawnFly()`, `aiFlee()`): small, cross like hawks (speed `FLYV`) but steer away from
-  the player's predicted height. Catching one adds `FLY_GAIN` to `lifePts` (bar `#life`, 3 segments of `LIFE_SEG`).
+  the player's predicted height. Catching one adds `FLY_GAIN` (12.5 = 8 butterflies per heart) to `lifePts` (bar `#life`, 3 segments of `LIFE_SEG`).
   In `die()`, a full segment is spent to survive (like the shield). Reset clears lives.
 - Player flight ceiling `CEIL` and cloud base `CLO` are set per mode in `setCeil()`: modes 1–4 `CEIL`=16, `CLO`=9.5
   (pipes still use `TOP`=11); mode 5 `CEIL`=20, `CLO`=16 with a thin cloud sheet. Touching the ceiling does not kill
@@ -82,6 +106,15 @@ desktop browser and a Galaxy Z Fold.
 - Mode 5 road bend: a fixed winding shape scrolls toward the player (`kap()`, `buildBend()`, `bendOff()`,
   `RS` = distance travelled). Ground and path planes are subdivided and bent on the CPU each frame. Props are
   shifted with the same function. Never animate the bend over time (it makes the road sway).
+- LEVELS (since v0.6.2): `level` = 1..50 (`LVL_MAX`), saved as `stage` in `flappyprog`. Short levels with a type
+  from `lvType()`: 'dodge' (most), 'fly' (level%10==5, catch butterflies), 'boss' (level%10==0, the Hawk Chief =
+  foe kind 'boss' from `spawnBoss()`, turns around at |x|>13 and comes back). Goal size `lvNeed()`, progress
+  `lvProg` via `lvAdd()` (from `hawkPassed(f)` / `catchFly`). `levelComplete()` pays a coin bonus; every 5th
+  level opens shop -> perk, otherwise straight to `countdown()`. `showBanner()` shows the goal. Difficulty
+  `lvD()` 0..~0.95 in waves; it drives spawn rate, group size (max 3), kinds, `lvSpd()`, hunt, lock distance
+  (>= ~0.9 s), hitbox, steal. Old XP levels are gone (`gainXp` no-op). Game over resets everything (see FRESH RUNS);
+  reviving keeps the level; `restartGame()` wipes everything.
+- Settings has a "Reset best score" button (`resetBest()`, tap twice) that removes all `flappyfpv*` keys.
 - Economy: coins, passive income ($0.25 per 2 s x `MM()`), marketplace (`ITEMS`), permanent perks (`PERKS`),
   revive with rising cost, enemies steal coins (die if you cannot pay).
 - Level-up flow: marketplace (Next only) → perk choice (select, then Complete) → 3-second countdown.
