@@ -191,7 +191,7 @@ body:not([data-st=play]) #wallet,body:not([data-st=play]) #xp,body[data-st=ready
 <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/UnrealBloomPass.js"></script>
 <script>
 (function(){
-const VERSION='0.6.10'; // RELEASE.UPDATE.CHANGE - raise the last number with EVERY change (tests/version.js checks it). Shown on the start screen and pause menu.
+const VERSION='0.6.11'; // RELEASE.UPDATE.CHANGE - raise the last number with EVERY change (tests/version.js checks it). Shown on the start screen and pause menu.
 let cdEnd=0,cdLast=-1,fitT=0; // start countdown (ms timestamp when play begins), menu-fit timer
 const IS_TEST=!(typeof location!=='undefined'&&location.hostname==='bgwgamesofficial.github.io'); // everything except the live site
 const VER_TXT='v'+VERSION+(IS_TEST?' \u00b7 test build':'');
@@ -584,7 +584,10 @@ try{best=+localStorage.getItem('flappyfpv')||0}catch(e){}
 try{Object.assign(inv,JSON.parse(localStorage.getItem('flappyinv')||'{}'))}catch(e){}
 function loadProg(){Object.keys(perks).forEach(k=>{perks[k]=0;});level=1;xp=0;try{const P=JSON.parse(localStorage.getItem(progKey())||'{}');level=BR?Math.max(1,Math.min(50,P.stage||1)):Math.max(1,P.level||1);xp=P.xp||0;Object.assign(perks,P.perks||{});}catch(e){}
  try{wallet=+localStorage.getItem(wkey())||0}catch(e){}}
-loadProg();
+// Every game starts from nothing: $0, level 1, no upgrades, no leftover shop items (both modes). Only best scores,
+// settings, bird colour and the chosen mode are remembered between games.
+function freshRun(){wallet=0;level=1;xp=0;pending=0;revives=0;Object.keys(perks).forEach(k=>{perks[k]=0;});Object.keys(inv).forEach(k=>{inv[k]=0;});try{localStorage.setItem(wkey(),0)}catch(e){}saveProg();saveInv();}
+loadProg();freshRun();
 const hud=document.getElementById('hud'),msg=document.getElementById('msg'),card=document.getElementById('card'),bestEl=document.getElementById('best');
 const GRAV=-24, FLAP=9, SPEED=9;
 const MODES=[
@@ -751,6 +754,7 @@ function doRevive(){
  popText('Revived!');updFx();
 }
 function gameOverInf(){ // Infinite Run: as live v0.5.4 (wipes coins, level and upgrades)
+ Object.keys(inv).forEach(k=>{inv[k]=0;});saveInv(); // no leftover shop items either
  offer=false;
  const lv=level;
  level=1;xp=0;pending=0;Object.keys(perks).forEach(k=>{perks[k]=0;});revives=0;fx={};ghost=0;wallet=0;saveW();saveProg();updXp();updFx();
@@ -760,9 +764,9 @@ function gameOverInf(){ // Infinite Run: as live v0.5.4 (wipes coins, level and 
 function gameOver(){
  if(!BR)return gameOverInf();
  offer=false;
- const lv=level;level=1;lvProg=0; // dying sends you back to level 1 (coins and upgrades are kept)
- pending=0;revives=0;fx={};ghost=0;saveProg();updXp();updFx();
- showCard('Game over','<p>You reached <b>level '+lv+'</b>. &nbsp; Score: <b>'+score+'</b> &nbsp; Coins: <b>+$'+fm(run)+'</b></p><p>Back to level 1. Your coins and upgrades are kept.</p><button id="againbtn">&#9654; Try again</button>');
+ const lv=level;lvProg=0;freshRun(); // dying resets everything: level 1, $0, no upgrades
+ fx={};ghost=0;setW();updXp();updFx();
+ showCard('Game over','<p>You reached <b>level '+lv+'</b>. &nbsp; Score: <b>'+score+'</b> &nbsp; Coins: <b>+$'+fm(run)+'</b></p><p>Everything resets: back to level 1 with $0 and no upgrades.</p><button id="againbtn">&#9654; Try again</button>');
  msg.style.display='flex';
 }
 
@@ -1001,7 +1005,7 @@ function downloadApp(){
  else location.href='install.html';}
 function introText(){return BR?'<p>Beat 50 levels: dodge hawks, catch butterflies and survive the bosses. Each hit costs a heart &#10084;&#65039; and losing them all ends the run.</p><p><b>Tap</b>, click or press <b>Space</b> to flap.</p>'
  :'<p>Dodge the hawks (watch for the red <b>!</b> warnings) and catch butterflies to fill your life bar. You earn coins the longer you survive.</p><p><b>Tap</b>, click or press <b>Space</b> to flap.</p>';}
-function setGame(b){if(b===BR)return;BR=b;try{localStorage.setItem('flappygame',b?'boss':'inf')}catch(e){}loadProg();try{best=+localStorage.getItem(bkey())||0}catch(e){}
+function setGame(b){if(b===BR)return;BR=b;try{localStorage.setItem('flappygame',b?'boss':'inf')}catch(e){}loadProg();freshRun();try{best=+localStorage.getItem(bkey())||0}catch(e){}
  reset();setW();updXp();updLife();showCard('Birds Gone Wild',introText());}
 function showCard(title,body){
   const T=title==='Birds Gone Wild';card.classList.toggle('cols',T);card.innerHTML=(T?'<div class="cl">':'')+(title==='Birds Gone Wild'?'<img class="logo" alt="Birds Gone Wild" src="'+LOGO+'">':'<h1>'+title+'</h1>')+body+(T&&BR?'<p class="lvlnow">Level <b>'+level+'</b> of '+LVL_MAX+' &middot; '+lvGoalTxt()+'</p>':'')+'<p id="best">Best: '+best+' &nbsp; Wallet: <b class="wv">$'+fm(wallet)+'</b></p>'+(title==='Birds Gone Wild'?'</div><div class="cr"><p>Bird color</p><div id="swatches">'+Object.keys(COLORS).map(k=>'<button class="sw'+(k===birdCol?' on':'')+'" data-col="'+k+'" aria-label="'+k+' bird" style="background:#'+COLORS[k][0].toString(16).padStart(6,'0')+'"></button>').join('')+'</div><div id="gmodes"><button class="gm'+(BR?'':' on')+'" data-g="inf">&#9854;&#65039; Infinite Run</button><button class="gm'+(BR?' on':'')+'" data-g="boss">&#128081; Boss Run</button></div><button id="startbtn">Start</button> <div class="cardrow">'+(isInstalled()?'':'<button id="dlbtn" class="ghost">&#128242; Download App</button>')+'<button id="setbtn" class="ghost">&#9881; Settings</button></div><p class="ver">'+VER_TXT+'</p></div>':'');
@@ -1010,7 +1014,7 @@ function showCard(title,body){
 let cdHop=false;
 function countdown(hop){showBanner();paused=true;cdHop=hop;cdEnd=Math.max(last,performance.now())+3000;cdLast=-1;} // 3-2-1-GO, game frozen meanwhile (same clock as the frame loop)
 function levelHearts(){if(mode===5&&BR){lifePts=Math.max(lifePts,(level<=3?3:START_HEARTS)*LIFE_SEG);updLife();}} // each level starts with at least 2 hearts (3 on levels 1-3)
-function startGame(){if(state!=='ready'||cdEnd)return;ac();startMusic();msg.style.display='none';state='play';speed=SPEED;useItems();y=1;vy=0;levelHearts();countdown(true);}
+function startGame(){if(state!=='ready'||cdEnd)return;freshRun();setW();updXp();ac();startMusic();msg.style.display='none';state='play';speed=SPEED;useItems();y=1;vy=0;levelHearts();countdown(true);}
 function cdTick(now){ // runs the 3-2-1-GO countdown
  const left=Math.min(3,Math.ceil((cdEnd-now)/1000));if(left!==cdLast&&left>0){cdLast=left;cdShow(left);tone(520,520,.12,'square',.09);}
  if(now>=cdEnd){cdEnd=0;cdShow('GO!');tone(880,1320,.2,'square',.09);setTimeout(()=>{if(cntEl.textContent==='GO!')cntEl.textContent='';},600);

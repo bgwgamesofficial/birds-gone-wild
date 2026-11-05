@@ -51,7 +51,9 @@ desktop browser and a Galaxy Z Fold.
 **GAME MODES (since v0.6.8):** `BR` = false -> "Infinite Run" (the original endless game: `aiHuntInf()`, the
 `mode===5&&!BR` spawn block, coin-steal deaths, XP levels via `gainXp()`, `gameOverInf()`, 5 butterflies per life);
 `BR` = true -> "Boss Run" (50 levels, hearts, bosses ... everything described under LEVELS/HEARTS below). Chosen on
-the start card (`.gm` buttons, `setGame()`, saved in `flappygame`). Separate saves: Infinite uses the original keys
+the start card (`.gm` buttons, `setGame()`, saved in `flappygame`). FRESH RUNS (v0.6.11, owner's rule): every new game starts with $0, level 1, no perks, no items - `freshRun()` runs at
+load, on mode switch, in `startGame()` and on game over. Never let a wallet, level or upgrades carry into a new game.
+Separate saves: Infinite uses the original keys
 `flappyprog` {level,xp,perks}, `flappywallet`, `flappyfpv_m5`; Boss Run uses `flappyboss` {stage,xp,perks},
 `flappywallet_boss`, `flappyfpv_boss`. Keep Infinite Run behaving exactly like before unless the owner asks
 (a seeded side-by-side run against the v0.5.4 file matched frame-for-frame). Exception the owner asked for (v0.6.9):
