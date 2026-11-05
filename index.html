@@ -190,7 +190,7 @@ body:not([data-st=play]) #wallet,body:not([data-st=play]) #xp,body[data-st=ready
 <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/UnrealBloomPass.js"></script>
 <script>
 (function(){
-const VERSION='0.6.5'; // RELEASE.UPDATE.CHANGE - raise the last number with EVERY change (tests/version.js checks it). Shown on the start screen and pause menu.
+const VERSION='0.6.6'; // RELEASE.UPDATE.CHANGE - raise the last number with EVERY change (tests/version.js checks it). Shown on the start screen and pause menu.
 let cdEnd=0,cdLast=-1,fitT=0; // start countdown (ms timestamp when play begins), menu-fit timer
 const IS_TEST=!(typeof location!=='undefined'&&location.hostname==='bgwgamesofficial.github.io'); // everything except the live site
 const VER_TXT='v'+VERSION+(IS_TEST?' \u00b7 test build':'');
@@ -423,7 +423,7 @@ const capMat=new THREE.MeshLambertMaterial({color:0x2f8f2f});
 const pipes=[],foes=[],FVX=7.5;
 // Butterflies (mode 5 / HAWK TEST only): small, cross the lane like hawks but steer AWAY from the player.
 // Catching one fills the life bar; each full segment (LIFE_SEG points) saves you from one crash.
-const flies=[],LIFE_SEG=100,LIFE_MAX=300,FLY_GAIN=20,FLYV=FVX*.55,lifeEl=document.getElementById('life');let flyT=3,lifePts=0,lifeShown='';
+const flies=[],START_HEARTS=2,LIFE_SEG=100,LIFE_MAX=300,FLY_GAIN=20,FLYV=FVX*.55,lifeEl=document.getElementById('life');let flyT=3,lifePts=0,lifeShown='';
 const FLYC=[[0xff8a3d,0x2a1a10],[0x5ec8ff,0x123048],[0xffd23f,0x3a2a08],[0xff6fb5,0x40102a],[0xb48cff,0x24164a]];
 function mkFly(){
  const P=FLYC[Math.floor(Math.random()*FLYC.length)],g=new THREE.Group(),w=[];
@@ -497,6 +497,8 @@ function foeHit(f){
  f.hit=true;
  if(fx.shield){die();return;}
  const amt=Math.max(1,Math.round((mode===5?4+level*1.2:5+Math.floor(score/4))*MM()));
+ if(mode===5){ // HEARTS: every hit steals coins (if you have any) AND costs a heart; no hearts left = game over
+  const took=Math.min(wallet,amt);if(took>0){wallet-=took;saveW();popText('-$'+fm(took)+' stolen!','#ff6b5a');}sfx.steal();burst(0,y,0,20,0xff6b5a,5,.7);die();return;}
  if(wallet>=amt){wallet-=amt;saveW();ghost=gt+1;shake=.4;sfx.steal();popText('-$'+amt+' stolen!','#ff6b5a');burst(0,y,0,20,0xff6b5a,5,.7);}
  else die();
 }
@@ -509,7 +511,7 @@ function aiHunt5(f,dt){
  // At the lock distance it commits to a crossing height f.ty (shown by the "!"), and may change its mind ONE more
  // time before it gets too close (the "!" moves with it). Speed changes stop near the lock so you can still react.
  if(f.hit||f.dir*f.x<0||fxOn('magnet'))return;
- const D=lvD(),ax=Math.abs(f.x),spd=FVX*HS()*lvSpd()*(f.kind==='boss'?1.1:1)*(f.sv||1),lockX=FVX*(1.5-.45*D); // locks ~2 s before reaching you on level 1, ~0.9 s on level 50
+ const D=f.bd!==undefined?f.bd:lvD(),ax=Math.abs(f.x),spd=FVX*HS()*lvSpd()*(f.kind==='boss'?(f.bs||1):1)*(f.sv||1),lockX=FVX*(1.5-.45*D); // locks ~2 s before reaching you on level 1, ~0.9 s on level 50
  const T0=Math.min(ax/Math.max(1,spd),1.6),riding=campT>.8||y>CEIL-.6,pyNow=riding?y:Math.max(BOT+1.5,Math.min(CEIL,y+vy*T0+.25*GRAV*T0*T0)); // a bird riding the clouds/ceiling stays up there
  if(ax<lockX){f.svT=1;if(f.ty===undefined)f.ty=Math.max(BOT+3,Math.min(CEIL-.2,f.y));
   if(!f.reaimed&&ax>lockX*.55&&Math.random()<dt*(.4+.9*D)){f.reaimed=true;f.ty=Math.max(BOT+3,Math.min(CEIL-.2,f.ty+Math.max(-2.5,Math.min(2.5,pyNow-f.ty))));f.warned=false;} // late change of mind
@@ -758,10 +760,13 @@ function need(l){return 10+6*l*l;}
 // 3 hawks per group, groups keep a 3.2 gap, every hawk locks its path >= ~0.9 s before it reaches you.
 const LVL_MAX=50;let lvProg=0,lvSpawned=0,lvlDoneN=1,bossOut=false;
 function lvType(L){L=L||level;return L%10===0?'boss':L%10===5?'fly':'dodge';}
-function lvNeed(L){L=L||level;const t=lvType(L);return t==='boss'?8+Math.round(L/10*1.25):t==='fly'?(6+Math.floor(L/9))*2:16+Math.round(L*.5);}
-function lvGoalTxt(L){L=L||level;const t=lvType(L),n=lvNeed(L);return t==='boss'?'BOSS: dodge the Hawk Chief '+n+' times':t==='fly'?'Catch '+n+' butterflies':'Get past '+n+' hawks';}
-function lvD(){const L=level;let d=L<=1?0:Math.pow((L-1)/49,1.15)*.88+((L-1)%10)/9*.07;if(L%10===1&&L>1)d-=.05;d=d*1.1+.03; // v0.6.3: 10% harder across the board
- return Math.max(0,Math.min(1,d));}
+function lvNeed(L){L=L||level;const t=lvType(L);return t==='boss'?Math.round((8+L/10*1.25)*(1+.5*(BOSS_K-1))):t==='fly'?(6+Math.floor(L/9))*2:16+Math.round(L*.5);}
+function lvGoalTxt(L){L=L||level;const t=lvType(L),n=lvNeed(L);return t==='boss'?'BOSS: dodge '+bossNames(L)+' '+n+' times':t==='fly'?'Catch '+n+' butterflies':'Get past '+n+' hawks';}
+// DIFFICULTY CURVE (v0.6.6, tuned with a simulated player): difficulty at levels 1,5,10,...,50, interpolated in between.
+// Small saw-tooth inside each block of 10 (building to the boss) and a breather right after each boss.
+const LV_TAB=[.03,.22,.36,.44,.48,.50,.51,.52,.535,.55,.59];
+function lvD(){const L=level;let d;if(L<=1)d=LV_TAB[0];else{const k=Math.min(LV_TAB.length-2,Math.floor(L/5)),a=k*5||1,b=(k+1)*5;d=LV_TAB[k]+(LV_TAB[k+1]-LV_TAB[k])*(L-a)/(b-a);}
+ d+=((L-1)%10)/9*.03-.015;if(L%10===1&&L>1)d-=.04;return Math.max(0,Math.min(1,d));}
 function lvSpd(){return .72+.5*lvD();} // hawk crossing speed factor
 function lvAdd(){if(state!=='play')return;lvProg++;updXp();if(lvProg>=lvNeed())levelComplete();}
 function hawkPassed(f){const t=lvType();if((t==='dodge'&&f.kind!=='boss')||(t==='boss'&&f.kind==='boss'))lvAdd();}
@@ -770,19 +775,28 @@ function levelComplete(){const done=level;lvlDoneN=done;lvProg=0;lvSpawned=0;bos
  const bonus=Math.round((3+done*.6)*MM());wallet+=bonus;run+=bonus;saveW();
  if(level<LVL_MAX)level++;saveProg();updXp();burst(0,y,0,40,0xffd23f,6,1.1);
  popText((done<LVL_MAX?'Level '+done+' complete!':'All 50 levels beaten!')+' +$'+bonus,'#7fe7ff');
- if(done%5===0){pending=1;showLevelUp();}else{sfx.level();countdown(false);}}
+ levelHearts();if(done%5===0){pending=1;showLevelUp();}else{sfx.level();countdown(false);}}
 function showBanner(){const b=document.getElementById('banner');if(!b||state!=='play')return;b.innerHTML='Level '+level+'<small>'+lvGoalTxt()+'</small>';b.classList.add('on');clearTimeout(showBanner.t);showBanner.t=setTimeout(()=>b.classList.remove('on'),3300);}
 // THE 3-HAWK RULE: never more than 3 hawks coming at the player at once (boss included). A hawk counts while it
 // has not crossed the lane in its current direction, or while it is turning around.
+const HAWK_MAX=5; // THE HAWK RULE: never more than 5 hawks coming at you at once (bosses included)
+function lvMaxActive(){const t=lvType(),b=t==='boss'?bossLineup().length+1:1,n=Math.min(HAWK_MAX,Math.max(b,1+Math.floor(lvD()*4.6)));return t==='fly'?Math.min(2,n):n;} // butterfly levels: at most 2 hawks // 1 at a time early on, up to 5 near the end
 function hawksActive(){let n=0;foes.forEach(f=>{if(f.kind==='boss'||f.tt!==undefined||f.dir*f.x>-.4)n++;});return n;} // the boss always holds one of the 3 places
 let campT=0,cloudT=0; // anti-camping: time spent riding the clouds/ceiling, and the cloud-hawk spawn timer
 function spawnCloudHawk(){const Dd=lvD(),yy=Math.max(CLO+.4,Math.min(CEIL-.1,y+Math.random()*2-1));
  spawnFoe(-(sp()+4)*(2.2+Math.random()*.4),yy,.6+.5*Dd);const f=foes[foes.length-1];f.kind='hunter';f.y=yy;f.g.position.y=yy;f.cloud=true;
  f.side=Math.random()<.5?-1:1;f.fq=2.6+Math.random()*1.2;f.mind=.3+Math.random();f.sv=1;f.svT=1;}
-function spawnBoss(){const Dd=lvD();spawnFoe(-(sp()+4)*2.6,y,.9+.6*Dd);const f=foes[foes.length-1];f.kind='boss';f.y=Math.max(BOT+3,Math.min(CLO,y));f.amp=.25;f.fq=2;
- f.g.scale.setScalar(1.9);f.g.traverse(o=>{if(o.isMesh&&o.material&&o.material.emissive)o.material.emissive.setHex(0x4a0a04);});if(f.gl.material.color)f.gl.material.color.setHex(0xff4030);}
+// BOSSES: the Hawk Chief (big, red, hard) and the Hawk Captain (smaller, orange, easier). Boss levels get more of them.
+// BOSS_K = how much harder bosses are than in v0.6.5 (1.4 = 40% harder): speed, aim, enrage and passes scale with it.
+const BOSS_K=1.4;
+function bossD(L){L=L||level;let d=Math.pow((L-1)/49,1.15)*.88+((L-1)%10)/9*.07;return Math.max(0,Math.min(1,d*1.1+.03));} // boss difficulty (steeper than lvD)
+function bossLineup(L){L=L||level;return L<20?['chief']:L<40?(L<40&&L>=20?['chief','captain']:['chief']):L<50?['chief','captain','captain']:['chief','chief','captain'];}
+function bossNames(L){const b=bossLineup(L);return b.length===1?'the Hawk Chief':b.filter(k=>k==='chief').length+' Chief'+(b.filter(k=>k==='chief').length>1?'s':'')+' + '+b.filter(k=>k==='captain').length+' Captain'+(b.filter(k=>k==='captain').length>1?'s':'');}
+function spawnBoss(cap,side,k){const Dd=bossD(),K=BOSS_K;spawnFoe(-(sp()+4)*(2.6+(k||0)*1.1),y,cap?.6+.4*Dd:(.9+.6*Dd)*(1+.65*(K-1)));const f=foes[foes.length-1];f.kind='boss';f.cap=!!cap;
+ if(side){f.dir=side;f.x=side*Math.abs(f.x);}f.bd=Dd;f.bs=(cap?.95:1+.38*(K-1))*(.72+.5*Dd)/lvSpd();f.y=Math.max(BOT+3,Math.min(CLO,y+(k||0)*2.5-2.5));f.amp=.25;f.fq=2;f.mind=.5;f.sv=1;f.svT=1;
+ f.g.scale.setScalar(cap?1.4:1.9);f.g.traverse(o=>{if(o.isMesh&&o.material&&o.material.emissive)o.material.emissive.setHex(cap?0x4a2604:0x4a0a04);});if(f.gl.material.color)f.gl.material.color.setHex(cap?0xffa030:0xff4030);}
 function saveProg(){try{localStorage.setItem('flappyprog',JSON.stringify({level,xp,perks,stage:level}))}catch(e){}}
-function updXp(){const t=lvType(),n=lvNeed();xpEl.innerHTML='<span>Level '+level+' &middot; '+lvProg+'/'+n+(t==='boss'?' Hawk Chief':t==='fly'?' butterflies':' hawks')+'</span><div class="bar"><div class="fill" style="width:'+Math.min(100,lvProg/n*100)+'%"></div></div>';}
+function updXp(){const t=lvType(),n=lvNeed();xpEl.innerHTML='<span>Level '+level+' &middot; '+lvProg+'/'+n+(t==='boss'?' boss passes':t==='fly'?' butterflies':' hawks')+'</span><div class="bar"><div class="fill" style="width:'+Math.min(100,lvProg/n*100)+'%"></div></div>';}
 function gainXp(n){} // XP levels replaced by the 50-level system (levelComplete)
 function renderLvl(){
  lvlEl.innerHTML='<div class="panel"><h2>Level '+lvlDoneN+' complete!</h2><p class="sub">Choose one permanent upgrade. Next: level '+level+'.</p>'+lvlCh.map(pv).map(p=>'<button class="perk'+(lvlSel===p.id?' sel':'')+'" data-perk="'+p.id+'"><span class="ic">'+p.icon+'</span><span><b>'+p.name+'</b>'+(p.max>1?' <i>(Lv '+(perks[p.id]+1)+'/'+p.max+')</i>':'')+'<br><small>'+p.desc+'</small></span><span class="chk"></span></button>').join('')+'<div class="foot"><button id="lvlset" class="gear" aria-label="Settings">&#9881;&#65039;</button><button id="lvldone" class="main"'+(lvlSel?'':' disabled')+'>'+(lvlSel?'Complete &#10003;':'Pick an upgrade')+'</button></div></div>';
@@ -964,7 +978,8 @@ function showCard(title,body){
 }
 let cdHop=false;
 function countdown(hop){showBanner();paused=true;cdHop=hop;cdEnd=Math.max(last,performance.now())+3000;cdLast=-1;} // 3-2-1-GO, game frozen meanwhile (same clock as the frame loop)
-function startGame(){if(state!=='ready'||cdEnd)return;ac();startMusic();msg.style.display='none';state='play';speed=SPEED;useItems();y=1;vy=0;countdown(true);}
+function levelHearts(){if(mode===5){lifePts=Math.max(lifePts,(level<=3?3:START_HEARTS)*LIFE_SEG);updLife();}} // each level starts with at least 2 hearts (3 on levels 1-3)
+function startGame(){if(state!=='ready'||cdEnd)return;ac();startMusic();msg.style.display='none';state='play';speed=SPEED;useItems();y=1;vy=0;levelHearts();countdown(true);}
 function cdTick(now){ // runs the 3-2-1-GO countdown
  const left=Math.min(3,Math.ceil((cdEnd-now)/1000));if(left!==cdLast&&left>0){cdLast=left;cdShow(left);tone(520,520,.12,'square',.09);}
  if(now>=cdEnd){cdEnd=0;cdShow('GO!');tone(880,1320,.2,'square',.09);setTimeout(()=>{if(cntEl.textContent==='GO!')cntEl.textContent='';},600);
@@ -989,7 +1004,7 @@ addEventListener('resize',()=>{cam.aspect=innerWidth/innerHeight;cam.updateProje
 function die(){
   if(state==='dead'||gt<ghost)return;
   if(fx.shield){fx.shield=false;ghost=gt+1.5;vy=FLAP*1.1;y=Math.max(BOT+.8,Math.min(CEIL-.3,y));shake=.5;sfx.shield();burst(0,y,0,26,0x7fd0ff,5,.8);updFx();return;}
-  if(mode===5&&lifePts>=LIFE_SEG){lifePts-=LIFE_SEG;ghost=gt+1.5;vy=FLAP*1.1;y=Math.max(BOT+.8,Math.min(CEIL-.3,y));shake=.5;sfx.shield();burst(0,y,0,26,0xff7aa8,5,.8);popText('Life used!','#ff7aa8');updLife();return;}
+  if(mode===5&&lifePts>=LIFE_SEG){lifePts-=LIFE_SEG;ghost=gt+1.5;vy=FLAP*1.1;y=Math.max(BOT+.8,Math.min(CEIL-.3,y));shake=.5;sfx.shield();burst(0,y,0,26,0xff7aa8,5,.8);popText(lifePts>=LIFE_SEG?'Ouch! '+Math.floor(lifePts/LIFE_SEG)+' heart'+(lifePts>=2*LIFE_SEG?'s':'')+' left':'Last heart!','#ff7aa8');updLife();return;}
   state='dead';time=0;speed=0;shake=0.6;sfx.crash();burst(0,y,0,44,COLORS[birdCol][0],7,1.2);
   if(score>best){best=score;try{localStorage.setItem(bkey(),best)}catch(e){}}
   if(wallet>=reviveCost()){offer=true;card.innerHTML='<h1>Crash!</h1><p>Score: <b>'+score+'</b> &nbsp; Level: <b>'+level+'</b></p><p>Revive to keep going from here ('+lvProg+'/'+lvNeed()+'). Give up and you go back to level 1.</p><button id="revbtn">&#10084;&#65039; Revive for $'+reviveCost()+'</button> <button id="giveup">Give up</button><p>Wallet: <b>$'+fm(wallet)+'</b></p>';msg.style.display='flex';}else gameOver();
@@ -1014,15 +1029,15 @@ function loop(now){
       }
       if(!p.scored&&p.z>PIPE_W/2+0.4){p.scored=true;score++;hud.textContent=score;hud.classList.remove('bump');void hud.offsetWidth;hud.classList.add('bump');sfx.score();gainXp(2);AI.skill+=(Math.max(0,1-Math.abs(y-p.gy)/2.5)-AI.skill)*.25;if(Math.abs(y-p.gy)<.9){popText('Perfect!','#7fe7ff');gainXp(1);burst(0,y,.5,18,0x7fe7ff,4.5,.7);}}
     });
-    foes.forEach(f=>{f.z+=(sp()+4)*dt;aiHunt(f,dt);const fy=f.y+Math.sin(gt*(f.fq||3)+f.ph)*(f.amp||.35);if(f.wantRet&&!f.ret&&!f.hit&&f.tt===undefined&&f.dir*f.x<-f.turnX){if(hawksActive()<3)f.tt=0;else f.wantRet=false;} /* U-turn only if it keeps the 3-hawk rule */
+    foes.forEach(f=>{f.z+=(sp()+4)*dt;aiHunt(f,dt);const fy=f.y+Math.sin(gt*(f.fq||3)+f.ph)*(f.amp||.35);if(f.wantRet&&!f.ret&&!f.hit&&f.tt===undefined&&f.dir*f.x<-f.turnX){if(hawksActive()<lvMaxActive())f.tt=0;else f.wantRet=false;} /* U-turn only if it keeps the 3-hawk rule */
       if(f.svT!==undefined)f.sv+=(f.svT-f.sv)*(1-Math.exp(-3*dt));
       let vel=1;if(f.tt!==undefined){f.tt+=dt;const TT=1.1;vel=Math.cos(Math.PI*Math.min(1,f.tt/TT));f.y+=Math.max(-3*dt,Math.min(3*dt,y-f.y));if(f.tt>=TT){f.tt=undefined;f.dir=-f.dir;f.ret=true;f.warned=false;f.ty=undefined;vel=1;}}
-      f.x-=f.dir*FVX*HS()*(mode===5?lvSpd():1)*(f.kind==='dash'?(Math.abs(f.x)>9?.55:1.5):f.kind==='boss'?(lvProg>=lvNeed()/2?1.15:1):1)*(f.sv||1)*vel*dt; /* boss: full speed, faster when enraged (second half) */if(f.kind==='boss'&&f.dir*f.x<-11){f.dir=-f.dir;f.hit=false;f.pc=false;f.sc=false;f.warned=false;f.reaimed=false;f.ty=undefined;f.y=Math.max(BOT+3,Math.min(CEIL-.2,y+Math.random()*4-2));
-        if(hawksActive()<3){spawnFoe(-(sp()+4)*2.4,y,.6+.5*lvD());const e=foes[foes.length-1];e.kind='hunter';e.dir=-f.dir;e.x=e.dir*Math.abs(e.x);e.y=Math.max(BOT+3,Math.min(CEIL-.2,y+(Math.random()<.5?-2:2)));e.mind=.5;e.sv=1;e.svT=1;}} /* boss turns sooner and brings an escort from the other side */f.g.position.set(f.x,fy,0);{const ck=Math.max(0,Math.min(1,(fy-CLO-.5)/4));f.gl.material.opacity=.9*(1-ck*.9);}f.g.rotation.y=-f.dir*Math.PI/2*(f.tt!==undefined?Math.cos(Math.PI*Math.min(1,f.tt/1.1)):1);f.g.rotation.z=f.tt!==undefined?Math.sin(Math.PI*Math.min(1,f.tt/1.1))*.6*f.dir:0;f.fy=fy;if(!f.hit&&Math.abs(f.x)<(f.kind==='boss'?1.4:mode===5?.8:.9)&&Math.abs(y-fy)<(f.kind==='boss'?.75+.1*lvD():mode===5?.3+.1*lvD():.45)+HB())foeHit(f);});
+      f.x-=f.dir*FVX*HS()*(mode===5?lvSpd():1)*(f.kind==='dash'?(Math.abs(f.x)>9?.55:1.5):f.kind==='boss'?(f.bs||1)*(lvProg>=lvNeed()*(f.cap?.5:.4)?1+.15*BOSS_K:1):1)*(f.sv||1)*vel*dt; /* boss: full speed, faster when enraged (second half) */if(f.kind==='boss'&&f.dir*f.x<-11){f.dir=-f.dir;f.hit=false;f.pc=false;f.sc=false;f.warned=false;f.reaimed=false;f.ty=undefined;f.y=Math.max(BOT+3,Math.min(CEIL-.2,y+Math.random()*4-2));
+        if(!f.cap&&hawksActive()<lvMaxActive()){spawnFoe(-(sp()+4)*2.4,y,.6+.5*lvD());const e=foes[foes.length-1];e.kind='hunter';e.dir=-f.dir;e.x=e.dir*Math.abs(e.x);e.y=Math.max(BOT+3,Math.min(CEIL-.2,y+(Math.random()<.5?-2:2)));e.mind=.5;e.sv=1;e.svT=1;}} /* boss turns sooner and brings an escort from the other side */f.g.position.set(f.x,fy,0);{const ck=Math.max(0,Math.min(1,(fy-CLO-.5)/4));f.gl.material.opacity=.9*(1-ck*.9);}f.g.rotation.y=-f.dir*Math.PI/2*(f.tt!==undefined?Math.cos(Math.PI*Math.min(1,f.tt/1.1)):1);f.g.rotation.z=f.tt!==undefined?Math.sin(Math.PI*Math.min(1,f.tt/1.1))*.6*f.dir:0;f.fy=fy;if(!f.hit&&Math.abs(f.x)<(f.kind==='boss'?(f.cap?1.1:1.4):mode===5?.8:.9)&&Math.abs(y-fy)<(f.kind==='boss'?(f.cap?.6:.75)+.1*(f.bd||0):mode===5?.3+.1*lvD():.45)+HB())foeHit(f);});
     if(mode===5){const LT=lvType(),Dd=lvD(),cap=LT==='dodge'?lvNeed():1e9;hawkT-=dt;if(LT==='dodge'&&lvSpawned>0&&hawkT>.5&&!foes.some(f=>!f.pc))hawkT=.5; // next group as soon as the last one has passed
-      if(LT==='boss'&&!bossOut){bossOut=true;spawnBoss();}
-      if(!paused){campT=y>CLO+.3?Math.min(4,campT+dt):Math.max(0,campT-2*dt);if(campT>1.2){cloudT-=dt;if(cloudT<=0&&hawksActive()<3){spawnCloudHawk();cloudT=(1.3-.5*Dd)*(.8+.4*Math.random());}}else cloudT=.4;} /* riding the clouds/ceiling brings hawks up there fast */
-      if(hawkT<=0&&lvSpawned<cap){let n=1;if(Dd>.04&&Math.random()<Math.min(.7,.1+.75*Dd))n++;if(Dd>.4&&Math.random()<(Dd-.4)*.9)n++;if(LT!=='dodge')n=Math.min(n,2);n=Math.min(n,cap-lvSpawned,3-hawksActive());if(n<=0){hawkT=.3;}else{const ys=[];
+      if(LT==='boss'&&!bossOut){bossOut=true;bossLineup().forEach((b,k)=>spawnBoss(b==='captain',k%2?-1:1,k));}
+      if(!paused){campT=y>CLO+.3?Math.min(4,campT+dt):Math.max(0,campT-2*dt);if(campT>1.2){cloudT-=dt;if(cloudT<=0&&hawksActive()<lvMaxActive()){spawnCloudHawk();cloudT=(1.3-.5*Dd)*(.8+.4*Math.random());}}else cloudT=.4;} /* riding the clouds/ceiling brings hawks up there fast */
+      if(hawkT<=0&&lvSpawned<cap){let n=1;if(Dd>.04&&Math.random()<Math.min(.7,.1+.75*Dd))n++;if(Dd>.4&&Math.random()<(Dd-.4)*.9)n++;if(Dd>.65&&Math.random()<(Dd-.65)*1.2)n++;if(LT!=='dodge')n=Math.min(n,2);n=Math.min(n,cap-lvSpawned,lvMaxActive()-hawksActive());if(n<=0){hawkT=.3;}else{const ys=[];
       for(let i=0;i<n;i++){let yy,t=0;do{yy=(i===0&&Math.random()<.5)?habitY()+(Math.random()*2-1):BOT+3+Math.random()*(CLO+1-BOT-3);yy=Math.max(BOT+3,Math.min(CEIL-.8,yy));t++;}while(t<8&&ys.some(q=>Math.abs(q-yy)<3.2));ys.push(yy);}
       const kinds=['hunter'];if(level>=6)kinds.push('feint');if(level>=14)kinds.push('dash');if(level>=20)kinds.push('sweeper');
       const pincer=n>=2&&level>=10&&Math.random()<.25+.35*Dd;
@@ -1030,7 +1045,7 @@ function loop(now){
         f.kind=kinds[Math.floor(Math.random()*kinds.length)];f.side=Math.random()<.5?-1:1;f.fq=2.6+Math.random()*1.2;if(f.kind==='sweeper')f.amp=1.3+Math.random()*.6;
         if(Math.random()<.6)f.sw=(Math.random()<.5?-1:1)*(1.5+Math.random()*1.5);if(i===1&&!pincer)f.cut=true;if(Math.random()<.15+.35*Dd){f.wantRet=true;f.turnX=5+Math.random()*5;}f.mind=.3+Math.random()*1.2;f.sv=1;f.svT=1;
         if(pincer&&i===1){const f1=foes[foes.length-2];f.dir=-f1.dir;f.x=f.dir*Math.abs(f.x);}});
-      lvSpawned+=n;hawkT=n/((.65+.55*Dd)*1.1*(LT==='dodge'?1:LT==='fly'?.5:.6))*(.85+.3*Math.random());}} // fewer small hawks on butterfly and boss levels
+      lvSpawned+=n;hawkT=n/((.65+.55*Dd)*1.1*(LT==='dodge'?1:LT==='fly'?.33:.6))*(.85+.3*Math.random());}} // fewer small hawks on butterfly and boss levels
       foes.forEach(f=>{if(!f.pc&&f.dir*f.x<-.4){f.pc=true;hawkPassed(f);}});
       foes.forEach(f=>{if(!f.sc&&!f.hit&&f.dir*f.x<-.4){f.sc=true;score++;hud.textContent=score;hud.classList.remove('bump');void hud.offsetWidth;hud.classList.add('bump');sfx.score();gainXp(2);AI.skill+=(Math.max(0,1-Math.abs(y-(f.fy||f.y))/3)-AI.skill)*.2;const v=1.5*MM()*(fxOn('double')?2:1)*(1+.25*perks.pull)*(Math.random()<perks.lucky*.15?2:1);wallet+=v;run+=v;saveW();popText('+$'+fm(v));}});}
     for(let i=foes.length-1;i>=0;i--){const f=foes[i];if(f.dir*f.x<-24){scene.remove(f.g);foes.splice(i,1);}}
@@ -1090,7 +1105,7 @@ function loop(now){
   {const ui=(state==='play'&&!hold?'play':state)+(mode===5?'5':'');if(ui!==uiLast){uiLast=ui;document.body.dataset.st=state==='play'&&!hold?'play':state;document.body.classList.toggle('m5',mode===5);}}
   if(composer&&S.bloom)composer.render(dt);else renderer.render(scene,cam);
 }
-initComposer();applyAll();reset();showCard('Birds Gone Wild','<p>Dodge the hawks (watch for the red <b>!</b> warnings) and catch butterflies to fill your life bar. You earn coins the longer you survive.</p><p><b>Tap</b>, click or press <b>Space</b> to flap.</p>');
+initComposer();applyAll();reset();showCard('Birds Gone Wild','<p>Dodge the hawks (watch for the red <b>!</b> warnings). Each hit costs a heart &#10084;&#65039; and lose them all and it is game over. Catch butterflies for extra hearts.</p><p><b>Tap</b>, click or press <b>Space</b> to flap.</p>');
 requestAnimationFrame(loop);
 })();
 </script>

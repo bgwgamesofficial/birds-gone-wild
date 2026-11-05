@@ -2,7 +2,7 @@ const fs=require('fs'),vm=require('vm');
 const html=fs.readFileSync(require('path').join(__dirname,'..','index.html'),'utf8');
 let code=html.match(/<script>\n\(function\(\)\{[\s\S]*?<\/script>/)[0].replace(/^<script>/,'').replace(/<\/script>$/,'');
 code=code.replace("function foeHit(f){","function foeHit(f){if(gt>=ghost)window.__hits=(window.__hits||0)+1;");
-code=code.replace("reset();showCard('Birds Gone Wild'","window.__fn={camp:(l)=>{level=l;reset();state='play';speed=SPEED;paused=false;cdEnd=0;window.__hits=0;},pin:(yy)=>{y=yy;vy=0;wallet=1e9;lifePts=0;lvlOpen=false;shopOpen=false;paused=false;cdEnd=0;state='play';},act:()=>hawksActive(),ceil:()=>CEIL,bestReset:()=>{best=42;resetBest();return best;},uturn:()=>{level=12;lvProg=0;state='play';paused=false;cdEnd=0;lvlOpen=false;shopOpen=false;foes.forEach(q=>scene.remove(q.g));foes.length=0;spawnFoe(-(sp()+4)*2.4,10,.5);const f=foes[foes.length-1];f.kind='hunter';f.wantRet=true;f.turnX=7;f.y=10;return f;},keepSafe:()=>{ghost=gt+99;y=-3;vy=0;lifePts=0;hawkT=99;flyT=99;},prog:()=>lvProg,lvl:{get:()=>({level,lvProg,lvlOpen,paused,cd:cdEnd,need:lvNeed(),type:lvType(),ds:(()=>{const l=level,a=[];for(let i=1;i<=50;i++){level=i;a.push(lvD());}level=l;return a;})()}),set:(l,h)=>{level=l;lvProg=h;state='play';paused=false;cdEnd=0;lvlOpen=false;shopOpen=false;},pass:()=>lvAdd(),over:()=>gameOver(),boss:()=>{spawnBoss();return foes[foes.length-1].kind;}},start:()=>startGame(),pause:()=>pauseGame(),resume:()=>resumeGame(),toStart:()=>restartGame(),renderSettings,applyAll,applyRes,applyShadows,applyAniso,presetMatch,capFps,modeCap,spawnFoe:()=>spawnFoe(-60,3,.8),setMode:(m)=>{mode=m;applyMode();reset();},getFoes:()=>foes.length,spawnFly,getFlies:()=>flies.length,flyAtBird:()=>{y=2;vy=0;spawnFly();const f=flies[flies.length-1];f.x=f.dir*.3;f.y=y;},setLife:v=>{lifePts=v;state='play';ghost=0;paused=false;hold=false;},getLife:()=>lifePts,ghostFall:()=>{state='play';paused=false;hold=false;ghost=gt+5;y=BOT+.6;vy=-13;},getY:()=>y,BOT,die};window.__dbg=()=>({cd:cdEnd,paused,mode,state,score,wallet,level,foes:foes.length,pipes:pipes.length,revives});reset();showCard('Birds Gone Wild'");
+code=code.replace("reset();showCard('Birds Gone Wild'","window.__fn={camp:(l)=>{level=l;reset();state='play';speed=SPEED;paused=false;cdEnd=0;window.__hits=0;},pin:(yy)=>{y=yy;vy=0;wallet=1e9;lifePts=0;lvlOpen=false;shopOpen=false;paused=false;cdEnd=0;state='play';},act:()=>hawksActive(),cap:()=>lvMaxActive(),ceil:()=>CEIL,bestReset:()=>{best=42;resetBest();return best;},uturn:()=>{level=12;lvProg=0;state='play';paused=false;cdEnd=0;lvlOpen=false;shopOpen=false;foes.forEach(q=>scene.remove(q.g));foes.length=0;spawnFoe(-(sp()+4)*2.4,10,.5);const f=foes[foes.length-1];f.kind='hunter';f.wantRet=true;f.turnX=7;f.y=10;return f;},keepSafe:()=>{ghost=gt+99;y=-3;vy=0;lifePts=0;hawkT=99;flyT=99;},prog:()=>lvProg,lvl:{get:()=>({level,lvProg,lvlOpen,paused,cd:cdEnd,need:lvNeed(),type:lvType(),ds:(()=>{const l=level,a=[];for(let i=1;i<=50;i++){level=i;a.push(lvD());}level=l;return a;})()}),set:(l,h)=>{level=l;lvProg=h;state='play';paused=false;cdEnd=0;lvlOpen=false;shopOpen=false;},pass:()=>lvAdd(),over:()=>gameOver(),boss:()=>{spawnBoss();return foes[foes.length-1].kind;}},start:()=>startGame(),pause:()=>pauseGame(),resume:()=>resumeGame(),toStart:()=>restartGame(),renderSettings,applyAll,applyRes,applyShadows,applyAniso,presetMatch,capFps,modeCap,spawnFoe:()=>spawnFoe(-60,3,.8),setMode:(m)=>{mode=m;applyMode();reset();},getFoes:()=>foes.length,spawnFly,getFlies:()=>flies.length,flyAtBird:()=>{y=2;vy=0;spawnFly();const f=flies[flies.length-1];f.x=f.dir*.3;f.y=y;},setLife:v=>{lifePts=v;state='play';ghost=0;paused=false;hold=false;},getLife:()=>lifePts,ghostFall:()=>{state='play';paused=false;hold=false;ghost=gt+5;y=BOT+.6;vy=-13;},getY:()=>y,BOT,die};window.__dbg=()=>({cd:cdEnd,paused,mode,state,score,wallet,level,foes:foes.length,pipes:pipes.length,revives});reset();showCard('Birds Gone Wild'");
 const f=function(){};
 const p=new Proxy(f,{get(t,k){if(k===Symbol.toPrimitive)return()=>0;if(k==='then')return undefined;if(k==='length'||k==='count')return 0;return p;},apply(){return p;},construct(){return p;},set(){return true;}});
 const listeners={};const raf=[];
@@ -55,7 +55,7 @@ for(const m of [2,5]){try{F.setMode(m);F.ghostFall();let lo=99;for(let i=0;i<120
  catch(e){errs.push('GROUND TEST ERROR: '+e.message);}}
 // Levels: short varied levels, difficulty within 0..1 and mostly rising, finishing a level, shop every 5 levels, game over keeps the level.
 try{const L=F.lvl;F.setMode(5);const g=L.get(),ds=g.ds;
- if(ds[0]>.1||ds[49]<.85||ds[49]>1||ds.some(v=>v<0||v>1))errs.push('LEVELS: difficulty out of range '+ds[0]+'..'+ds[49]);
+ if(ds[0]>.1||ds[49]<.6||ds[49]>1||ds.some(v=>v<0||v>1))errs.push('LEVELS: difficulty out of range '+ds[0]+'..'+ds[49]);
  if(!(ds[48]>ds[20]&&ds[20]>ds[5]))errs.push('LEVELS: difficulty does not rise overall');
  L.set(3,0);const n3=L.get().need;L.set(3,n3-1);L.pass();let q=L.get();
  if(q.level!==4||q.lvProg!==0||q.lvlOpen||!q.cd)errs.push('LEVELS: finishing level 3 should go straight to a countdown into level 4 '+JSON.stringify(q).slice(0,120));
@@ -75,11 +75,12 @@ try{F.setMode(5);const h=F.uturn(),d0=h.dir;let turned=false,back=false;
  else console.log('smart hawks ok: a missed hawk turns around, comes back, counted once');}
 catch(e){errs.push('HAWK TEST ERROR: '+e.message);}
 // 3-hawk rule and anti-camping: never more than 3 hawks coming at once; riding the ceiling still gets you hit.
-try{let mx=0;for(const L of [12,30]){F.camp(L);for(let i=0;i<2400;i++){F.pin(i%400<200?2:11);t+=16;const cb=raf.shift();cb&&cb(t);mx=Math.max(mx,F.act());}}
- if(mx>3)errs.push('HAWKS: '+mx+' hawks came at the player at once (max is 3)');
+try{let mx=0;for(const L of [1,12,30,48,50]){F.camp(L);const cap=F.cap();let m=0;for(let i=0;i<2400;i++){F.pin(i%400<200?2:11);t+=16;const cb=raf.shift();cb&&cb(t);m=Math.max(m,F.act());}mx=Math.max(mx,m);
+  if(m>cap)errs.push('HAWKS: level '+L+' had '+m+' hawks coming at once (its limit is '+cap+')');}
+ if(mx>5)errs.push('HAWKS: '+mx+' hawks came at the player at once (the rule is 5)');
  F.camp(20);for(let i=0;i<2400;i++){F.pin(F.ceil());t+=16;const cb=raf.shift();cb&&cb(t);}
  if(!(sb.__hits>0))errs.push('HAWKS: a bird riding the ceiling for 40 s was never hit');
- else console.log('3-hawk rule ok (max '+mx+'), ceiling camper hit '+sb.__hits+' times in 40 s');}
+ else console.log('hawk rule ok (most at once '+mx+', limit grows 1..5 by level), ceiling camper hit '+sb.__hits+' times in 40 s');}
 catch(e){errs.push('3-HAWK TEST ERROR: '+e.message);}
 console.log(errs.length?errs.join('\n'):'NO RUNTIME ERRORS in 4000 simulated frames');
 if(errs.length)process.exit(1);
