@@ -78,7 +78,7 @@ desktop browser and a Galaxy Z Fold.
   bosses use `bossD()` x `BOSS_K`=1.4, lineup `bossLineup()` (Chief / Captain `f.cap`). These numbers were tuned
   with a simulated player; change them in small steps.
 - Mode 5 butterflies (`flies`, `spawnFly()`, `aiFlee()`): small, cross like hawks (speed `FLYV`) but steer away from
-  the player's predicted height. Catching one adds `FLY_GAIN` to `lifePts` (bar `#life`, 3 segments of `LIFE_SEG`).
+  the player's predicted height. Catching one adds `FLY_GAIN` (12.5 = 8 butterflies per heart) to `lifePts` (bar `#life`, 3 segments of `LIFE_SEG`).
   In `die()`, a full segment is spent to survive (like the shield). Reset clears lives.
 - Player flight ceiling `CEIL` and cloud base `CLO` are set per mode in `setCeil()`: modes 1–4 `CEIL`=16, `CLO`=9.5
   (pipes still use `TOP`=11); mode 5 `CEIL`=20, `CLO`=16 with a thin cloud sheet. Touching the ceiling does not kill

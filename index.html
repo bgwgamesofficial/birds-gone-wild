@@ -190,7 +190,7 @@ body:not([data-st=play]) #wallet,body:not([data-st=play]) #xp,body[data-st=ready
 <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/UnrealBloomPass.js"></script>
 <script>
 (function(){
-const VERSION='0.6.6'; // RELEASE.UPDATE.CHANGE - raise the last number with EVERY change (tests/version.js checks it). Shown on the start screen and pause menu.
+const VERSION='0.6.7'; // RELEASE.UPDATE.CHANGE - raise the last number with EVERY change (tests/version.js checks it). Shown on the start screen and pause menu.
 let cdEnd=0,cdLast=-1,fitT=0; // start countdown (ms timestamp when play begins), menu-fit timer
 const IS_TEST=!(typeof location!=='undefined'&&location.hostname==='bgwgamesofficial.github.io'); // everything except the live site
 const VER_TXT='v'+VERSION+(IS_TEST?' \u00b7 test build':'');
@@ -423,7 +423,7 @@ const capMat=new THREE.MeshLambertMaterial({color:0x2f8f2f});
 const pipes=[],foes=[],FVX=7.5;
 // Butterflies (mode 5 / HAWK TEST only): small, cross the lane like hawks but steer AWAY from the player.
 // Catching one fills the life bar; each full segment (LIFE_SEG points) saves you from one crash.
-const flies=[],START_HEARTS=2,LIFE_SEG=100,LIFE_MAX=300,FLY_GAIN=20,FLYV=FVX*.55,lifeEl=document.getElementById('life');let flyT=3,lifePts=0,lifeShown='';
+const flies=[],START_HEARTS=2,LIFE_SEG=100,LIFE_MAX=300,FLY_GAIN=12.5,FLYV=FVX*.55,lifeEl=document.getElementById('life');let flyT=3,lifePts=0,lifeShown='';
 const FLYC=[[0xff8a3d,0x2a1a10],[0x5ec8ff,0x123048],[0xffd23f,0x3a2a08],[0xff6fb5,0x40102a],[0xb48cff,0x24164a]];
 function mkFly(){
  const P=FLYC[Math.floor(Math.random()*FLYC.length)],g=new THREE.Group(),w=[];

@@ -44,7 +44,7 @@ console.log('modes ok, foes:',F.getFoes());
 // Mode 5 butterflies + life bar: spawn and fly, then check a full life segment saves the player from one crash.
 try{F.setMode(5);F.spawnFly();for(let i=0;i<300;i++){t+=16;if(i%20===0)key('Space');const cb=raf.shift();cb&&cb(t);}
  F.setLife(0);const n0=F.getFlies();F.flyAtBird();for(let i=0;i<6&&F.getLife()===0;i++){const cb=raf.shift();t+=16;cb&&cb(t);} // a few frames: the frame limiter may skip one
- if(F.getLife()!==20||F.getFlies()!==n0)errs.push('LIFE: touching a butterfly did not add life (life '+F.getLife()+')');
+ if(F.getLife()!==12.5||F.getFlies()!==n0)errs.push('LIFE: touching a butterfly did not add life (life '+F.getLife()+')');
  F.setLife(100);F.die();
  if(F.getLife()!==0||sb.__dbg().state==='dead')errs.push('LIFE: a full segment did not save the player (state '+sb.__dbg().state+', life '+F.getLife()+')');
  else console.log('butterflies ok, flies:',F.getFlies(),'- catching adds life, a full segment saved the player');}
