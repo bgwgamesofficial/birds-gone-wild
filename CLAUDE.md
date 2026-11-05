@@ -54,7 +54,8 @@ desktop browser and a Galaxy Z Fold.
 the start card (`.gm` buttons, `setGame()`, saved in `flappygame`). Separate saves: Infinite uses the original keys
 `flappyprog` {level,xp,perks}, `flappywallet`, `flappyfpv_m5`; Boss Run uses `flappyboss` {stage,xp,perks},
 `flappywallet_boss`, `flappyfpv_boss`. Keep Infinite Run behaving exactly like before unless the owner asks
-(a seeded side-by-side run against the v0.5.4 file matched frame-for-frame). Guard Boss-Run-only code with `BR`.
+(a seeded side-by-side run against the v0.5.4 file matched frame-for-frame). Exception the owner asked for (v0.6.9):
+the anti-camping fix (campT / spawnCloudHawk / aim straight at a camper) also runs in Infinite Run. Guard Boss-Run-only code with `BR`.
 
 **Since v0.5.4 the game is level 5 only** (`let mode=5`, no difficulty picker). The code for modes 1–4
 (pipes, `MODES[0..3]`, back camera) is still inside `index.html` but unreachable; don't spend effort on it.

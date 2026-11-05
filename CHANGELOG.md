@@ -4,6 +4,8 @@ Versions are `0.UPDATE.CHANGE` (e.g. v0.4.11). The last number goes up with ever
 the middle number goes up each time an update goes live. Each section below is one update.
 
 ## v0.6 (in progress on `hawk-test`)
+- Infinite Run gets the anti-camping fix too: riding the clouds/ceiling now brings hawks up there fast (about
+  30-40 hits a minute for a camper, was 4-7). Normal play is unchanged. (v0.6.9)
 - Two game modes, chosen on the start screen (v0.6.8):
   - Infinite Run: the original endless game, exactly as live in v0.5.4 (verified frame-by-frame against it).
   - Boss Run: the new 50-level game (hearts, bosses, butterfly levels, smarter hawks).

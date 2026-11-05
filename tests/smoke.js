@@ -43,6 +43,10 @@ for(const m of [1,2,3,4,5]){try{F.setMode(m);F.spawnFoe();for(let i=0;i<300;i++)
 console.log('modes ok, foes:',F.getFoes());
 // Infinite Run (default): XP levels as in the live game.
 try{const r=F.infXp();if(!(r.level>1&&r.lvlOpen))errs.push('INFINITE: XP did not level up / open the upgrade flow '+JSON.stringify(r));else console.log('infinite run ok: XP levels up and opens upgrades');}catch(e){errs.push('INFINITE TEST ERROR: '+e.message);}
+// Infinite Run: a bird riding the ceiling must still get hit (anti-camping).
+try{F.camp(1);sb.__hits=0;for(let i=0;i<2400;i++){F.pin(F.ceil());t+=16;const cb=raf.shift();cb&&cb(t);}
+ if(!(sb.__hits>5))errs.push('INFINITE: a bird riding the ceiling for 40 s was hit only '+(sb.__hits||0)+' times');else console.log('infinite anti-camping ok: ceiling camper hit '+sb.__hits+' times in 40 s');}
+catch(e){errs.push('INFINITE CAMP TEST ERROR: '+e.message);}
 // Everything below tests Boss Run.
 F.game(true);
 // Mode 5 butterflies + life bar: spawn and fly, then check a full life segment saves the player from one crash.

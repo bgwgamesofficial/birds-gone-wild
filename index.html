@@ -193,7 +193,7 @@ body:not([data-st=play]) #wallet,body:not([data-st=play]) #xp,body[data-st=ready
 <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/UnrealBloomPass.js"></script>
 <script>
 (function(){
-const VERSION='0.6.8'; // RELEASE.UPDATE.CHANGE - raise the last number with EVERY change (tests/version.js checks it). Shown on the start screen and pause menu.
+const VERSION='0.6.9'; // RELEASE.UPDATE.CHANGE - raise the last number with EVERY change (tests/version.js checks it). Shown on the start screen and pause menu.
 let cdEnd=0,cdLast=-1,fitT=0; // start countdown (ms timestamp when play begins), menu-fit timer
 const IS_TEST=!(typeof location!=='undefined'&&location.hostname==='bgwgamesofficial.github.io'); // everything except the live site
 const VER_TXT='v'+VERSION+(IS_TEST?' \u00b7 test build':'');
@@ -508,14 +508,14 @@ function foeHit(f){
 function foeSlot(z0){let bz=z0,bc=-1;for(let k=-4;k<=4;k++){const z=z0+k*2.5,T=-z/(sp()+4);let cl=99;pipes.forEach(p=>{const r=((p.z+sp()*T)%SPACING+SPACING)%SPACING;cl=Math.min(cl,r,SPACING-r);});if(cl>bc){bc=cl;bz=z;}}return bz;}
 function HS(){return (fxOn('slow')&&mode===5?.55:1)*(1-.06*perks.steady*(mode===5?1:0));}
 function habitY(){let bi=0;for(let i=1;i<HAB.length;i++)if(HAB[i]>HAB[bi])bi=i;return BOT+(bi+.5)*(CEIL-BOT)/HAB.length;}
-function aiHuntInf(f,dt){ // Infinite Run hawks: exactly as live v0.5.4
+function aiHuntInf(f,dt){ // Infinite Run hawks: as live v0.5.4, plus the anti-camping fix (v0.6.9)
  if(f.hit||f.dir*f.x<0||fxOn('magnet'))return;
  const ax=Math.abs(f.x);if(ax<FVX*1.4)return; // locks its line ~1.4 s before crossing (was 1.15)
- const T=Math.min(ax/(FVX*HS()),1.1);
- const py=Math.max(BOT+1.5,Math.min(CEIL-1.2,y+vy*T*.6));
- let tgt=.5*py+.3*habitY()+.2*AI.y;
+ const T=Math.min(ax/(FVX*HS()),1.1),riding=campT>.8||y>CEIL-.6; // riding = staying up in the clouds / at the ceiling
+ const py=riding?y:Math.max(BOT+1.5,Math.min(CEIL-1.2,y+vy*T*.6));
+ let tgt=(riding||f.cloud)?py:.5*py+.3*habitY()+.2*AI.y; // campers: aim straight at the bird
  if(f.kind==='feint'&&ax>FVX*1.8)tgt=py+f.side*3.5;
- tgt=Math.max(BOT+3,Math.min(CEIL-.8,tgt));
+ tgt=Math.max(BOT+3,Math.min((riding||f.cloud)?CEIL-.2:CEIL-.8,tgt));
  const vm=(1.7+2.6*f.hunt*(.6+.4*AI.skill))*dt; // was 2+3.2*...
  f.y+=Math.max(-vm,Math.min(vm,tgt-f.y));
 }
@@ -811,7 +811,7 @@ const HAWK_MAX=5; // THE HAWK RULE: never more than 5 hawks coming at you at onc
 function lvMaxActive(){const t=lvType(),b=t==='boss'?bossLineup().length+1:1,n=Math.min(HAWK_MAX,Math.max(b,1+Math.floor(lvD()*4.6)));return t==='fly'?Math.min(2,n):n;} // butterfly levels: at most 2 hawks // 1 at a time early on, up to 5 near the end
 function hawksActive(){let n=0;foes.forEach(f=>{if(f.kind==='boss'||f.tt!==undefined||f.dir*f.x>-.4)n++;});return n;} // the boss always holds one of the 3 places
 let campT=0,cloudT=0; // anti-camping: time spent riding the clouds/ceiling, and the cloud-hawk spawn timer
-function spawnCloudHawk(){const Dd=lvD(),yy=Math.max(CLO+.4,Math.min(CEIL-.1,y+Math.random()*2-1));
+function spawnCloudHawk(){const Dd=BR?lvD():Math.min(1,score/40),yy=Math.max(CLO+.4,Math.min(CEIL-.1,y+Math.random()*2-1));
  spawnFoe(-(sp()+4)*(2.2+Math.random()*.4),yy,.6+.5*Dd);const f=foes[foes.length-1];f.kind='hunter';f.y=yy;f.g.position.y=yy;f.cloud=true;
  f.side=Math.random()<.5?-1:1;f.fq=2.6+Math.random()*1.2;f.mind=.3+Math.random();f.sv=1;f.svT=1;}
 // BOSSES: the Hawk Chief (big, red, hard) and the Hawk Captain (smaller, orange, easier). Boss levels get more of them.
@@ -1068,7 +1068,7 @@ function loop(now){
       let vel=1;if(f.tt!==undefined){f.tt+=dt;const TT=1.1;vel=Math.cos(Math.PI*Math.min(1,f.tt/TT));f.y+=Math.max(-3*dt,Math.min(3*dt,y-f.y));if(f.tt>=TT){f.tt=undefined;f.dir=-f.dir;f.ret=true;f.warned=false;f.ty=undefined;vel=1;}}
       f.x-=f.dir*FVX*HS()*(mode===5&&BR?lvSpd():1)*(f.kind==='dash'?(Math.abs(f.x)>9?.55:1.5):f.kind==='boss'?(f.bs||1)*(lvProg>=lvNeed()*(f.cap?.5:.4)?1+.15*BOSS_K:1):1)*(f.sv||1)*vel*dt; /* boss: full speed, faster when enraged (second half) */if(f.kind==='boss'&&f.dir*f.x<-11){f.dir=-f.dir;f.hit=false;f.pc=false;f.sc=false;f.warned=false;f.reaimed=false;f.ty=undefined;f.y=Math.max(BOT+3,Math.min(CEIL-.2,y+Math.random()*4-2));
         if(!f.cap&&hawksActive()<lvMaxActive()){spawnFoe(-(sp()+4)*2.4,y,.6+.5*lvD());const e=foes[foes.length-1];e.kind='hunter';e.dir=-f.dir;e.x=e.dir*Math.abs(e.x);e.y=Math.max(BOT+3,Math.min(CEIL-.2,y+(Math.random()<.5?-2:2)));e.mind=.5;e.sv=1;e.svT=1;}} /* boss turns sooner and brings an escort from the other side */f.g.position.set(f.x,fy,0);{const ck=Math.max(0,Math.min(1,(fy-CLO-.5)/4));f.gl.material.opacity=.9*(1-ck*.9);}f.g.rotation.y=-f.dir*Math.PI/2*(f.tt!==undefined?Math.cos(Math.PI*Math.min(1,f.tt/1.1)):1);f.g.rotation.z=f.tt!==undefined?Math.sin(Math.PI*Math.min(1,f.tt/1.1))*.6*f.dir:0;f.fy=fy;if(!f.hit&&Math.abs(f.x)<(f.kind==='boss'?(f.cap?1.1:1.4):mode===5?.8:.9)&&Math.abs(y-fy)<(f.kind==='boss'?(f.cap?.6:.75)+.1*(f.bd||0):mode===5?(BR?.3+.1*lvD():.38):.45)+HB())foeHit(f);});
-    if(mode===5&&!BR){hawkT-=dt;if(hawkT<=0){const n=1+(Math.random()<Math.min(.6,.12+score*.017)?1:0)+(score>18&&Math.random()<.22?1:0),ys=[];
+    if(mode===5&&!BR){hawkT-=dt;if(!paused){campT=y>CLO+.3?Math.min(4,campT+dt):Math.max(0,campT-2*dt);if(campT>1.2){cloudT-=dt;if(cloudT<=0&&hawksActive()<3){spawnCloudHawk();cloudT=(1.3-.5*Math.min(1,score/40))*(.8+.4*Math.random());}}else cloudT=.4;} /* anti-camping, as in Boss Run */if(hawkT<=0){const n=1+(Math.random()<Math.min(.6,.12+score*.017)?1:0)+(score>18&&Math.random()<.22?1:0),ys=[];
       for(let i=0;i<n;i++){let yy,t=0;do{yy=(i===0&&Math.random()<.5)?habitY()+(Math.random()*2-1):BOT+3+Math.random()*(CLO+1-BOT-3);yy=Math.max(BOT+3,Math.min(CEIL-.8,yy));t++;}while(t<8&&ys.some(q=>Math.abs(q-yy)<3.2));ys.push(yy);}
       const kinds=['hunter'];if(score>=3)kinds.push('feint');if(score>=6)kinds.push('dash');if(score>=9)kinds.push('sweeper');
       const pincer=n>=2&&Math.random()<.5;
