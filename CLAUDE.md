@@ -91,8 +91,9 @@ desktop browser and a Galaxy Z Fold.
   `lvProg` via `lvAdd()` (from `hawkPassed(f)` / `catchFly`). `levelComplete()` pays a coin bonus; every 5th
   level opens shop -> perk, otherwise straight to `countdown()`. `showBanner()` shows the goal. Difficulty
   `lvD()` 0..~0.95 in waves; it drives spawn rate, group size (max 3), kinds, `lvSpd()`, hunt, lock distance
-  (>= ~0.9 s), hitbox, steal. Old XP levels are gone (`gainXp` no-op). Game over keeps level/coins/perks;
-  `restartGame()` wipes everything.
+  (>= ~0.9 s), hitbox, steal. Old XP levels are gone (`gainXp` no-op). Since v0.6.4 game over sends you back to
+  level 1 but keeps coins/perks; reviving keeps the level; `restartGame()` wipes everything.
+- Settings has a "Reset best score" button (`resetBest()`, tap twice) that removes all `flappyfpv*` keys.
 - Economy: coins, passive income ($0.25 per 2 s x `MM()`), marketplace (`ITEMS`), permanent perks (`PERKS`),
   revive with rising cost, enemies steal coins (die if you cannot pay).
 - Level-up flow: marketplace (Next only) → perk choice (select, then Complete) → 3-second countdown.

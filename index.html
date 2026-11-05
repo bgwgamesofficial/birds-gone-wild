@@ -87,6 +87,8 @@ button,input{font-family:inherit}
 #set #setclose{background:var(--accent);color:#fff}
 #set .sfoot{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
 #set .sfoot button{min-height:46px;padding:8px 26px;font-size:17px}
+#set #resetbest{background:rgba(229,72,59,.14);color:#d2453a}
+#set #resetbest.sure{background:#e5483b;color:#fff}
 @media (orientation:landscape) and (max-height:820px){#set .panel{width:min(880px,100%)}#set .rows{display:grid;grid-template-columns:1fr 1fr;column-gap:24px}}
 #warn2{position:absolute;left:16px;top:50%;display:none;transform:translateY(-50%);width:44px;height:44px;border-radius:50%;background:#e5483b;color:#fff;font-weight:900;font-size:26px;text-align:center;line-height:44px;box-shadow:0 3px 0 rgba(0,0,0,.3);pointer-events:none;animation:wp .45s ease-in-out infinite alternate}
 #cloudfx{position:absolute;inset:0;pointer-events:none;opacity:0;background:#fff}
@@ -186,7 +188,7 @@ body:not([data-st=play]) #wallet,body:not([data-st=play]) #xp,body[data-st=ready
 <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/UnrealBloomPass.js"></script>
 <script>
 (function(){
-const VERSION='0.6.3'; // RELEASE.UPDATE.CHANGE - raise the last number with EVERY change (tests/version.js checks it). Shown on the start screen and pause menu.
+const VERSION='0.6.4'; // RELEASE.UPDATE.CHANGE - raise the last number with EVERY change (tests/version.js checks it). Shown on the start screen and pause menu.
 let cdEnd=0,cdLast=-1,fitT=0; // start countdown (ms timestamp when play begins), menu-fit timer
 const VER_TXT='v'+VERSION+((typeof location!=='undefined'&&location.hostname==='bgwgamesofficial.github.io')?'':' \u00b7 test build');
 const SKY=0x9fd8f0;
@@ -562,6 +564,9 @@ try{best=+localStorage.getItem(bkey())||0}catch(e){}setCeil();
 function MM(){return MODES[mode-1].m;}
 function pr(it){return Math.round(it.price*MM());}
 function bkey(){return 'flappyfpv'+(mode===2?'':'_m'+mode);}
+function resetBest(){ // clears the saved best score (all old difficulty modes too)
+ try{const ks=[];for(let i=0;i<localStorage.length;i++){const k=localStorage.key(i);if(k&&k.indexOf('flappyfpv')===0)ks.push(k);}ks.forEach(k=>localStorage.removeItem(k));localStorage.removeItem('flappyfpv');}catch(e){}
+ best=0;const bs=card.querySelector('#best');if(bs)bs.innerHTML='Best: 0 &nbsp; Wallet: <b class="wv">$'+fm(wallet)+'</b>';}
 function setCeil(){CEIL=mode===5?20:16;CLO=mode===5?16:9.5;banks.forEach(b=>bankReset(b,false));}
 function applyMode(){setCeil();try{setView(viewSide);}catch(e){}GAP=MODES[mode-1].gap;try{best=+localStorage.getItem(bkey())||0}catch(e){}}
 function modeCap(){const M=MODES[mode-1];return M.n+' - rewards x'+M.m+(M.ai?' - AI '+Math.round(M.ai*100)+'%':' - no AI')+(mode===5?' - hawks only (HAWK TEST)':'');}
@@ -712,8 +717,9 @@ function doRevive(){
 }
 function gameOver(){
  offer=false;
- pending=0;revives=0;fx={};ghost=0;saveProg();updFx();
- showCard('Game over','<p>Level <b>'+level+'</b> ('+lvGoalTxt()+'): <b>'+lvProg+'/'+lvNeed()+'</b>.</p><p>Score: <b>'+score+'</b> &nbsp; Coins: <b>+$'+fm(run)+'</b></p><p>Your coins and upgrades are kept. Try level '+level+' again from the start.</p><button id="againbtn">&#9654; Try again</button>');
+ const lv=level;level=1;lvProg=0; // dying sends you back to level 1 (coins and upgrades are kept)
+ pending=0;revives=0;fx={};ghost=0;saveProg();updXp();updFx();
+ showCard('Game over','<p>You reached <b>level '+lv+'</b>. &nbsp; Score: <b>'+score+'</b> &nbsp; Coins: <b>+$'+fm(run)+'</b></p><p>Back to level 1. Your coins and upgrades are kept.</p><button id="againbtn">&#9654; Try again</button>');
  msg.style.display='flex';
 }
 
@@ -866,7 +872,7 @@ function renderSettings(){
   if(r.t==='range'){const v=Math.round(S[r.k]*r.sc);h+='<div class="row"><label>'+lab+' <span class="val">'+v+r.u+'</span></label><input type="range" data-k="'+r.k+'" min="'+r.min+'" max="'+r.max+'" value="'+v+'"></div>';}
   else h+='<div class="row"><label>'+lab+'</label>'+segHTML(r)+'</div>';
  });
- h+='</div><div class="sfoot">';if(setTab==='snd')h+='<button id="settest">Test sound</button>';
+ h+='</div><div class="sfoot"><button id="resetbest">Reset best score</button>';if(setTab==='snd')h+='<button id="settest">Test sound</button>';
  h+='<button id="setclose">Done</button></div></div>';
  setEl.innerHTML=h;
  const np=setEl.querySelector('.panel');if(np)np.scrollTop=st;fitMenus();
@@ -886,6 +892,8 @@ setEl.addEventListener('click',e=>{
  const b=e.target.closest('button');if(!b)return;
  if(b.id==='setclose'){closeSettings();return;}
  if(b.id==='settest'){sfx.coin();return;}
+ if(b.id==='resetbest'){if(b.dataset.sure){resetBest();delete b.dataset.sure;b.classList.remove('sure');b.textContent='Best score reset \u2713';sfx.buy();}
+  else{b.dataset.sure='1';b.classList.add('sure');b.textContent='Tap again to reset';setTimeout(()=>{if(b.dataset.sure){delete b.dataset.sure;b.classList.remove('sure');b.textContent='Reset best score';}},3000);}return;}
  if(b.dataset.tab){setTab=b.dataset.tab;renderSettings();return;}
  if(b.dataset.k){
   const k=b.dataset.k,v=b.dataset.v;
@@ -961,7 +969,7 @@ function die(){
   if(mode===5&&lifePts>=LIFE_SEG){lifePts-=LIFE_SEG;ghost=gt+1.5;vy=FLAP*1.1;y=Math.max(BOT+.8,Math.min(CEIL-.3,y));shake=.5;sfx.shield();burst(0,y,0,26,0xff7aa8,5,.8);popText('Life used!','#ff7aa8');updLife();return;}
   state='dead';time=0;speed=0;shake=0.6;sfx.crash();burst(0,y,0,44,COLORS[birdCol][0],7,1.2);
   if(score>best){best=score;try{localStorage.setItem(bkey(),best)}catch(e){}}
-  if(wallet>=reviveCost()){offer=true;card.innerHTML='<h1>Crash!</h1><p>Score: <b>'+score+'</b> &nbsp; Level: <b>'+level+'</b></p><p>Revive to keep going from here ('+lvProg+'/'+lvNeed()+'). Give up and you restart level '+level+'.</p><button id="revbtn">&#10084;&#65039; Revive for $'+reviveCost()+'</button> <button id="giveup">Give up</button><p>Wallet: <b>$'+fm(wallet)+'</b></p>';msg.style.display='flex';}else gameOver();
+  if(wallet>=reviveCost()){offer=true;card.innerHTML='<h1>Crash!</h1><p>Score: <b>'+score+'</b> &nbsp; Level: <b>'+level+'</b></p><p>Revive to keep going from here ('+lvProg+'/'+lvNeed()+'). Give up and you go back to level 1.</p><button id="revbtn">&#10084;&#65039; Revive for $'+reviveCost()+'</button> <button id="giveup">Give up</button><p>Wallet: <b>$'+fm(wallet)+'</b></p>';msg.style.display='flex';}else gameOver();
 }
 
 let uiLast='',last=performance.now(),nextFrame=0,fpsAcc=0,fpsN=0,adaptK=1,hz=60,hzS=[],hzN=0,hzLast=0;
