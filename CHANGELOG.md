@@ -3,7 +3,7 @@
 Versions are `0.UPDATE.CHANGE` (e.g. v0.4.11). The last number goes up with every single change;
 the middle number goes up each time an update goes live. Each section below is one update.
 
-## v0.6 (in progress on `hawk-test`)
+## v0.6 (live as v0.6.11, 2026-11-05) – Boss Run (50 levels, hearts, bosses) + Infinite Run, fresh runs
 - Every game starts from nothing in both modes: $0, level 1, no upgrades, no leftover shop items - also after
   closing and reopening the game. Game over resets everything. Best scores, settings, bird colour and the chosen
   mode are still remembered. Reviving inside a run still works. (v0.6.11)

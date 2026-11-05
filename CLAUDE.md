@@ -79,8 +79,8 @@ the anti-camping fix (campT / spawnCloudHawk / aim straight at a camper) also ru
   lock distance commits to a crossing height `f.ty` (shown by the "!" marker). Hawks with `f.wantRet` U-turn once
   after missing (`f.tt` turn timer, `f.ret` done); `f.pc`/`f.sc` stay set so they count and pay once.
   Since v0.6.5: independent minds (`f.mind` timer -> `f.act` hunt/high/low/feint/stall/burst, speed `f.sv`->`f.svT`),
-  one late re-aim after lock (`f.reaimed`). 3-HAWK RULE: `hawksActive()` (boss always counts) must stay <= 3 -
-  check it before ANY spawn, U-turn or escort. Anti-camping: `campT` (time above `CLO`) -> `spawnCloudHawk()`;
+  one late re-aim after lock (`f.reaimed`). HAWK RULE (now 5, see HEARTS below): `hawksActive()` (bosses always count)
+  must stay <= `lvMaxActive()` - check it before ANY spawn, U-turn or escort. Anti-camping: `campT` (time above `CLO`) -> `spawnCloudHawk()`;
   hawks aim straight at a bird riding the clouds/ceiling. Smart butterflies on 'fly' levels in `aiFlee()`.
   `IS_TEST` (not the live host) only adds "· test build" to the version label (the level picker was removed in v0.6.10).
 - Since v0.6.6: HEARTS. In mode 5 `foeHit()` steals coins and calls `die()`, which spends a heart (`LIFE_SEG` of
@@ -112,8 +112,8 @@ the anti-camping fix (campT / spawnCloudHawk / aim straight at a camper) also ru
   `lvProg` via `lvAdd()` (from `hawkPassed(f)` / `catchFly`). `levelComplete()` pays a coin bonus; every 5th
   level opens shop -> perk, otherwise straight to `countdown()`. `showBanner()` shows the goal. Difficulty
   `lvD()` 0..~0.95 in waves; it drives spawn rate, group size (max 3), kinds, `lvSpd()`, hunt, lock distance
-  (>= ~0.9 s), hitbox, steal. Old XP levels are gone (`gainXp` no-op). Since v0.6.4 game over sends you back to
-  level 1 but keeps coins/perks; reviving keeps the level; `restartGame()` wipes everything.
+  (>= ~0.9 s), hitbox, steal. Old XP levels are gone (`gainXp` no-op). Game over resets everything (see FRESH RUNS);
+  reviving keeps the level; `restartGame()` wipes everything.
 - Settings has a "Reset best score" button (`resetBest()`, tap twice) that removes all `flappyfpv*` keys.
 - Economy: coins, passive income ($0.25 per 2 s x `MM()`), marketplace (`ITEMS`), permanent perks (`PERKS`),
   revive with rising cost, enemies steal coins (die if you cannot pay).
