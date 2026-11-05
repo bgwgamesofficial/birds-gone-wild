@@ -4,6 +4,10 @@ Versions are `0.UPDATE.CHANGE` (e.g. v0.4.11). The last number goes up with ever
 the middle number goes up each time an update goes live. Each section below is one update.
 
 ## v0.6 (in progress on `hawk-test`)
+- Two game modes, chosen on the start screen (v0.6.8):
+  - Infinite Run: the original endless game, exactly as live in v0.5.4 (verified frame-by-frame against it).
+  - Boss Run: the new 50-level game (hearts, bosses, butterfly levels, smarter hawks).
+  Each mode keeps its own coins, progress and best score; existing players' progress becomes their Infinite Run.
 - 8 butterflies now make one heart (was 5). (v0.6.7)
 - Hearts: every hawk hit costs a heart (and coins); no hearts left = game over. Each level starts with at least
   2 hearts (3 on levels 1-3); butterflies add hearts up to 3. Being broke no longer kills you. (v0.6.6)

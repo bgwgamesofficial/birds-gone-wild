@@ -17,6 +17,9 @@ button,input{font-family:inherit}
 #card h1{margin:0 0 6px;font-size:38px;line-height:1.05;letter-spacing:.5px;text-shadow:0 3px 0 rgba(0,0,0,.12)}
 #card p{margin:6px 0;font-size:16px;line-height:1.4}
 @media (orientation:landscape) and (max-height:820px){#card.cols{display:grid;grid-template-columns:1fr 1fr;gap:4px 24px;width:min(760px,100%);align-items:center}#card.cols .logo{max-height:min(34vh,190px)}}
+#gmodes{display:flex;gap:8px;margin:10px 0 0}
+#card #gmodes .gm{flex:1;margin:0;min-height:46px;font-size:15px;background:rgba(128,128,128,.22);color:var(--ink);box-shadow:0 2px 0 rgba(0,0,0,.2)}
+#card #gmodes .gm.on{background:var(--ink);color:var(--card)}
 #card .lvpick{font-size:14px;margin:4px 0}
 #card .lvpick select{font:inherit;font-weight:700;padding:4px 8px;border-radius:10px;border:2px solid var(--accent);background:var(--card);color:var(--ink);min-height:36px}
 #card p.ver,#pause p.ver{margin:10px 0 0;font-size:12px;opacity:.55}
@@ -190,7 +193,7 @@ body:not([data-st=play]) #wallet,body:not([data-st=play]) #xp,body[data-st=ready
 <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/UnrealBloomPass.js"></script>
 <script>
 (function(){
-const VERSION='0.6.7'; // RELEASE.UPDATE.CHANGE - raise the last number with EVERY change (tests/version.js checks it). Shown on the start screen and pause menu.
+const VERSION='0.6.8'; // RELEASE.UPDATE.CHANGE - raise the last number with EVERY change (tests/version.js checks it). Shown on the start screen and pause menu.
 let cdEnd=0,cdLast=-1,fitT=0; // start countdown (ms timestamp when play begins), menu-fit timer
 const IS_TEST=!(typeof location!=='undefined'&&location.hostname==='bgwgamesofficial.github.io'); // everything except the live site
 const VER_TXT='v'+VERSION+(IS_TEST?' \u00b7 test build':'');
@@ -423,7 +426,7 @@ const capMat=new THREE.MeshLambertMaterial({color:0x2f8f2f});
 const pipes=[],foes=[],FVX=7.5;
 // Butterflies (mode 5 / HAWK TEST only): small, cross the lane like hawks but steer AWAY from the player.
 // Catching one fills the life bar; each full segment (LIFE_SEG points) saves you from one crash.
-const flies=[],START_HEARTS=2,LIFE_SEG=100,LIFE_MAX=300,FLY_GAIN=12.5,FLYV=FVX*.55,lifeEl=document.getElementById('life');let flyT=3,lifePts=0,lifeShown='';
+const flies=[],START_HEARTS=2,LIFE_SEG=100,LIFE_MAX=300,FLY_GAIN_B=12.5,FLY_GAIN_I=20,FLYV=FVX*.55,lifeEl=document.getElementById('life');let flyT=3,lifePts=0,lifeShown='';
 const FLYC=[[0xff8a3d,0x2a1a10],[0x5ec8ff,0x123048],[0xffd23f,0x3a2a08],[0xff6fb5,0x40102a],[0xb48cff,0x24164a]];
 function mkFly(){
  const P=FLYC[Math.floor(Math.random()*FLYC.length)],g=new THREE.Group(),w=[];
@@ -443,7 +446,7 @@ function aiFlee(f,dt){
  // Like the hawks' aiHunt5 but reversed: predict where the player will be when the butterfly reaches the lane, and steer away.
  // On butterfly levels they are much smarter: they notice you earlier, predict your fall, pick the side with more room,
  // dart away (juke) when you line up, and hover or speed up to spoil your timing. Still catchable: you climb faster.
- const smart=lvType()==='fly',ax=Math.abs(f.x);f.hsT=1;if(f.dir*f.x<-.5||ax>FVX*(smart?2.6:1.8))return;
+ const smart=BR&&lvType()==='fly',ax=Math.abs(f.x);f.hsT=1;if(f.dir*f.x<-.5||ax>FVX*(smart?2.6:1.8))return;
  const T=Math.min(ax/FLYV,smart?1.4:1.2),py=smart?Math.max(BOT+1,Math.min(CEIL,y+vy*T+.2*GRAV*T*T)):y+vy*T*.5,d=f.y-py;
  if(Math.abs(d)>(smart?4.2:3.2))return;
  let away=d>=0?1:-1;
@@ -459,8 +462,8 @@ function updLife(){
  const on=mode===5,k=on+'|'+lifePts;if(k===lifeShown)return;lifeShown=k;
  lifeEl.classList.toggle('on',on);lifeEl.classList.toggle('full',lifePts>=LIFE_MAX);
  lifeEl.querySelectorAll('.seg i').forEach((el,i)=>{el.style.width=Math.max(0,Math.min(1,(lifePts-i*LIFE_SEG)/LIFE_SEG))*100+'%';});}
-function catchFly(f){if(lvType()==='fly')lvAdd();
- const was=Math.floor(lifePts/LIFE_SEG);lifePts=Math.min(LIFE_MAX,lifePts+FLY_GAIN);
+function catchFly(f){if(BR&&lvType()==='fly')lvAdd();
+ const was=Math.floor(lifePts/LIFE_SEG);lifePts=Math.min(LIFE_MAX,lifePts+(BR?FLY_GAIN_B:FLY_GAIN_I)); // Boss Run: 8 butterflies per heart; Infinite Run: 5
  sfx.coin();burst(f.x,f.fy,0,16,f.col,3.5,.6);
  if(Math.floor(lifePts/LIFE_SEG)>was)popText('+1 Life!','#ff7aa8');else popText(lifePts>=LIFE_MAX?'Life full':'+Life','#ffa3c4');
  updLife();}
@@ -496,8 +499,8 @@ function foeHit(f){
  if(gt<ghost)return;
  f.hit=true;
  if(fx.shield){die();return;}
- const amt=Math.max(1,Math.round((mode===5?4+level*1.2:5+Math.floor(score/4))*MM()));
- if(mode===5){ // HEARTS: every hit steals coins (if you have any) AND costs a heart; no hearts left = game over
+ const amt=Math.max(1,Math.round((mode===5&&BR?4+level*1.2:5+Math.floor(score/4))*MM()));
+ if(mode===5&&BR){ // HEARTS: every hit steals coins (if you have any) AND costs a heart; no hearts left = game over
   const took=Math.min(wallet,amt);if(took>0){wallet-=took;saveW();popText('-$'+fm(took)+' stolen!','#ff6b5a');}sfx.steal();burst(0,y,0,20,0xff6b5a,5,.7);die();return;}
  if(wallet>=amt){wallet-=amt;saveW();ghost=gt+1;shake=.4;sfx.steal();popText('-$'+amt+' stolen!','#ff6b5a');burst(0,y,0,20,0xff6b5a,5,.7);}
  else die();
@@ -505,7 +508,19 @@ function foeHit(f){
 function foeSlot(z0){let bz=z0,bc=-1;for(let k=-4;k<=4;k++){const z=z0+k*2.5,T=-z/(sp()+4);let cl=99;pipes.forEach(p=>{const r=((p.z+sp()*T)%SPACING+SPACING)%SPACING;cl=Math.min(cl,r,SPACING-r);});if(cl>bc){bc=cl;bz=z;}}return bz;}
 function HS(){return (fxOn('slow')&&mode===5?.55:1)*(1-.06*perks.steady*(mode===5?1:0));}
 function habitY(){let bi=0;for(let i=1;i<HAB.length;i++)if(HAB[i]>HAB[bi])bi=i;return BOT+(bi+.5)*(CEIL-BOT)/HAB.length;}
+function aiHuntInf(f,dt){ // Infinite Run hawks: exactly as live v0.5.4
+ if(f.hit||f.dir*f.x<0||fxOn('magnet'))return;
+ const ax=Math.abs(f.x);if(ax<FVX*1.4)return; // locks its line ~1.4 s before crossing (was 1.15)
+ const T=Math.min(ax/(FVX*HS()),1.1);
+ const py=Math.max(BOT+1.5,Math.min(CEIL-1.2,y+vy*T*.6));
+ let tgt=.5*py+.3*habitY()+.2*AI.y;
+ if(f.kind==='feint'&&ax>FVX*1.8)tgt=py+f.side*3.5;
+ tgt=Math.max(BOT+3,Math.min(CEIL-.8,tgt));
+ const vm=(1.7+2.6*f.hunt*(.6+.4*AI.skill))*dt; // was 2+3.2*...
+ f.y+=Math.max(-vm,Math.min(vm,tgt-f.y));
+}
 function aiHunt5(f,dt){
+ if(!BR)return aiHuntInf(f,dt);
  // Independent hawks (mode 5): every hawk keeps changing its mind on its own (f.mind timer): hunt you, climb above,
  // drop below, feint, hover (stall) or burst ahead. Each predicts where the toucan will be (gravity included).
  // At the lock distance it commits to a crossing height f.ty (shown by the "!"), and may change its mind ONE more
@@ -560,13 +575,18 @@ function makePipe(z){
 }
 
 // state
+// GAME MODES: BR=false -> "Infinite Run" (the original endless game, exactly as live in v0.5.4); BR=true -> "Boss Run" (50 levels, hearts, bosses).
+// Each keeps its own coins, progress and best score.
+let BR=false;try{BR=localStorage.getItem('flappygame')==='boss';}catch(e){}
+function progKey(){return BR?'flappyboss':'flappyprog';}
+function wkey(){return BR?'flappywallet_boss':'flappywallet';}
 let vb=0,viewSide=false;try{viewSide=localStorage.getItem('flappyview')==='side';}catch(e){}
 let used={};let lvlStage='shop',lvlSel=null,lvlCh=[];let state='ready',y=1,camY=1,vy=0,gt=0,run=0,wallet=0,fx={},ghost=0,shopOpen=false,dtg=.016,revives=0,offer=false,hold=false,incT=0,setOpen=false,paused=false,lvlOpen=false,level=1,xp=0,pending=0,perks={pull:0,lucky:0,wings:0,steady:0,slim:0,learner:0,guard:0},inv={shield:0,magnet:0,double:0,slow:0,feather:0},score=0,best=0,speed=0,shake=0,tilt=0,time=0;
 try{best=+localStorage.getItem('flappyfpv')||0}catch(e){}
-try{wallet=+localStorage.getItem('flappywallet')||0}catch(e){}
 try{Object.assign(inv,JSON.parse(localStorage.getItem('flappyinv')||'{}'))}catch(e){}
-try{const P=JSON.parse(localStorage.getItem('flappyprog')||'{}');level=Math.max(1,Math.min(50,P.stage||1));xp=P.xp||0; // 'stage' = the 1-50 level (old XP levels are not carried over)
-Object.assign(perks,P.perks||{});}catch(e){}
+function loadProg(){Object.keys(perks).forEach(k=>{perks[k]=0;});level=1;xp=0;try{const P=JSON.parse(localStorage.getItem(progKey())||'{}');level=BR?Math.max(1,Math.min(50,P.stage||1)):Math.max(1,P.level||1);xp=P.xp||0;Object.assign(perks,P.perks||{});}catch(e){}
+ try{wallet=+localStorage.getItem(wkey())||0}catch(e){}}
+loadProg();
 const hud=document.getElementById('hud'),msg=document.getElementById('msg'),card=document.getElementById('card'),bestEl=document.getElementById('best');
 const GRAV=-24, FLAP=9, SPEED=9;
 const MODES=[
@@ -580,7 +600,7 @@ let mode=5; // The game is level 5 ("HAWK TEST") only for now. Levels 1-4 are ke
 try{best=+localStorage.getItem(bkey())||0}catch(e){}setCeil();
 function MM(){return MODES[mode-1].m;}
 function pr(it){return Math.round(it.price*MM());}
-function bkey(){return 'flappyfpv'+(mode===2?'':'_m'+mode);}
+function bkey(){return BR?'flappyfpv_boss':'flappyfpv'+(mode===2?'':'_m'+mode);}
 function resetBest(){ // clears the saved best score (all old difficulty modes too)
  try{const ks=[];for(let i=0;i<localStorage.length;i++){const k=localStorage.key(i);if(k&&k.indexOf('flappyfpv')===0)ks.push(k);}ks.forEach(k=>localStorage.removeItem(k));localStorage.removeItem('flappyfpv');}catch(e){}
  best=0;const bs=card.querySelector('#best');if(bs)bs.innerHTML='Best: 0 &nbsp; Wallet: <b class="wv">$'+fm(wallet)+'</b>';}
@@ -607,7 +627,7 @@ const glowMat=(()=>{const c=document.createElement('canvas');c.width=c.height=64
 const wEl=document.getElementById('wallet');
 function fm(n){return String(parseFloat(n.toFixed(2)));}
 function setW(){wEl.textContent='\uD83D\uDCB0 $'+fm(wallet);}
-function saveW(){try{localStorage.setItem('flappywallet',wallet)}catch(e){}setW();}
+function saveW(){try{localStorage.setItem(wkey(),wallet)}catch(e){}setW();}
 function popText(t,col){const d=document.createElement('div');d.className='pop';d.textContent=t;if(col)d.style.color=col;document.body.appendChild(d);requestAnimationFrame(()=>requestAnimationFrame(()=>d.classList.add('go')));setTimeout(()=>d.remove(),900);}
 
 // sound (synthesized with WebAudio)
@@ -704,7 +724,7 @@ shopEl.addEventListener('pointerdown',e=>e.stopPropagation());
 shopEl.addEventListener('click',e=>{if(e.target===shopEl){if(!lvlOpen)closeShop();return;}if(e.target.closest('#shopnext')){shopOpen=false;shopEl.classList.remove('on');lvlStage='perk';renderLvl();lvlEl.classList.add('on');return;}const b=e.target.closest('button');if(!b)return;if(b.id==='shopclose'){closeShop();return;}if(b.id==='shopset'){openSettings();return;}const it=ITEMS.find(i=>i.id===b.dataset.buy);if(it&&wallet>=pr(it)&&((inv[it.id]||0)+(used[it.id]||0))<9){wallet-=pr(it);if(state==='play'){used[it.id]=(used[it.id]||0)+1;if(it.id==='shield')fx.shield=true;else fx[it.id]=gt+it.dur;}else inv[it.id]++;saveW();saveInv();sfx.buy();renderShop();updFx();}});
 card.addEventListener('pointerdown',e=>{e.stopPropagation();});
 card.addEventListener('change',e=>{if(e.target&&e.target.id==='lvpick'){level=+e.target.value||1;lvProg=0;saveProg();updXp();const ln=card.querySelector('.lvlnow');if(ln)ln.innerHTML='Level <b>'+level+'</b> of '+LVL_MAX+' &middot; '+lvGoalTxt();}}); // test-only level picker // touching the menu card never flaps, so it can be scrolled
-card.addEventListener('click',e=>{if(e.target.closest('.sw')){birdCol=e.target.closest('.sw').dataset.col;try{localStorage.setItem('flappycolor',birdCol)}catch(x){}setBirdColor(birdCol);card.querySelectorAll('.sw').forEach(b=>b.classList.toggle('on',b.dataset.col===birdCol));}else if(e.target.closest('.md')){mode=+e.target.closest('.md').dataset.m;try{localStorage.setItem('flappymode',mode)}catch(x){}applyMode();reset();card.querySelectorAll('.md').forEach(b=>b.classList.toggle('on',+b.dataset.m===mode));const cp=card.querySelector('#modecap');if(cp)cp.textContent=modeCap();const bs=card.querySelector('#best');if(bs)bs.innerHTML='Best: '+best+' &nbsp; Wallet: <b class="wv">$'+fm(wallet)+'</b>';}else if(e.target.closest('#againbtn')){reset();state='ready';showCard('Birds Gone Wild','<p><b>Tap</b>, click or press <b>Space</b> to flap.</p>');}else if(e.target.closest('#dlbtn')){downloadApp();}else if(e.target.closest('#setbtn')){openSettings();}else if(e.target.closest('#startbtn')){startGame();}else if(e.target.closest('#revbtn'))doRevive();else if(e.target.closest('#giveup'))gameOver();else if(e.target.closest('#restartbtn'))restartGame();});
+card.addEventListener('click',e=>{if(e.target.closest('.sw')){birdCol=e.target.closest('.sw').dataset.col;try{localStorage.setItem('flappycolor',birdCol)}catch(x){}setBirdColor(birdCol);card.querySelectorAll('.sw').forEach(b=>b.classList.toggle('on',b.dataset.col===birdCol));}else if(e.target.closest('.md')){mode=+e.target.closest('.md').dataset.m;try{localStorage.setItem('flappymode',mode)}catch(x){}applyMode();reset();card.querySelectorAll('.md').forEach(b=>b.classList.toggle('on',+b.dataset.m===mode));const cp=card.querySelector('#modecap');if(cp)cp.textContent=modeCap();const bs=card.querySelector('#best');if(bs)bs.innerHTML='Best: '+best+' &nbsp; Wallet: <b class="wv">$'+fm(wallet)+'</b>';}else if(e.target.closest('.gm')){setGame(e.target.closest('.gm').dataset.g==='boss');}else if(e.target.closest('#againbtn')){reset();state='ready';showCard('Birds Gone Wild','<p><b>Tap</b>, click or press <b>Space</b> to flap.</p>');}else if(e.target.closest('#dlbtn')){downloadApp();}else if(e.target.closest('#setbtn')){openSettings();}else if(e.target.closest('#startbtn')){startGame();}else if(e.target.closest('#revbtn'))doRevive();else if(e.target.closest('#giveup'))gameOver();else if(e.target.closest('#restartbtn'))restartGame();});
 
 // restart
 function restartGame(){
@@ -733,7 +753,15 @@ function doRevive(){
  state='play';speed=SPEED;ghost=gt+2.5;shake=0;paused=true;hold=true;cntEl.style.fontSize='30px';cntEl.textContent='Tap or press Space to continue';
  popText('Revived!');updFx();
 }
+function gameOverInf(){ // Infinite Run: as live v0.5.4 (wipes coins, level and upgrades)
+ offer=false;
+ const lv=level;
+ level=1;xp=0;pending=0;Object.keys(perks).forEach(k=>{perks[k]=0;});revives=0;fx={};ghost=0;wallet=0;saveW();saveProg();updXp();updFx();
+ showCard('Game over','<p>Score: <b>'+score+'</b> &nbsp; Coins: <b>+$'+fm(run)+'</b></p><p>You reached level '+lv+'. Your wallet, level and upgrades have been reset.</p><p>Tap Restart to start over.</p><button id="restartbtn">&#8635; Restart</button>');
+ msg.style.display='flex';
+}
 function gameOver(){
+ if(!BR)return gameOverInf();
  offer=false;
  const lv=level;level=1;lvProg=0; // dying sends you back to level 1 (coins and upgrades are kept)
  pending=0;revives=0;fx={};ghost=0;saveProg();updXp();updFx();
@@ -776,7 +804,7 @@ function levelComplete(){const done=level;lvlDoneN=done;lvProg=0;lvSpawned=0;bos
  if(level<LVL_MAX)level++;saveProg();updXp();burst(0,y,0,40,0xffd23f,6,1.1);
  popText((done<LVL_MAX?'Level '+done+' complete!':'All 50 levels beaten!')+' +$'+bonus,'#7fe7ff');
  levelHearts();if(done%5===0){pending=1;showLevelUp();}else{sfx.level();countdown(false);}}
-function showBanner(){const b=document.getElementById('banner');if(!b||state!=='play')return;b.innerHTML='Level '+level+'<small>'+lvGoalTxt()+'</small>';b.classList.add('on');clearTimeout(showBanner.t);showBanner.t=setTimeout(()=>b.classList.remove('on'),3300);}
+function showBanner(){const b=document.getElementById('banner');if(!b||state!=='play'||!BR)return;b.innerHTML='Level '+level+'<small>'+lvGoalTxt()+'</small>';b.classList.add('on');clearTimeout(showBanner.t);showBanner.t=setTimeout(()=>b.classList.remove('on'),3300);}
 // THE 3-HAWK RULE: never more than 3 hawks coming at the player at once (boss included). A hawk counts while it
 // has not crossed the lane in its current direction, or while it is turning around.
 const HAWK_MAX=5; // THE HAWK RULE: never more than 5 hawks coming at you at once (bosses included)
@@ -795,15 +823,17 @@ function bossNames(L){const b=bossLineup(L);return b.length===1?'the Hawk Chief'
 function spawnBoss(cap,side,k){const Dd=bossD(),K=BOSS_K;spawnFoe(-(sp()+4)*(2.6+(k||0)*1.1),y,cap?.6+.4*Dd:(.9+.6*Dd)*(1+.65*(K-1)));const f=foes[foes.length-1];f.kind='boss';f.cap=!!cap;
  if(side){f.dir=side;f.x=side*Math.abs(f.x);}f.bd=Dd;f.bs=(cap?.95:1+.38*(K-1))*(.72+.5*Dd)/lvSpd();f.y=Math.max(BOT+3,Math.min(CLO,y+(k||0)*2.5-2.5));f.amp=.25;f.fq=2;f.mind=.5;f.sv=1;f.svT=1;
  f.g.scale.setScalar(cap?1.4:1.9);f.g.traverse(o=>{if(o.isMesh&&o.material&&o.material.emissive)o.material.emissive.setHex(cap?0x4a2604:0x4a0a04);});if(f.gl.material.color)f.gl.material.color.setHex(cap?0xffa030:0xff4030);}
-function saveProg(){try{localStorage.setItem('flappyprog',JSON.stringify({level,xp,perks,stage:level}))}catch(e){}}
-function updXp(){const t=lvType(),n=lvNeed();xpEl.innerHTML='<span>Level '+level+' &middot; '+lvProg+'/'+n+(t==='boss'?' boss passes':t==='fly'?' butterflies':' hawks')+'</span><div class="bar"><div class="fill" style="width:'+Math.min(100,lvProg/n*100)+'%"></div></div>';}
-function gainXp(n){} // XP levels replaced by the 50-level system (levelComplete)
+function saveProg(){try{localStorage.setItem(progKey(),JSON.stringify(BR?{stage:level,xp,perks}:{level,xp,perks}))}catch(e){}}
+function updXp(){if(!BR){xpEl.innerHTML='<span>Lv '+level+' &middot; '+Math.floor(xp)+'/'+need(level)+' XP</span><div class="bar"><div class="fill" style="width:'+Math.min(100,xp/need(level)*100)+'%"></div></div>';return;}
+ const t=lvType(),n=lvNeed();xpEl.innerHTML='<span>Level '+level+' &middot; '+lvProg+'/'+n+(t==='boss'?' boss passes':t==='fly'?' butterflies':' hawks')+'</span><div class="bar"><div class="fill" style="width:'+Math.min(100,lvProg/n*100)+'%"></div></div>';}
+function gainXp(n){if(BR)return; // Boss Run: levels come from levelComplete()
+ xp+=n*MM()*(1+.35*perks.learner);let up=false;while(xp>=need(level)){xp-=need(level);level++;pending++;up=true;}saveProg();updXp();if(up&&!lvlOpen)showLevelUp();}
 function renderLvl(){
- lvlEl.innerHTML='<div class="panel"><h2>Level '+lvlDoneN+' complete!</h2><p class="sub">Choose one permanent upgrade. Next: level '+level+'.</p>'+lvlCh.map(pv).map(p=>'<button class="perk'+(lvlSel===p.id?' sel':'')+'" data-perk="'+p.id+'"><span class="ic">'+p.icon+'</span><span><b>'+p.name+'</b>'+(p.max>1?' <i>(Lv '+(perks[p.id]+1)+'/'+p.max+')</i>':'')+'<br><small>'+p.desc+'</small></span><span class="chk"></span></button>').join('')+'<div class="foot"><button id="lvlset" class="gear" aria-label="Settings">&#9881;&#65039;</button><button id="lvldone" class="main"'+(lvlSel?'':' disabled')+'>'+(lvlSel?'Complete &#10003;':'Pick an upgrade')+'</button></div></div>';
+ lvlEl.innerHTML='<div class="panel"><h2>'+(BR?'Level '+lvlDoneN+' complete!':'Level '+(level-pending+1)+'!')+'</h2><p class="sub">Choose one permanent upgrade.'+(BR?' Next: level '+level+'.':'')+'</p>'+lvlCh.map(pv).map(p=>'<button class="perk'+(lvlSel===p.id?' sel':'')+'" data-perk="'+p.id+'"><span class="ic">'+p.icon+'</span><span><b>'+p.name+'</b>'+(p.max>1?' <i>(Lv '+(perks[p.id]+1)+'/'+p.max+')</i>':'')+'<br><small>'+p.desc+'</small></span><span class="chk"></span></button>').join('')+'<div class="foot"><button id="lvlset" class="gear" aria-label="Settings">&#9881;&#65039;</button><button id="lvldone" class="main"'+(lvlSel?'':' disabled')+'>'+(lvlSel?'Complete &#10003;':'Pick an upgrade')+'</button></div></div>';
 }
 function showLevelUp(){
  paused=true;lvlOpen=true;
- const av=PERKS.filter(p=>perks[p.id]<p.max&&p.id!=='learner').sort(()=>Math.random()-.5);const ch=av.slice(0,3);
+ const av=PERKS.filter(p=>perks[p.id]<p.max&&(!BR||p.id!=='learner')).sort(()=>Math.random()-.5);const ch=av.slice(0,3);
  if(ch.length<3)ch.push({id:'cash',icon:'💎',name:'Treasure',max:1,desc:'A $50 bonus for your wallet.'});
  lvlStage='shop';lvlSel=null;lvlCh=ch;
  openShop();sfx.level();
@@ -972,13 +1002,17 @@ addEventListener('appinstalled',()=>{installEvt=null;hideDl();popText('Installed
 function downloadApp(){
  if(installEvt){const ev=installEvt;installEvt=null;ev.prompt();if(ev.userChoice)ev.userChoice.then(r=>{if(r&&r.outcome==='accepted')hideDl();}).catch(()=>{});}
  else location.href='install.html';}
+function introText(){return BR?'<p>Beat 50 levels: dodge hawks, catch butterflies and survive the bosses. Each hit costs a heart &#10084;&#65039; and losing them all ends the run.</p><p><b>Tap</b>, click or press <b>Space</b> to flap.</p>'
+ :'<p>Dodge the hawks (watch for the red <b>!</b> warnings) and catch butterflies to fill your life bar. You earn coins the longer you survive.</p><p><b>Tap</b>, click or press <b>Space</b> to flap.</p>';}
+function setGame(b){if(b===BR)return;BR=b;try{localStorage.setItem('flappygame',b?'boss':'inf')}catch(e){}loadProg();try{best=+localStorage.getItem(bkey())||0}catch(e){}
+ reset();setW();updXp();updLife();showCard('Birds Gone Wild',introText());}
 function showCard(title,body){
-  const T=title==='Birds Gone Wild';card.classList.toggle('cols',T);card.innerHTML=(T?'<div class="cl">':'')+(title==='Birds Gone Wild'?'<img class="logo" alt="Birds Gone Wild" src="'+LOGO+'">':'<h1>'+title+'</h1>')+body+(T?'<p class="lvlnow">Level <b>'+level+'</b> of '+LVL_MAX+' &middot; '+lvGoalTxt()+'</p>'+(IS_TEST?'<p class="lvpick">Test: start at level <select id="lvpick">'+Array.from({length:LVL_MAX},(_,i)=>'<option value="'+(i+1)+'"'+(i+1===level?' selected':'')+'>'+(i+1)+(lvType(i+1)==='boss'?' (boss)':lvType(i+1)==='fly'?' (butterflies)':'')+'</option>').join('')+'</select></p>':''):'')+'<p id="best">Best: '+best+' &nbsp; Wallet: <b class="wv">$'+fm(wallet)+'</b></p>'+(title==='Birds Gone Wild'?'</div><div class="cr"><p>Bird color</p><div id="swatches">'+Object.keys(COLORS).map(k=>'<button class="sw'+(k===birdCol?' on':'')+'" data-col="'+k+'" aria-label="'+k+' bird" style="background:#'+COLORS[k][0].toString(16).padStart(6,'0')+'"></button>').join('')+'</div><button id="startbtn">Start</button> <div class="cardrow">'+(isInstalled()?'':'<button id="dlbtn" class="ghost">&#128242; Download App</button>')+'<button id="setbtn" class="ghost">&#9881; Settings</button></div><p class="ver">'+VER_TXT+'</p></div>':'');
+  const T=title==='Birds Gone Wild';card.classList.toggle('cols',T);card.innerHTML=(T?'<div class="cl">':'')+(title==='Birds Gone Wild'?'<img class="logo" alt="Birds Gone Wild" src="'+LOGO+'">':'<h1>'+title+'</h1>')+body+(T&&BR?'<p class="lvlnow">Level <b>'+level+'</b> of '+LVL_MAX+' &middot; '+lvGoalTxt()+'</p>'+(IS_TEST?'<p class="lvpick">Test: start at level <select id="lvpick">'+Array.from({length:LVL_MAX},(_,i)=>'<option value="'+(i+1)+'"'+(i+1===level?' selected':'')+'>'+(i+1)+(lvType(i+1)==='boss'?' (boss)':lvType(i+1)==='fly'?' (butterflies)':'')+'</option>').join('')+'</select></p>':''):'')+'<p id="best">Best: '+best+' &nbsp; Wallet: <b class="wv">$'+fm(wallet)+'</b></p>'+(title==='Birds Gone Wild'?'</div><div class="cr"><p>Bird color</p><div id="swatches">'+Object.keys(COLORS).map(k=>'<button class="sw'+(k===birdCol?' on':'')+'" data-col="'+k+'" aria-label="'+k+' bird" style="background:#'+COLORS[k][0].toString(16).padStart(6,'0')+'"></button>').join('')+'</div><div id="gmodes"><button class="gm'+(BR?'':' on')+'" data-g="inf">&#9854;&#65039; Infinite Run</button><button class="gm'+(BR?' on':'')+'" data-g="boss">&#128081; Boss Run</button></div><button id="startbtn">Start</button> <div class="cardrow">'+(isInstalled()?'':'<button id="dlbtn" class="ghost">&#128242; Download App</button>')+'<button id="setbtn" class="ghost">&#9881; Settings</button></div><p class="ver">'+VER_TXT+'</p></div>':'');
   const lg=card.querySelector('.logo');if(lg&&lg.addEventListener)lg.addEventListener('load',fitMenus);fitMenus();
 }
 let cdHop=false;
 function countdown(hop){showBanner();paused=true;cdHop=hop;cdEnd=Math.max(last,performance.now())+3000;cdLast=-1;} // 3-2-1-GO, game frozen meanwhile (same clock as the frame loop)
-function levelHearts(){if(mode===5){lifePts=Math.max(lifePts,(level<=3?3:START_HEARTS)*LIFE_SEG);updLife();}} // each level starts with at least 2 hearts (3 on levels 1-3)
+function levelHearts(){if(mode===5&&BR){lifePts=Math.max(lifePts,(level<=3?3:START_HEARTS)*LIFE_SEG);updLife();}} // each level starts with at least 2 hearts (3 on levels 1-3)
 function startGame(){if(state!=='ready'||cdEnd)return;ac();startMusic();msg.style.display='none';state='play';speed=SPEED;useItems();y=1;vy=0;levelHearts();countdown(true);}
 function cdTick(now){ // runs the 3-2-1-GO countdown
  const left=Math.min(3,Math.ceil((cdEnd-now)/1000));if(left!==cdLast&&left>0){cdLast=left;cdShow(left);tone(520,520,.12,'square',.09);}
@@ -1007,7 +1041,7 @@ function die(){
   if(mode===5&&lifePts>=LIFE_SEG){lifePts-=LIFE_SEG;ghost=gt+1.5;vy=FLAP*1.1;y=Math.max(BOT+.8,Math.min(CEIL-.3,y));shake=.5;sfx.shield();burst(0,y,0,26,0xff7aa8,5,.8);popText(lifePts>=LIFE_SEG?'Ouch! '+Math.floor(lifePts/LIFE_SEG)+' heart'+(lifePts>=2*LIFE_SEG?'s':'')+' left':'Last heart!','#ff7aa8');updLife();return;}
   state='dead';time=0;speed=0;shake=0.6;sfx.crash();burst(0,y,0,44,COLORS[birdCol][0],7,1.2);
   if(score>best){best=score;try{localStorage.setItem(bkey(),best)}catch(e){}}
-  if(wallet>=reviveCost()){offer=true;card.innerHTML='<h1>Crash!</h1><p>Score: <b>'+score+'</b> &nbsp; Level: <b>'+level+'</b></p><p>Revive to keep going from here ('+lvProg+'/'+lvNeed()+'). Give up and you go back to level 1.</p><button id="revbtn">&#10084;&#65039; Revive for $'+reviveCost()+'</button> <button id="giveup">Give up</button><p>Wallet: <b>$'+fm(wallet)+'</b></p>';msg.style.display='flex';}else gameOver();
+  if(wallet>=reviveCost()){offer=true;card.innerHTML='<h1>Crash!</h1><p>Score: <b>'+score+'</b> &nbsp; Level: <b>'+level+'</b></p><p>'+(BR?'Revive to keep going from here ('+lvProg+'/'+lvNeed()+'). Give up and you go back to level 1.':'Revive now to keep your score, level and upgrades. Give up and you start over from zero.')+'</p><button id="revbtn">&#10084;&#65039; Revive for $'+reviveCost()+'</button> <button id="giveup">Give up</button><p>Wallet: <b>$'+fm(wallet)+'</b></p>';msg.style.display='flex';}else gameOver();
 }
 
 let uiLast='',last=performance.now(),nextFrame=0,fpsAcc=0,fpsN=0,adaptK=1,hz=60,hzS=[],hzN=0,hzLast=0;
@@ -1032,9 +1066,18 @@ function loop(now){
     foes.forEach(f=>{f.z+=(sp()+4)*dt;aiHunt(f,dt);const fy=f.y+Math.sin(gt*(f.fq||3)+f.ph)*(f.amp||.35);if(f.wantRet&&!f.ret&&!f.hit&&f.tt===undefined&&f.dir*f.x<-f.turnX){if(hawksActive()<lvMaxActive())f.tt=0;else f.wantRet=false;} /* U-turn only if it keeps the 3-hawk rule */
       if(f.svT!==undefined)f.sv+=(f.svT-f.sv)*(1-Math.exp(-3*dt));
       let vel=1;if(f.tt!==undefined){f.tt+=dt;const TT=1.1;vel=Math.cos(Math.PI*Math.min(1,f.tt/TT));f.y+=Math.max(-3*dt,Math.min(3*dt,y-f.y));if(f.tt>=TT){f.tt=undefined;f.dir=-f.dir;f.ret=true;f.warned=false;f.ty=undefined;vel=1;}}
-      f.x-=f.dir*FVX*HS()*(mode===5?lvSpd():1)*(f.kind==='dash'?(Math.abs(f.x)>9?.55:1.5):f.kind==='boss'?(f.bs||1)*(lvProg>=lvNeed()*(f.cap?.5:.4)?1+.15*BOSS_K:1):1)*(f.sv||1)*vel*dt; /* boss: full speed, faster when enraged (second half) */if(f.kind==='boss'&&f.dir*f.x<-11){f.dir=-f.dir;f.hit=false;f.pc=false;f.sc=false;f.warned=false;f.reaimed=false;f.ty=undefined;f.y=Math.max(BOT+3,Math.min(CEIL-.2,y+Math.random()*4-2));
-        if(!f.cap&&hawksActive()<lvMaxActive()){spawnFoe(-(sp()+4)*2.4,y,.6+.5*lvD());const e=foes[foes.length-1];e.kind='hunter';e.dir=-f.dir;e.x=e.dir*Math.abs(e.x);e.y=Math.max(BOT+3,Math.min(CEIL-.2,y+(Math.random()<.5?-2:2)));e.mind=.5;e.sv=1;e.svT=1;}} /* boss turns sooner and brings an escort from the other side */f.g.position.set(f.x,fy,0);{const ck=Math.max(0,Math.min(1,(fy-CLO-.5)/4));f.gl.material.opacity=.9*(1-ck*.9);}f.g.rotation.y=-f.dir*Math.PI/2*(f.tt!==undefined?Math.cos(Math.PI*Math.min(1,f.tt/1.1)):1);f.g.rotation.z=f.tt!==undefined?Math.sin(Math.PI*Math.min(1,f.tt/1.1))*.6*f.dir:0;f.fy=fy;if(!f.hit&&Math.abs(f.x)<(f.kind==='boss'?(f.cap?1.1:1.4):mode===5?.8:.9)&&Math.abs(y-fy)<(f.kind==='boss'?(f.cap?.6:.75)+.1*(f.bd||0):mode===5?.3+.1*lvD():.45)+HB())foeHit(f);});
-    if(mode===5){const LT=lvType(),Dd=lvD(),cap=LT==='dodge'?lvNeed():1e9;hawkT-=dt;if(LT==='dodge'&&lvSpawned>0&&hawkT>.5&&!foes.some(f=>!f.pc))hawkT=.5; // next group as soon as the last one has passed
+      f.x-=f.dir*FVX*HS()*(mode===5&&BR?lvSpd():1)*(f.kind==='dash'?(Math.abs(f.x)>9?.55:1.5):f.kind==='boss'?(f.bs||1)*(lvProg>=lvNeed()*(f.cap?.5:.4)?1+.15*BOSS_K:1):1)*(f.sv||1)*vel*dt; /* boss: full speed, faster when enraged (second half) */if(f.kind==='boss'&&f.dir*f.x<-11){f.dir=-f.dir;f.hit=false;f.pc=false;f.sc=false;f.warned=false;f.reaimed=false;f.ty=undefined;f.y=Math.max(BOT+3,Math.min(CEIL-.2,y+Math.random()*4-2));
+        if(!f.cap&&hawksActive()<lvMaxActive()){spawnFoe(-(sp()+4)*2.4,y,.6+.5*lvD());const e=foes[foes.length-1];e.kind='hunter';e.dir=-f.dir;e.x=e.dir*Math.abs(e.x);e.y=Math.max(BOT+3,Math.min(CEIL-.2,y+(Math.random()<.5?-2:2)));e.mind=.5;e.sv=1;e.svT=1;}} /* boss turns sooner and brings an escort from the other side */f.g.position.set(f.x,fy,0);{const ck=Math.max(0,Math.min(1,(fy-CLO-.5)/4));f.gl.material.opacity=.9*(1-ck*.9);}f.g.rotation.y=-f.dir*Math.PI/2*(f.tt!==undefined?Math.cos(Math.PI*Math.min(1,f.tt/1.1)):1);f.g.rotation.z=f.tt!==undefined?Math.sin(Math.PI*Math.min(1,f.tt/1.1))*.6*f.dir:0;f.fy=fy;if(!f.hit&&Math.abs(f.x)<(f.kind==='boss'?(f.cap?1.1:1.4):mode===5?.8:.9)&&Math.abs(y-fy)<(f.kind==='boss'?(f.cap?.6:.75)+.1*(f.bd||0):mode===5?(BR?.3+.1*lvD():.38):.45)+HB())foeHit(f);});
+    if(mode===5&&!BR){hawkT-=dt;if(hawkT<=0){const n=1+(Math.random()<Math.min(.6,.12+score*.017)?1:0)+(score>18&&Math.random()<.22?1:0),ys=[];
+      for(let i=0;i<n;i++){let yy,t=0;do{yy=(i===0&&Math.random()<.5)?habitY()+(Math.random()*2-1):BOT+3+Math.random()*(CLO+1-BOT-3);yy=Math.max(BOT+3,Math.min(CEIL-.8,yy));t++;}while(t<8&&ys.some(q=>Math.abs(q-yy)<3.2));ys.push(yy);}
+      const kinds=['hunter'];if(score>=3)kinds.push('feint');if(score>=6)kinds.push('dash');if(score>=9)kinds.push('sweeper');
+      const pincer=n>=2&&Math.random()<.5;
+      ys.forEach((yy,i)=>{spawnFoe(-(sp()+4)*(2.4+i*.45),yy,MODES[4].ai*.6*(.5+.5*AI.skill));const f=foes[foes.length-1];f.y=yy;f.g.position.y=yy;
+        f.kind=kinds[Math.floor(Math.random()*kinds.length)];f.side=Math.random()<.5?-1:1;f.fq=2.6+Math.random()*1.2;if(f.kind==='sweeper')f.amp=1.3+Math.random()*.6;
+        if(pincer&&i===1){const f1=foes[foes.length-2];f.dir=-f1.dir;f.x=f.dir*Math.abs(f.x);}});
+      hawkT=Math.max(1.3,2.6-score*.025)+n*.5;}
+      foes.forEach(f=>{if(!f.sc&&!f.hit&&f.dir*f.x<-.4){f.sc=true;score++;hud.textContent=score;hud.classList.remove('bump');void hud.offsetWidth;hud.classList.add('bump');sfx.score();gainXp(2);AI.skill+=(Math.max(0,1-Math.abs(y-(f.fy||f.y))/3)-AI.skill)*.2;const v=1.5*MM()*(fxOn('double')?2:1)*(1+.25*perks.pull)*(Math.random()<perks.lucky*.15?2:1);wallet+=v;run+=v;saveW();popText('+$'+fm(v));}});}
+    else if(mode===5){const LT=lvType(),Dd=lvD(),cap=LT==='dodge'?lvNeed():1e9;hawkT-=dt;if(LT==='dodge'&&lvSpawned>0&&hawkT>.5&&!foes.some(f=>!f.pc))hawkT=.5; // next group as soon as the last one has passed
       if(LT==='boss'&&!bossOut){bossOut=true;bossLineup().forEach((b,k)=>spawnBoss(b==='captain',k%2?-1:1,k));}
       if(!paused){campT=y>CLO+.3?Math.min(4,campT+dt):Math.max(0,campT-2*dt);if(campT>1.2){cloudT-=dt;if(cloudT<=0&&hawksActive()<lvMaxActive()){spawnCloudHawk();cloudT=(1.3-.5*Dd)*(.8+.4*Math.random());}}else cloudT=.4;} /* riding the clouds/ceiling brings hawks up there fast */
       if(hawkT<=0&&lvSpawned<cap){let n=1;if(Dd>.04&&Math.random()<Math.min(.7,.1+.75*Dd))n++;if(Dd>.4&&Math.random()<(Dd-.4)*.9)n++;if(Dd>.65&&Math.random()<(Dd-.65)*1.2)n++;if(LT!=='dodge')n=Math.min(n,2);n=Math.min(n,cap-lvSpawned,lvMaxActive()-hawksActive());if(n<=0){hawkT=.3;}else{const ys=[];
@@ -1049,7 +1092,7 @@ function loop(now){
       foes.forEach(f=>{if(!f.pc&&f.dir*f.x<-.4){f.pc=true;hawkPassed(f);}});
       foes.forEach(f=>{if(!f.sc&&!f.hit&&f.dir*f.x<-.4){f.sc=true;score++;hud.textContent=score;hud.classList.remove('bump');void hud.offsetWidth;hud.classList.add('bump');sfx.score();gainXp(2);AI.skill+=(Math.max(0,1-Math.abs(y-(f.fy||f.y))/3)-AI.skill)*.2;const v=1.5*MM()*(fxOn('double')?2:1)*(1+.25*perks.pull)*(Math.random()<perks.lucky*.15?2:1);wallet+=v;run+=v;saveW();popText('+$'+fm(v));}});}
     for(let i=foes.length-1;i>=0;i--){const f=foes[i];if(f.dir*f.x<-24){scene.remove(f.g);foes.splice(i,1);}}
-    if(mode===5){flyT-=dt;if(flyT<=0){spawnFly();flyT=lvType()==='fly'?.9+Math.random()*.6:2.6+Math.random()*2.4;}}
+    if(mode===5){flyT-=dt;if(flyT<=0){spawnFly();flyT=BR&&lvType()==='fly'?.9+Math.random()*.6:2.6+Math.random()*2.4;}}
     for(let i=flies.length-1;i>=0;i--){const f=flies[i];aiFlee(f,dt);f.hs=(f.hs||1)+((f.hsT||1)-(f.hs||1))*(1-Math.exp(-4*dt));f.x-=f.dir*FLYV*HS()*f.hs*dt;const fy=f.y+Math.sin(gt*f.fq*2+f.ph)*.3;f.fy=fy;f.g.position.set(f.x,fy,0);f.g.rotation.y=-f.dir*Math.PI/2;
       if(Math.abs(f.x)<.8&&Math.abs(y-fy)<.75){catchFly(f);scene.remove(f.g);flies.splice(i,1);continue;}
       if(f.dir*f.x<-24){scene.remove(f.g);flies.splice(i,1);}}
@@ -1105,7 +1148,7 @@ function loop(now){
   {const ui=(state==='play'&&!hold?'play':state)+(mode===5?'5':'');if(ui!==uiLast){uiLast=ui;document.body.dataset.st=state==='play'&&!hold?'play':state;document.body.classList.toggle('m5',mode===5);}}
   if(composer&&S.bloom)composer.render(dt);else renderer.render(scene,cam);
 }
-initComposer();applyAll();reset();showCard('Birds Gone Wild','<p>Dodge the hawks (watch for the red <b>!</b> warnings). Each hit costs a heart &#10084;&#65039; and lose them all and it is game over. Catch butterflies for extra hearts.</p><p><b>Tap</b>, click or press <b>Space</b> to flap.</p>');
+initComposer();applyAll();reset();showCard('Birds Gone Wild',introText());
 requestAnimationFrame(loop);
 })();
 </script>

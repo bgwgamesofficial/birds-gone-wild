@@ -48,6 +48,14 @@ desktop browser and a Galaxy Z Fold.
 - `classic-modes` – holding branch: the full game with difficulty levels 1–5 as of v0.5.3. Do not delete.
   The owner may want levels 1–4 back later.
 
+**GAME MODES (since v0.6.8):** `BR` = false -> "Infinite Run" (the original endless game: `aiHuntInf()`, the
+`mode===5&&!BR` spawn block, coin-steal deaths, XP levels via `gainXp()`, `gameOverInf()`, 5 butterflies per life);
+`BR` = true -> "Boss Run" (50 levels, hearts, bosses ... everything described under LEVELS/HEARTS below). Chosen on
+the start card (`.gm` buttons, `setGame()`, saved in `flappygame`). Separate saves: Infinite uses the original keys
+`flappyprog` {level,xp,perks}, `flappywallet`, `flappyfpv_m5`; Boss Run uses `flappyboss` {stage,xp,perks},
+`flappywallet_boss`, `flappyfpv_boss`. Keep Infinite Run behaving exactly like before unless the owner asks
+(a seeded side-by-side run against the v0.5.4 file matched frame-for-frame). Guard Boss-Run-only code with `BR`.
+
 **Since v0.5.4 the game is level 5 only** (`let mode=5`, no difficulty picker). The code for modes 1–4
 (pipes, `MODES[0..3]`, back camera) is still inside `index.html` but unreachable; don't spend effort on it.
 
