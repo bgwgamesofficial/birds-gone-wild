@@ -4,6 +4,8 @@ Versions are `0.UPDATE.CHANGE` (e.g. v0.4.11). The last number goes up with ever
 the middle number goes up each time an update goes live. Each section below is one update.
 
 ## v0.7 (in testing on hawk-test) – Boss Run: dodge button and power-up buttons
+- The dodge button is back near the bottom-right corner; the 5 small buttons sit in an arc from its left side
+  over its top (3 item buttons together on the left, 2 upgrade buttons together over the top). (v0.7.3)
 - Boss Run: the marketplace and the upgrade choice now come up after every level (was every 5th). (v0.7.2)
 - Dodge is a swipe: swipe up on the round button to dash up, down to dash down. No limit on dodges any more,
   but only 3 butterflies a minute can be caught with a dash (badge on the button); after that they slip past a

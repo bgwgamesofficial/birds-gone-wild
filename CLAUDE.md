@@ -39,7 +39,7 @@ desktop browser and a Galaxy Z Fold.
    - The start screen and pause menu show `v0.4.11`, plus "· test build" anywhere except the live Pages site.
    - Add a section to `CHANGELOG.md` per update (`v0.N`), and after merging tag it (`v0.N.C`). No GitHub
      Releases until the owner declares 1.0. (Tag pushes are refused from Claude's cloud workspace; say so, don't retry.)
-   - Live now: v0.6.11 (2026-11-05). `hawk-test` is at v0.7.2 (dodge + power-up buttons); next change v0.7.3.
+   - Live now: v0.6.11 (2026-11-05). `hawk-test` is at v0.7.3 (dodge + power-up buttons); next change v0.7.4.
 7. Release routine the owner is used to: changelog line "live as v0.N.C" -> PR `hawk-test` -> `main` -> wait for the
    Tests check -> merge -> confirm "pages build and deployment" succeeded -> fast-forward `hawk-test` to `main`.
    Give the owner a test link: https://raw.githack.com/bgwgamesofficial/birds-gone-wild/BRANCH/index.html
@@ -67,7 +67,7 @@ the anti-camping fix (campT / spawnCloudHawk / aim straight at a camper) also ru
 
 **BOSS RUN CONTROLS (v0.7, Boss Run only, "BOSS RUN CONTROLS" block in index.html):** `#pad` bottom right holds the
 dodge button (`dodge(dir)`, swipe up/down on it (`swp`, 16 px), keys W/S; no limit, `DG_GAP` between dodges;
-only `DGF_N`=3 butterfly dash-catches per `DGF_W`=60 s (`dgFly`, `dfLeft()`, badge); dash `DG_T`/`DG_V`; `knockOut(f)` kills a touched hawk, bosses only get `f.hit`) and 5 small buttons in a full ring (angles: items 126/198/270, upgrades 342/54): 3 temporary
+only `DGF_N`=3 butterfly dash-catches per `DGF_W`=60 s (`dgFly`, `dfLeft()`, badge); dash `DG_T`/`DG_V`; `knockOut(f)` kills a touched hawk, bosses only get `f.hit`) and 5 small buttons in an arc from the left over the top (angles: items 160/192.5/225, upgrades 257.5/290; dodge in the corner): 3 temporary
 item slots `tSlots` (shop puts items there via `buyItem()`, `useSlot(i)` activates for `T_DUR`=30 s, keys 1-3) and
 2 permanent slots `pSlots`/`permSlots()` (max 2 perk kinds, `takePerk()`; `usePerk(i)` = 3 s burst `pb[id]`,
 cooldown 60 s `pcd[id]`, effects in `PBURST`, keys 4-5). `brTick(dt)` runs each Boss Run frame. Everything is
