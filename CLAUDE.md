@@ -67,6 +67,11 @@ desktop browser and a Galaxy Z Fold.
   Since v0.6.3 `aiHunt5()` predicts with gravity, uses swoop offsets (`f.sw`), group cut-off (`f.cut`), and at the
   lock distance commits to a crossing height `f.ty` (shown by the "!" marker). Hawks with `f.wantRet` U-turn once
   after missing (`f.tt` turn timer, `f.ret` done); `f.pc`/`f.sc` stay set so they count and pay once.
+  Since v0.6.5: independent minds (`f.mind` timer -> `f.act` hunt/high/low/feint/stall/burst, speed `f.sv`->`f.svT`),
+  one late re-aim after lock (`f.reaimed`). 3-HAWK RULE: `hawksActive()` (boss always counts) must stay <= 3 -
+  check it before ANY spawn, U-turn or escort. Anti-camping: `campT` (time above `CLO`) -> `spawnCloudHawk()`;
+  hawks aim straight at a bird riding the clouds/ceiling. Smart butterflies on 'fly' levels in `aiFlee()`.
+  `IS_TEST` (not the live host) shows a level picker `#lvpick` on the start card.
 - Mode 5 butterflies (`flies`, `spawnFly()`, `aiFlee()`): small, cross like hawks (speed `FLYV`) but steer away from
   the player's predicted height. Catching one adds `FLY_GAIN` to `lifePts` (bar `#life`, 3 segments of `LIFE_SEG`).
   In `die()`, a full segment is spent to survive (like the shield). Reset clears lives.

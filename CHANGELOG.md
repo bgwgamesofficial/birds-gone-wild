@@ -4,6 +4,16 @@ Versions are `0.UPDATE.CHANGE` (e.g. v0.4.11). The last number goes up with ever
 the middle number goes up each time an update goes live. Each section below is one update.
 
 ## v0.6 (in progress on `hawk-test`)
+- No more ceiling camping: hawks can fly right up to the ceiling, aim straight at a bird riding the clouds or the
+  top, and spawn rapidly up in the clouds when you stay there (about 30-40 hits a minute for a camper). (v0.6.5)
+- Independent hawks: every hawk keeps changing its mind on its own (hunt, climb, dive, feint, hover, burst) and may
+  change its aim once more after locking on (the ! moves with it). The 3-hawk rule now means never more than 3
+  hawks coming at you at once, U-turns and the boss included. (v0.6.5)
+- Boss levels much harder: 9-14 passes, the Hawk Chief flies faster, speeds up again after half, turns sooner,
+  brings an escort hawk from the other side on each turn, and more small hawks join in. (v0.6.5)
+- Butterfly levels: twice as many butterflies to catch (12-22); on those levels butterflies spot you earlier,
+  predict your fall, pick the roomier side, dart away and hover or rush to spoil your timing. (v0.6.5)
+- Test builds only: a level picker on the start screen (start at any level 1-50). (v0.6.5)
 - Dying (game over) now sends you back to level 1; coins and upgrades are kept. Reviving keeps your level. (v0.6.4)
 - Settings: "Reset best score" button (tap twice to confirm). (v0.6.4)
 - 10% harder across the board: every level's difficulty is about 10% higher and hawks come about 10% more often;
