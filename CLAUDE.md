@@ -18,8 +18,11 @@ desktop browser and a Galaxy Z Fold.
 - `manifest.webmanifest`, `icons/` – install info and icons (made from the logo).
 - `tests/check.js` – syntax check. `tests/smoke.js` – headless stub run (4,000 simulated frames across modes 1–5).
 - `tests/version.js` – fails if a game file changed but `VERSION` was not raised.
+- `tests/tools/` – simulation tools (NOT run by CI): simulated player for Boss Run difficulty (`par.sh`, `bot.js`),
+  boss strength (`botboss.js`), side-by-side Infinite Run check (`twin.js`), camping checks. See its README.
+- `README.md` + `.github/readme/` – the GitHub front page (logo, buttons, screenshots).
 - `.nojekyll` – needed by GitHub Pages. Keep it.
-- `.github/workflows/tests.yml` – GitHub Actions runs both tests on every push and pull request.
+- `.github/workflows/tests.yml` – GitHub Actions runs the three tests on every push and pull request.
 - `TESTING.md` – the owner's step-by-step guide for testing a branch and releasing it.
 - `install.html` + `install/` – public "how to install" page (Android screenshots from the owner, cropped, with
   the tap target circled). Live at https://bgwgamesofficial.github.io/birds-gone-wild/install.html
@@ -35,7 +38,10 @@ desktop browser and a Galaxy Z Fold.
    - UPDATE = the release being built. After an update is merged to `main`, the next work starts at `0.(N+1).1`.
    - The start screen and pause menu show `v0.4.11`, plus "· test build" anywhere except the live Pages site.
    - Add a section to `CHANGELOG.md` per update (`v0.N`), and after merging tag it (`v0.N.C`). No GitHub
-     Releases until the owner declares 1.0.
+     Releases until the owner declares 1.0. (Tag pushes are refused from Claude's cloud workspace; say so, don't retry.)
+   - Live now: v0.6.11 (2026-11-05). The next change on `hawk-test` is v0.7.1.
+7. Release routine the owner is used to: changelog line "live as v0.N.C" -> PR `hawk-test` -> `main` -> wait for the
+   Tests check -> merge -> confirm "pages build and deployment" succeeded -> fast-forward `hawk-test` to `main`.
    Give the owner a test link: https://raw.githack.com/bgwgamesofficial/birds-gone-wild/BRANCH/index.html
 5. Keep commits small and described in plain English.
 6. Do not add new network dependencies casually. Three.js and its post-processing add-ons load from
@@ -61,6 +67,16 @@ the anti-camping fix (campT / spawnCloudHawk / aim straight at a camper) also ru
 
 **Since v0.5.4 the game is level 5 only** (`let mode=5`, no difficulty picker). The code for modes 1–4
 (pipes, `MODES[0..3]`, back camera) is still inside `index.html` but unreachable; don't spend effort on it.
+
+## Owner decisions (keep unless the owner changes them)
+- Fresh runs: every game starts with $0, level 1, no upgrades or items; game over resets everything (both modes).
+- Only the Start button starts a game, followed by a 3-2-1 countdown; pause works during any countdown.
+- Menus must fit the screen with no scrolling (Galaxy Z Fold included).
+- Calm night (no aurora / Milky Way); Neon is a random third sky cycle with its own music.
+- Boss Run: hearts (each hit costs one), 8 butterflies per heart, at most 5 hawks at once, bosses ~40% harder than
+  v0.6.5, level 1 almost impossible to lose and level 50 almost impossible to win (targets in tests/tools/README.md).
+- No ceiling camping in either mode. Infinite Run otherwise stays as the original game.
+- Version numbers change with every change; test links show "· test build".
 
 ## Run it locally
 `python3 -m http.server 8000` in this folder, then open http://localhost:8000/ (the service worker needs http, not file://).
@@ -89,7 +105,7 @@ the anti-camping fix (campT / spawnCloudHawk / aim straight at a camper) also ru
   bosses use `bossD()` x `BOSS_K`=1.4, lineup `bossLineup()` (Chief / Captain `f.cap`). These numbers were tuned
   with a simulated player; change them in small steps.
 - Mode 5 butterflies (`flies`, `spawnFly()`, `aiFlee()`): small, cross like hawks (speed `FLYV`) but steer away from
-  the player's predicted height. Catching one adds `FLY_GAIN` (12.5 = 8 butterflies per heart) to `lifePts` (bar `#life`, 3 segments of `LIFE_SEG`).
+  the player's predicted height. Catching one adds `FLY_GAIN_B` (12.5 = 8 per heart, Boss Run) or `FLY_GAIN_I` (20 = 5 per life, Infinite Run) to `lifePts` (bar `#life`, 3 segments of `LIFE_SEG`).
   In `die()`, a full segment is spent to survive (like the shield). Reset clears lives.
 - Player flight ceiling `CEIL` and cloud base `CLO` are set per mode in `setCeil()`: modes 1–4 `CEIL`=16, `CLO`=9.5
   (pipes still use `TOP`=11); mode 5 `CEIL`=20, `CLO`=16 with a thin cloud sheet. Touching the ceiling does not kill
@@ -106,18 +122,21 @@ the anti-camping fix (campT / spawnCloudHawk / aim straight at a camper) also ru
 - Mode 5 road bend: a fixed winding shape scrolls toward the player (`kap()`, `buildBend()`, `bendOff()`,
   `RS` = distance travelled). Ground and path planes are subdivided and bent on the CPU each frame. Props are
   shifted with the same function. Never animate the bend over time (it makes the road sway).
-- LEVELS (since v0.6.2): `level` = 1..50 (`LVL_MAX`), saved as `stage` in `flappyprog`. Short levels with a type
+- LEVELS (Boss Run, since v0.6.2): `level` = 1..50 (`LVL_MAX`), saved as `stage` in `flappyboss`. Short levels with a type
   from `lvType()`: 'dodge' (most), 'fly' (level%10==5, catch butterflies), 'boss' (level%10==0, the Hawk Chief =
   foe kind 'boss' from `spawnBoss()`, turns around at |x|>13 and comes back). Goal size `lvNeed()`, progress
-  `lvProg` via `lvAdd()` (from `hawkPassed(f)` / `catchFly`). `levelComplete()` pays a coin bonus; every 5th
+  `lvProg` via `lvAdd()` (from `hawkPassed(f)` / `catchFly`). Boss levels: `bossLineup()` (Chief 10; Chief+Captain
+  20/30; Chief+2 Captains 40; 2 Chiefs+Captain 50). `levelComplete()` pays a coin bonus; every 5th
   level opens shop -> perk, otherwise straight to `countdown()`. `showBanner()` shows the goal. Difficulty
-  `lvD()` 0..~0.95 in waves; it drives spawn rate, group size (max 3), kinds, `lvSpd()`, hunt, lock distance
+  `lvD()` comes from the `LV_TAB` table (about 0.03 on level 1 to 0.6 on level 50, small waves); it drives spawn
+  rate, group size, kinds, `lvSpd()`, hunt, lock distance
   (>= ~0.9 s), hitbox, steal. Old XP levels are gone (`gainXp` no-op). Game over resets everything (see FRESH RUNS);
   reviving keeps the level; `restartGame()` wipes everything.
 - Settings has a "Reset best score" button (`resetBest()`, tap twice) that removes all `flappyfpv*` keys.
 - Economy: coins, passive income ($0.25 per 2 s x `MM()`), marketplace (`ITEMS`), permanent perks (`PERKS`),
-  revive with rising cost, enemies steal coins (die if you cannot pay).
-- Level-up flow: marketplace (Next only) → perk choice (select, then Complete) → 3-second countdown.
+  revive with rising cost. Hits steal coins; in Infinite Run you die if you cannot pay, in Boss Run hits cost hearts.
+- Level-up flow: marketplace (Next only) → perk choice (select, then Complete) → 3-second countdown. Infinite Run:
+  on XP level-ups. Boss Run: every 5th level (other levels go straight to the countdown).
 - Camera: back view or 45-degree side view (button / V key); mode 5 forces side view.
 
 ## Code gotchas
