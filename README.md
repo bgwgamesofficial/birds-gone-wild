@@ -71,8 +71,11 @@ Step-by-step pictures: **[Install guide](https://bgwgamesofficial.github.io/bird
 - Built with **[Three.js](https://threejs.org/)** (WebGL), plain HTML, CSS and JavaScript, with no build step.
 - A **Progressive Web App**: a service worker for offline play and a web manifest for installing.
 - Hosted on **GitHub Pages** from the `main` branch.
-- Every change runs automated checks: a syntax check, a 4,000-frame headless smoke test and a version check.
-  See [`tests/`](tests/).
+- Organised by topic: [`js/scene`](js/scene) (3D world), [`js/game`](js/game) (rules), [`js/ui`](js/ui) (menus),
+  [`js/audio`](js/audio), styles in [`css/`](css/).
+- Every change runs automated checks: syntax, file structure, a 4,000-frame headless smoke test, the version number
+  and code formatting. See [`tests/`](tests/).
+- **Want to help build it?** Read **[CONTRIBUTING](CONTRIBUTING.md)** and the **[architecture guide](docs/ARCHITECTURE.md)**.
 - What changed in each version: **[CHANGELOG](CHANGELOG.md)**.
 
 ---

@@ -4,7 +4,14 @@ These are **not** run by GitHub's automatic tests. They are simulation tools Cla
 difficulty and to prove Infinite Run still matches the original game. They run the real game code in Node with
 a stubbed 3D library (like `tests/smoke.js`), so they are fast and need no browser.
 
-Run them from the repository root. Slow ones take a few minutes.
+Run them from the repository root. Slow ones take a few minutes. They load the game through `tests/lib/game.js`, which
+reads both the split layout (v0.8.2+, `index.html` + `js/`) and older single-file versions, so old and new versions can
+be compared directly. To check an older version, pass its `index.html` (for split versions, check out the whole
+commit, e.g. with `git worktree add /tmp/old <commit>`, because the tools need its `js/` folder too).
+
+For exactly repeatable runs, fix the random numbers with a preload script, e.g.
+`node -r ./seed.js tests/tools/bot.js index.html 2 0.5 1`, where `seed.js` replaces `Math.random` with a seeded
+generator. Two versions that behave the same then print identical output.
 
 | Tool | What it answers | Example |
 |---|---|---|

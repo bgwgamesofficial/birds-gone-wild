@@ -8,6 +8,10 @@ the middle number goes up each time an update goes live. Each section below is o
   (dice button) swaps them for new ones ($4, then $8, $12 ... back to $4 next shop). The lock button keeps an
   offer for the next shop. Bought offers show "Sold". The upgrade choice still comes every 5th level. On PC: keys
   1-3 buy, R rerolls, Enter goes on. Infinite Run is unchanged.
+- Behind the scenes (v0.8.2): the game's code is split from one huge file into 31 smaller files by topic (3D world,
+  game rules, menus, sound), formatted so other programmers can read and work on it, with a developer guide
+  (CONTRIBUTING.md, docs/ARCHITECTURE.md) and new automatic checks. The game plays exactly the same (checked frame
+  by frame with the simulation tools). Offline play now also keeps the new files up to date.
 
 ## v0.6 (live as v0.6.11, 2026-11-05) – Boss Run (50 levels, hearts, bosses) + Infinite Run, fresh runs
 - Every game starts from nothing in both modes: $0, level 1, no upgrades, no leftover shop items - also after

@@ -12,10 +12,18 @@ browser is available, so say "untested visually" instead of claiming it looks ri
 desktop browser and a Galaxy Z Fold.
 
 ## Files
-- `index.html` – the entire game: HTML, CSS and one big script (`<script>\n(function(){ ... })();</script>`).
-  Lines are very long. It also has the start-screen logo embedded as a base64 JPEG (`const LOGO=`).
-- `sw.js` – service worker (offline). Pages: network first. Everything else (icons, Three.js from CDN): cache first.
+- SINCE v0.8.2 THE GAME IS SPLIT (owner's request, so other programmers can join). Read `docs/ARCHITECTURE.md`.
+  - `index.html` – page markup + `<script src>` list in load order. `css/game.css` – styles. `img/logo.jpg` – logo.
+  - `js/core|scene|game|ui|audio/*.js` – 31 classic scripts sharing ONE global scope (no modules, no build step).
+    Top-level code may only use things from the same or earlier files (`tests/structure.js` checks it); functions
+    can use anything. No duplicate top-level names. Each file starts with a `//` description line.
+  - `VERSION` is in `js/core/config.js`. `js/main.js` is the boot file (loaded last before `js/register-sw.js`).
+  - Formatted with Prettier (`.prettierrc.json`); run `npm run format` before committing (CI runs `prettier --check`).
+  - `CONTRIBUTING.md` – rules for new programmers. `package.json` – `npm test`, `npm run format`, `npm start`.
+- `sw.js` – service worker (offline). `SHELL` lists every game file. Own files: network first. CDN files: cache first.
 - `manifest.webmanifest`, `icons/` – install info and icons (made from the logo).
+- `tests/lib/game.js` – loads the game into Node (both split and old single-file layouts) for tests and tools.
+- `tests/structure.js` – files exist + listed in sw.js, no duplicate functions, safe load order.
 - `tests/check.js` – syntax check. `tests/smoke.js` – headless stub run (4,000 simulated frames across modes 1–5).
 - `tests/version.js` – fails if a game file changed but `VERSION` was not raised.
 - `tests/tools/` – simulation tools (NOT run by CI): simulated player for Boss Run difficulty (`par.sh`, `bot.js`),
@@ -30,10 +38,11 @@ desktop browser and a Galaxy Z Fold.
 ## Rules of the road (IMPORTANT)
 1. `main` is the live game. Never push directly to `main` without the owner's OK for that change.
    Work on a branch (e.g. `feature-name`), tell the owner how to test it, and merge only after they approve.
-2. Before every commit run: `node tests/check.js && node tests/smoke.js && node tests/version.js`. All must pass.
-3. If you change `manifest.webmanifest`, icons, or `sw.js` itself, bump `CACHE` (`bgw-v1` → `bgw-v2`) in `sw.js`.
-4. Versions: `VERSION` (top of the game script in `index.html`) is `0.UPDATE.CHANGE`, e.g. `0.4.11`.
-   - Raise CHANGE (last number) with EVERY commit that touches a game file (index.html, sw.js, manifest, icons).
+2. Before every commit run: `npm run format && npm test` (check, structure, smoke, version). All must pass.
+3. If you change `manifest.webmanifest`, icons, or `sw.js` itself, bump `CACHE` (now `bgw-v2` → `bgw-v3`) in `sw.js`.
+   New script file: add it to `index.html` AND `SHELL` in `sw.js`, and bump `CACHE`.
+4. Versions: `VERSION` (in `js/core/config.js`) is `0.UPDATE.CHANGE`, e.g. `0.4.11`.
+   - Raise CHANGE (last number) with EVERY commit that touches a game file (index.html, js/, css/, img/, sw.js, manifest, icons).
      `tests/version.js` enforces this. The owner uses it to see whether their device has the newest build.
    - UPDATE = the release being built. After an update is merged to `main`, the next work starts at `0.(N+1).1`.
    - The start screen and pause menu show `v0.4.11`, plus "· test build" anywhere except the live Pages site.
@@ -69,7 +78,7 @@ Separate saves: Infinite uses the original keys
 the anti-camping fix (campT / spawnCloudHawk / aim straight at a camper) also runs in Infinite Run. Guard Boss-Run-only code with `BR`.
 
 **Since v0.5.4 the game is level 5 only** (`let mode=5`, no difficulty picker). The code for modes 1–4
-(pipes, `MODES[0..3]`, back camera) is still inside `index.html` but unreachable; don't spend effort on it.
+(pipes, `MODES[0..3]`, back camera; `js/game/pipes.js`) is still in the game but unreachable; don't spend effort on it.
 
 ## Current update: v0.8 "survive, then shop" (Boss Run only) – see ROADMAP.md
 Named steps so problems can be tracked: Step 1 **Wave Shop** (v0.8.1, in testing), Step 2 **Auto-Weapons**, Step 3
@@ -152,8 +161,11 @@ still goes shop -> perk via `showLevelUp()`.
 
 ## Code gotchas
 - `S` is the settings object. Do not reuse that name for anything else.
-- Everything is inside one IIFE; functions rely on hoisting, but `const`/`let` are in the temporal dead zone
-  until their line runs. Watch declaration order.
+- All game files share one global scope. Functions are only hoisted within their own file, so load-time code must
+  not call functions from later files (`tests/structure.js`). `const`/`let` are in the temporal dead zone until
+  their line runs. Watch declaration order.
+- Proving behaviour did not change: `tests/tools/twin.js` (Infinite Run trace) and the other tools with a seeded
+  `Math.random` preload give identical output for identical behaviour (see tests/tools/README.md).
 - Game speed is `sp()`, which includes mode speed, slow-mo and perks. Hawks use `HS()` instead.
 - Frame loop is dt-based with a frame limiter (`capFps`) and adaptive resolution (`adaptK`).
 - Saved data (localStorage keys): `flappyset`, `flappymode`, `flappycolor`, `flappyview`, `flappymute`,
@@ -162,7 +174,7 @@ still goes shop -> perk via `showLevelUp()`.
 - `tests/smoke.js` runs against a stubbed Three.js, so it catches script errors, not visual problems.
 
 ## Backlog (suggested, not started)
-- Split `index.html` into separate CSS / JS / data files.
+- (done in v0.8.2: split into files) Next code-quality step: ES modules + one shared state object, area by area.
 - Vendor Three.js into the repo so the game does not depend on CDNs.
 - A beta repository/Pages site for phone testing before releasing to `main`.
 - Possible store packaging later (Android via Trusted Web Activity, iOS via Capacitor).
