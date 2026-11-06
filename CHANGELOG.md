@@ -3,7 +3,7 @@
 Versions are `0.UPDATE.CHANGE` (e.g. v0.4.11). The last number goes up with every single change;
 the middle number goes up each time an update goes live. Each section below is one update.
 
-## v0.8 (in testing on hawk-test) – Boss Run: "survive, then shop" (steps listed in ROADMAP.md)
+## v0.8 (live as v0.8.2, 2026-11-06) – Boss Run Wave Shop + the code split into files for a team
 - Step 1 "Wave Shop" (v0.8.1): in Boss Run the Marketplace opens after every level with 3 random items. Reroll
   (dice button) swaps them for new ones ($4, then $8, $12 ... back to $4 next shop). The lock button keeps an
   offer for the next shop. Bought offers show "Sold". The upgrade choice still comes every 5th level. On PC: keys

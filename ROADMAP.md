@@ -11,7 +11,7 @@ and open)**, and must be ready for the **Google Play Store** (see the last secti
 
 | Step | Name | What it adds | Status |
 |------|------|--------------|--------|
-| 1 | **Wave Shop** | Shop after every level: 3 random offers, Reroll (price rises), Lock an offer for the next shop | In testing (v0.8.1) |
+| 1 | **Wave Shop** | Shop after every level: 3 random offers, Reroll (price rises), Lock an offer for the next shop | Live (v0.8.2) |
 | 2 | **Auto-Weapons** | The toucan carries up to 4 weapons that fire on their own; hawks get health; merge two of the same weapon | Not started |
 | 3 | **Bird Characters** | Pick a bird before a run; each has its own rules (e.g. double coins but 1 heart) | Not started |
 | – | **Code Split** | The game split from one file into 31 files by topic, with a developer guide, so other programmers can join | Done (v0.8.2) |
