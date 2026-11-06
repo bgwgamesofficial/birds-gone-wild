@@ -39,7 +39,8 @@ desktop browser and a Galaxy Z Fold.
    - The start screen and pause menu show `v0.4.11`, plus "· test build" anywhere except the live Pages site.
    - Add a section to `CHANGELOG.md` per update (`v0.N`), and after merging tag it (`v0.N.C`). No GitHub
      Releases until the owner declares 1.0. (Tag pushes are refused from Claude's cloud workspace; say so, don't retry.)
-   - Live now: v0.6.11 (2026-11-05). The next change on `hawk-test` is v0.7.1.
+   - Live now: v0.6.11 (2026-11-05). The next change on `hawk-test` is v0.8.1 (owner's choice: v0.7.x is used by the
+     shelved `Dodge` branch, so new work skips to 0.8).
 7. Release routine the owner is used to: changelog line "live as v0.N.C" -> PR `hawk-test` -> `main` -> wait for the
    Tests check -> merge -> confirm "pages build and deployment" succeeded -> fast-forward `hawk-test` to `main`.
    Give the owner a test link: https://raw.githack.com/bgwgamesofficial/birds-gone-wild/BRANCH/index.html
@@ -51,6 +52,9 @@ desktop browser and a Galaxy Z Fold.
 - `main` – the live game.
 - `hawk-test` – the working/test branch. Test link: https://raw.githack.com/bgwgamesofficial/birds-gone-wild/hawk-test/index.html
   When the owner approves, merge `hawk-test` into `main` via a pull request.
+- `Dodge` – holding branch (2026-11-06): Boss Run dodge button + power-up buttons, v0.7.1-v0.7.3, shelved by the
+  owner to come back to later. Test link: https://raw.githack.com/bgwgamesofficial/birds-gone-wild/Dodge/index.html
+  Do not delete.
 - `classic-modes` – holding branch: the full game with difficulty levels 1–5 as of v0.5.3. Do not delete.
   The owner may want levels 1–4 back later.
 
