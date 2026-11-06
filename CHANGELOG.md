@@ -3,6 +3,12 @@
 Versions are `0.UPDATE.CHANGE` (e.g. v0.4.11). The last number goes up with every single change;
 the middle number goes up each time an update goes live. Each section below is one update.
 
+## v0.8 (in testing on hawk-test) – Boss Run: "survive, then shop" (steps listed in ROADMAP.md)
+- Step 1 "Wave Shop" (v0.8.1): in Boss Run the Marketplace opens after every level with 3 random items. Reroll
+  (dice button) swaps them for new ones ($4, then $8, $12 ... back to $4 next shop). The lock button keeps an
+  offer for the next shop. Bought offers show "Sold". The upgrade choice still comes every 5th level. On PC: keys
+  1-3 buy, R rerolls, Enter goes on. Infinite Run is unchanged.
+
 ## v0.6 (live as v0.6.11, 2026-11-05) – Boss Run (50 levels, hearts, bosses) + Infinite Run, fresh runs
 - Every game starts from nothing in both modes: $0, level 1, no upgrades, no leftover shop items - also after
   closing and reopening the game. Game over resets everything. Best scores, settings, bird colour and the chosen

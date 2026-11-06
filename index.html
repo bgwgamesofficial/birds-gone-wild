@@ -55,6 +55,12 @@ button,input{font-family:inherit}
 #shop button,#card button{border:0;border-radius:999px;background:var(--accent);color:#fff;font-weight:800;font-size:15px;padding:8px 14px;cursor:pointer;box-shadow:0 3px 0 rgba(0,0,0,.25)}
 #shop button{min-height:40px}
 #shop button:disabled{opacity:.4;cursor:default}
+#shop .lock{flex:none;width:44px;height:44px;min-height:44px;padding:0;border-radius:50%;background:rgba(128,128,128,.25);color:var(--ink);font-size:18px;box-shadow:0 3px 0 rgba(0,0,0,.2)}
+#shop .item.locked .lock{background:var(--accent);color:#fff}
+#shop .item.sold{opacity:.55}
+#shop .foot .rr{flex:none;min-height:50px;font-size:17px;padding:0 16px;background:#2e8b57}
+#shop .kb{display:none;margin-left:6px;font-size:11px;font-weight:700;opacity:.75;border:1px solid currentColor;border-radius:5px;padding:0 4px;vertical-align:2px}
+@media (hover:hover) and (pointer:fine){#shop .kb{display:inline-block}}
 #card button{margin-top:8px}
 #card #startbtn{display:block;width:100%;font-size:22px;min-height:54px;margin-top:12px}
 #card #setbtn{display:inline-block;margin-top:10px;background:none;color:var(--ink);box-shadow:none;font-weight:700;opacity:.75;padding:8px 14px;min-height:40px}
@@ -191,7 +197,7 @@ body:not([data-st=play]) #wallet,body:not([data-st=play]) #xp,body[data-st=ready
 <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/UnrealBloomPass.js"></script>
 <script>
 (function(){
-const VERSION='0.6.11'; // RELEASE.UPDATE.CHANGE - raise the last number with EVERY change (tests/version.js checks it). Shown on the start screen and pause menu.
+const VERSION='0.8.1'; // RELEASE.UPDATE.CHANGE - raise the last number with EVERY change (tests/version.js checks it). Shown on the start screen and pause menu.
 let cdEnd=0,cdLast=-1,fitT=0; // start countdown (ms timestamp when play begins), menu-fit timer
 const IS_TEST=!(typeof location!=='undefined'&&location.hostname==='bgwgamesofficial.github.io'); // everything except the live site
 const VER_TXT='v'+VERSION+(IS_TEST?' \u00b7 test build':'');
@@ -579,6 +585,7 @@ let BR=false;try{BR=localStorage.getItem('flappygame')==='boss';}catch(e){}
 function progKey(){return BR?'flappyboss':'flappyprog';}
 function wkey(){return BR?'flappywallet_boss':'flappywallet';}
 let vb=0,viewSide=false;try{viewSide=localStorage.getItem('flappyview')==='side';}catch(e){}
+let wsOff=[],wsRr=0; // STEP 1 WAVE SHOP (Boss Run): the shop's current offers and rerolls used in this shop
 let used={};let lvlStage='shop',lvlSel=null,lvlCh=[];let state='ready',y=1,camY=1,vy=0,gt=0,run=0,wallet=0,fx={},ghost=0,shopOpen=false,dtg=.016,revives=0,offer=false,hold=false,incT=0,setOpen=false,paused=false,lvlOpen=false,level=1,xp=0,pending=0,perks={pull:0,lucky:0,wings:0,steady:0,slim:0,learner:0,guard:0},inv={shield:0,magnet:0,double:0,slow:0,feather:0},score=0,best=0,speed=0,shake=0,tilt=0,time=0;
 try{best=+localStorage.getItem('flappyfpv')||0}catch(e){}
 try{Object.assign(inv,JSON.parse(localStorage.getItem('flappyinv')||'{}'))}catch(e){}
@@ -586,7 +593,7 @@ function loadProg(){Object.keys(perks).forEach(k=>{perks[k]=0;});level=1;xp=0;tr
  try{wallet=+localStorage.getItem(wkey())||0}catch(e){}}
 // Every game starts from nothing: $0, level 1, no upgrades, no leftover shop items (both modes). Only best scores,
 // settings, bird colour and the chosen mode are remembered between games.
-function freshRun(){wallet=0;level=1;xp=0;pending=0;revives=0;Object.keys(perks).forEach(k=>{perks[k]=0;});Object.keys(inv).forEach(k=>{inv[k]=0;});try{localStorage.setItem(wkey(),0)}catch(e){}saveProg();saveInv();}
+function freshRun(){wsOff=[];wsRr=0;wallet=0;level=1;xp=0;pending=0;revives=0;Object.keys(perks).forEach(k=>{perks[k]=0;});Object.keys(inv).forEach(k=>{inv[k]=0;});try{localStorage.setItem(wkey(),0)}catch(e){}saveProg();saveInv();}
 loadProg();freshRun();
 const hud=document.getElementById('hud'),msg=document.getElementById('msg'),card=document.getElementById('card'),bestEl=document.getElementById('best');
 const GRAV=-24, FLAP=9, SPEED=9;
@@ -718,11 +725,33 @@ function useItems(){ITEMS.forEach(it=>{if(inv[it.id]>0){inv[it.id]--;used[it.id]
 const fxEl=document.getElementById('fx');let fxLast='';
 function updFx(){let s='';ITEMS.map(iv).forEach(it=>{if(it.id==='shield'){if(fx.shield)s+='<span>'+it.icon+'</span>';}else if(fx[it.id]>gt)s+='<span>'+it.icon+' '+Math.ceil(fx[it.id]-gt)+'s</span>';});if(ghost>gt)s+='<span>👻 '+Math.ceil(ghost-gt)+'s</span>';if(s!==fxLast){fxLast=s;fxEl.innerHTML=s;}}
 const shopEl=document.getElementById('shop');
-function renderShop(){shopEl.innerHTML='<div class="panel"><div class="ph"><h2>Marketplace</h2><span class="bal">&#128176; $'+fm(wallet)+'</span></div><div class="items">'+ITEMS.map(iv).map(it=>{const n=(inv[it.id]||0)+(used[it.id]||0),mx=n>=9;return '<div class="item"><div class="ic">'+it.icon+'</div><div class="tx"><b>'+it.name+'</b>'+(n?'<span class="own">x'+n+'</span>':'')+'<small>'+it.desc+'</small></div><button class="buy" data-buy="'+it.id+'"'+(wallet<pr(it)||mx?' disabled':'')+'>'+(mx?'Max':'$'+pr(it))+'</button></div>';}).join('')+'</div><p class="note">Items you buy activate right away and last for the rest of this game.</p><div class="foot"><button id="shopset" class="gear" aria-label="Settings">&#9881;&#65039;</button>'+(lvlOpen&&lvlStage==='shop'?'<button id="shopnext" class="main">Next &#9654;</button>':'<button id="shopclose" class="main">Close</button>')+'</div></div>';}
+// ===== STEP 1 "WAVE SHOP" (Boss Run only) =====
+// After every level the marketplace shows WS_N random offers. Reroll swaps the unlocked offers (price goes up each
+// time, back to the start price in the next shop). Lock keeps an offer for the next shop. Infinite Run is unchanged.
+const WS_N=3;
+function wsCount(id){return (inv[id]||0)+(used[id]||0);}
+function wsFill(){const keep=wsOff.filter(o=>o.lock&&!o.sold&&wsCount(o.id)<9),ids=keep.map(o=>o.id);
+ const pool=ITEMS.filter(it=>ids.indexOf(it.id)<0&&wsCount(it.id)<9).sort(()=>Math.random()-.5);
+ wsOff=keep.slice();while(wsOff.length<WS_N&&pool.length)wsOff.push({id:pool.shift().id,lock:false,sold:false});}
+function wsNew(){wsRr=0;wsFill();} // a fresh shop after a level (locked offers stay)
+function wsRrPrice(){return Math.round((1+wsRr)*MM());}
+function wsReroll(){const c=wsRrPrice();if(wallet<c)return;wallet-=c;wsRr++;wsOff.forEach(o=>{if(!o.lock||o.sold)o.drop=true;});wsOff=wsOff.filter(o=>!o.drop);wsFill();saveW();sfx.buy();renderShop();}
+function wsItem(it,slot,o){const n=wsCount(it.id),mx=n>=9,sold=o&&o.sold,lk=o&&o.lock;
+ return '<div class="item'+(sold?' sold':'')+(lk?' locked':'')+'"><div class="ic">'+it.icon+'</div><div class="tx"><b>'+it.name+'</b>'+(n?'<span class="own">x'+n+'</span>':'')+'<small>'+it.desc+'</small></div>'
+ +(o&&!sold?'<button class="lock" data-lock="'+slot+'" aria-label="'+(lk?'Unlock':'Lock')+'" title="'+(lk?'Locked: stays for the next shop':'Lock: keep this for the next shop')+'">'+(lk?'&#128274;':'&#128275;')+'</button>':'')
+ +'<button class="buy" data-buy="'+it.id+'"'+(slot>=0?' data-slot="'+slot+'"':'')+(sold||wallet<pr(it)||mx?' disabled':'')+'>'+(sold?'Sold':mx?'Max':'$'+pr(it))+(slot>=0?'<span class="kb">'+(slot+1)+'</span>':'')+'</button></div>';}
+function shopNext(){shopOpen=false;shopEl.classList.remove('on');if(lvlStage==='wsonly'){lvlOpen=false;lvlStage='shop';resumeGame();return;}lvlStage='perk';renderLvl();lvlEl.classList.add('on');}
+function renderShop(){const ws=BR&&mode===5;if(ws&&!wsOff.length)wsFill();
+ const list=ws?wsOff.map((o,i)=>wsItem(iv(ITEMS.find(t=>t.id===o.id)),i,o)).join('')+(wsOff.length?'':'<p class="note">You have every item at its maximum.</p>'):ITEMS.map(iv).map(it=>wsItem(it,-1,null)).join('');
+ const next=lvlOpen&&(lvlStage==='shop'||lvlStage==='wsonly'),rc=wsRrPrice();
+ shopEl.innerHTML='<div class="panel"><div class="ph"><h2>Marketplace</h2><span class="bal">&#128176; $'+fm(wallet)+'</span></div><div class="items">'+list+'</div><p class="note">'+(ws?'New offers after every level. &#128275; Lock keeps an offer for the next shop. Items start right away.':'Items you buy activate right away and last for the rest of this game.')+'</p><div class="foot"><button id="shopset" class="gear" aria-label="Settings">&#9881;&#65039;</button>'+(ws?'<button id="shopreroll" class="rr"'+(wallet<rc?' disabled':'')+'>&#127922; $'+rc+'<span class="kb">R</span></button>':'')+(next?'<button id="shopnext" class="main">Next &#9654;'+(ws?'<span class="kb">Enter</span>':'')+'</button>':'<button id="shopclose" class="main">Close'+(ws?'<span class="kb">Enter</span>':'')+'</button>')+'</div></div>';}
 function openShop(){shopOpen=true;renderShop();shopEl.classList.add('on');}
 function closeShop(){shopOpen=false;shopEl.classList.remove('on');if(state==='play'&&paused&&!lvlOpen)pauseEl.classList.add('on');document.querySelectorAll('.wv').forEach(e=>{e.textContent='$'+fm(wallet);});}
 shopEl.addEventListener('pointerdown',e=>e.stopPropagation());
-shopEl.addEventListener('click',e=>{if(e.target===shopEl){if(!lvlOpen)closeShop();return;}if(e.target.closest('#shopnext')){shopOpen=false;shopEl.classList.remove('on');lvlStage='perk';renderLvl();lvlEl.classList.add('on');return;}const b=e.target.closest('button');if(!b)return;if(b.id==='shopclose'){closeShop();return;}if(b.id==='shopset'){openSettings();return;}const it=ITEMS.find(i=>i.id===b.dataset.buy);if(it&&wallet>=pr(it)&&((inv[it.id]||0)+(used[it.id]||0))<9){wallet-=pr(it);if(state==='play'){used[it.id]=(used[it.id]||0)+1;if(it.id==='shield')fx.shield=true;else fx[it.id]=gt+it.dur;}else inv[it.id]++;saveW();saveInv();sfx.buy();renderShop();updFx();}});
+addEventListener('keydown',e=>{if(!shopOpen||setOpen||!BR)return;const q=k=>shopEl.querySelector(k);let b=null;const m=/^(Digit|Numpad)([1-9])$/.exec(e.code); // PC keys for the shop: 1-3 buy, R reroll, Enter next/close
+ if(e.code==='KeyR')b=q('#shopreroll');else if(e.code==='Enter'||e.code==='NumpadEnter')b=q('#shopnext')||q('#shopclose');else if(m)b=q('[data-slot="'+(m[2]-1)+'"]');
+ if(b&&!b.disabled){e.preventDefault();b.click();}});
+shopEl.addEventListener('click',e=>{if(e.target===shopEl){if(!lvlOpen)closeShop();return;}if(e.target.closest('#shopnext')){shopNext();return;}const b=e.target.closest('button');if(!b)return;if(b.id==='shopclose'){closeShop();return;}if(b.id==='shopset'){openSettings();return;}if(b.id==='shopreroll'){wsReroll();return;}if(b.dataset.lock!==undefined){const o=wsOff[+b.dataset.lock];if(o){o.lock=!o.lock;sfx.buy();renderShop();}return;}const it=ITEMS.find(i=>i.id===b.dataset.buy);if(it&&wallet>=pr(it)&&((inv[it.id]||0)+(used[it.id]||0))<9){const o=b.dataset.slot!==undefined?wsOff[+b.dataset.slot]:null;if(o&&o.sold)return;if(o){o.sold=true;o.lock=false;}wallet-=pr(it);if(state==='play'){used[it.id]=(used[it.id]||0)+1;if(it.id==='shield')fx.shield=true;else fx[it.id]=gt+it.dur;}else inv[it.id]++;saveW();saveInv();sfx.buy();renderShop();updFx();}});
 card.addEventListener('pointerdown',e=>{e.stopPropagation();}); // touching the menu card never flaps, so it can be scrolled
 card.addEventListener('click',e=>{if(e.target.closest('.sw')){birdCol=e.target.closest('.sw').dataset.col;try{localStorage.setItem('flappycolor',birdCol)}catch(x){}setBirdColor(birdCol);card.querySelectorAll('.sw').forEach(b=>b.classList.toggle('on',b.dataset.col===birdCol));}else if(e.target.closest('.md')){mode=+e.target.closest('.md').dataset.m;try{localStorage.setItem('flappymode',mode)}catch(x){}applyMode();reset();card.querySelectorAll('.md').forEach(b=>b.classList.toggle('on',+b.dataset.m===mode));const cp=card.querySelector('#modecap');if(cp)cp.textContent=modeCap();const bs=card.querySelector('#best');if(bs)bs.innerHTML='Best: '+best+' &nbsp; Wallet: <b class="wv">$'+fm(wallet)+'</b>';}else if(e.target.closest('.gm')){setGame(e.target.closest('.gm').dataset.g==='boss');}else if(e.target.closest('#againbtn')){reset();state='ready';showCard('Birds Gone Wild','<p><b>Tap</b>, click or press <b>Space</b> to flap.</p>');}else if(e.target.closest('#dlbtn')){downloadApp();}else if(e.target.closest('#setbtn')){openSettings();}else if(e.target.closest('#startbtn')){startGame();}else if(e.target.closest('#revbtn'))doRevive();else if(e.target.closest('#giveup'))gameOver();else if(e.target.closest('#restartbtn'))restartGame();});
 
@@ -804,7 +833,7 @@ function levelComplete(){const done=level;lvlDoneN=done;lvProg=0;lvSpawned=0;bos
  const bonus=Math.round((3+done*.6)*MM());wallet+=bonus;run+=bonus;saveW();
  if(level<LVL_MAX)level++;saveProg();updXp();burst(0,y,0,40,0xffd23f,6,1.1);
  popText((done<LVL_MAX?'Level '+done+' complete!':'All 50 levels beaten!')+' +$'+bonus,'#7fe7ff');
- levelHearts();if(done%5===0){pending=1;showLevelUp();}else{sfx.level();countdown(false);}}
+ levelHearts();if(done%5===0){pending=1;showLevelUp();}else{paused=true;lvlOpen=true;lvlStage='wsonly';wsNew();openShop();sfx.level();}} // STEP 1 WAVE SHOP: shop after every level, upgrade choice every 5th
 function showBanner(){const b=document.getElementById('banner');if(!b||state!=='play'||!BR)return;b.innerHTML='Level '+level+'<small>'+lvGoalTxt()+'</small>';b.classList.add('on');clearTimeout(showBanner.t);showBanner.t=setTimeout(()=>b.classList.remove('on'),3300);}
 // THE 3-HAWK RULE: never more than 3 hawks coming at the player at once (boss included). A hawk counts while it
 // has not crossed the lane in its current direction, or while it is turning around.
@@ -836,7 +865,7 @@ function showLevelUp(){
  paused=true;lvlOpen=true;
  const av=PERKS.filter(p=>perks[p.id]<p.max&&(!BR||p.id!=='learner')).sort(()=>Math.random()-.5);const ch=av.slice(0,3);
  if(ch.length<3)ch.push({id:'cash',icon:'💎',name:'Treasure',max:1,desc:'A $50 bonus for your wallet.'});
- lvlStage='shop';lvlSel=null;lvlCh=ch;
+ lvlStage='shop';lvlSel=null;lvlCh=ch;if(BR)wsNew();
  openShop();sfx.level();
 }
 lvlEl.addEventListener('pointerdown',e=>e.stopPropagation());

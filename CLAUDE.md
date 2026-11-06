@@ -39,8 +39,7 @@ desktop browser and a Galaxy Z Fold.
    - The start screen and pause menu show `v0.4.11`, plus "· test build" anywhere except the live Pages site.
    - Add a section to `CHANGELOG.md` per update (`v0.N`), and after merging tag it (`v0.N.C`). No GitHub
      Releases until the owner declares 1.0. (Tag pushes are refused from Claude's cloud workspace; say so, don't retry.)
-   - Live now: v0.6.11 (2026-11-05). The next change on `hawk-test` is v0.8.1 (owner's choice: v0.7.x is used by the
-     shelved `Dodge` branch, so new work skips to 0.8).
+   - Live now: v0.6.11 (2026-11-05). `hawk-test` is on v0.8.x (v0.7.x is used by the shelved `Dodge` branch).
 7. Release routine the owner is used to: changelog line "live as v0.N.C" -> PR `hawk-test` -> `main` -> wait for the
    Tests check -> merge -> confirm "pages build and deployment" succeeded -> fast-forward `hawk-test` to `main`.
    Give the owner a test link: https://raw.githack.com/bgwgamesofficial/birds-gone-wild/BRANCH/index.html
@@ -71,6 +70,14 @@ the anti-camping fix (campT / spawnCloudHawk / aim straight at a camper) also ru
 
 **Since v0.5.4 the game is level 5 only** (`let mode=5`, no difficulty picker). The code for modes 1–4
 (pipes, `MODES[0..3]`, back camera) is still inside `index.html` but unreachable; don't spend effort on it.
+
+## Current update: v0.8 "survive, then shop" (Boss Run only) – see ROADMAP.md
+Named steps so problems can be tracked: Step 1 **Wave Shop** (v0.8.1, in testing), Step 2 **Auto-Weapons**, Step 3
+**Bird Characters**, plus **Play Store Prep** alongside. Everything must work on PC (mouse/keyboard), phones (touch,
+Galaxy Z Fold) and be ready for a Google Play release (Trusted Web Activity). Test each step before the next.
+Wave Shop code: `wsOff` (offers {id,lock,sold}), `wsFill()`, `wsNew()`, `wsReroll()`, `wsRrPrice()`, `shopNext()`,
+`lvlStage==='wsonly'` (shop without the upgrade choice). `levelComplete()` opens it on every level; every 5th level
+still goes shop -> perk via `showLevelUp()`.
 
 ## Owner decisions (keep unless the owner changes them)
 - Fresh runs: every game starts with $0, level 1, no upgrades or items; game over resets everything (both modes).
