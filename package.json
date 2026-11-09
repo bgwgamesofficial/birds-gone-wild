@@ -1,0 +1,15 @@
+{
+  "name": "birds-gone-wild",
+  "private": true,
+  "description": "Birds Gone Wild - a 3D flappy-bird game (toucan vs hawks) that runs in the browser and installs as an app.",
+  "license": "UNLICENSED",
+  "scripts": {
+    "start": "python3 -m http.server 8000",
+    "test": "node tests/check.js && node tests/structure.js && node tests/smoke.js && node tests/version.js",
+    "format": "prettier --write .",
+    "format:check": "prettier --check ."
+  },
+  "devDependencies": {
+    "prettier": "3.3.3"
+  }
+}
