@@ -4,10 +4,10 @@
 
 ### A fast, free 3D arcade game: fly the toucan, dodge the hawks, beat the bosses.
 
-[![Play now](https://img.shields.io/badge/%E2%96%B6%20PLAY%20NOW-free%20in%20your%20browser-ff8a3d?style=for-the-badge)](https://bgwgamesofficial.github.io/birds-gone-wild/)
-[![Install the app](https://img.shields.io/badge/%F0%9F%93%B2%20INSTALL-Android%20%C2%B7%20iPhone%20%C2%B7%20PC-16324a?style=for-the-badge)](https://bgwgamesofficial.github.io/birds-gone-wild/install.html)
+[![Play now](https://img.shields.io/badge/%E2%96%B6%20PLAY%20NOW-free%20in%20your%20browser-ff8a3d?style=for-the-badge)](https://bgwinteractive.github.io/birds-gone-wild/)
+[![Install the app](https://img.shields.io/badge/%F0%9F%93%B2%20INSTALL-Android%20%C2%B7%20iPhone%20%C2%B7%20PC-16324a?style=for-the-badge)](https://bgwinteractive.github.io/birds-gone-wild/install.html)
 
-[![Tests](https://github.com/bgwgamesofficial/birds-gone-wild/actions/workflows/tests.yml/badge.svg?branch=main)](https://github.com/bgwgamesofficial/birds-gone-wild/actions/workflows/tests.yml)
+[![Tests](https://github.com/bgwinteractive/birds-gone-wild/actions/workflows/tests.yml/badge.svg?branch=main)](https://github.com/bgwinteractive/birds-gone-wild/actions/workflows/tests.yml)
 ![Works offline](https://img.shields.io/badge/works-offline-3aa24d)
 ![No sign-up](https://img.shields.io/badge/no-sign--up-5ec8ff)
 
@@ -60,19 +60,22 @@ the hawks will find you there. Each flap lifts you quite a bit, so leave room un
 
 ## 📲 Install it
 
-1. Open **[the game](https://bgwgamesofficial.github.io/birds-gone-wild/)** in Chrome, Brave, Samsung Internet or Edge
+1. Open **[the game](https://bgwinteractive.github.io/birds-gone-wild/)** in Chrome, Brave, Samsung Internet or Edge
    (Safari on iPhone).
 2. Tap **📲 Download App** on the start screen, or use the browser menu: **Install app** / **Add to Home screen**.
 
-Step-by-step pictures: **[Install guide](https://bgwgamesofficial.github.io/birds-gone-wild/install.html)**
+Step-by-step pictures: **[Install guide](https://bgwinteractive.github.io/birds-gone-wild/install.html)**
 
 ## 🛠️ Under the hood
 
 - Built with **[Three.js](https://threejs.org/)** (WebGL), plain HTML, CSS and JavaScript, with no build step.
 - A **Progressive Web App**: a service worker for offline play and a web manifest for installing.
 - Hosted on **GitHub Pages** from the `main` branch.
-- Every change runs automated checks: a syntax check, a 4,000-frame headless smoke test and a version check.
-  See [`tests/`](tests/).
+- Organised by topic: [`js/scene`](js/scene) (3D world), [`js/game`](js/game) (rules), [`js/ui`](js/ui) (menus),
+  [`js/audio`](js/audio), styles in [`css/`](css/).
+- Every change runs automated checks: syntax, file structure, a 4,000-frame headless smoke test, the version number
+  and code formatting. See [`tests/`](tests/).
+- **Want to help build it?** Read **[CONTRIBUTING](CONTRIBUTING.md)** and the **[architecture guide](docs/ARCHITECTURE.md)**.
 - What changed in each version: **[CHANGELOG](CHANGELOG.md)**.
 
 ---
@@ -81,6 +84,6 @@ Step-by-step pictures: **[Install guide](https://bgwgamesofficial.github.io/bird
 
 **Birds Gone Wild** · made by **BGW Games** · © 2026
 
-[Play now](https://bgwgamesofficial.github.io/birds-gone-wild/) · [Install guide](https://bgwgamesofficial.github.io/birds-gone-wild/install.html) · [Changelog](CHANGELOG.md)
+[Play now](https://bgwinteractive.github.io/birds-gone-wild/) · [Install guide](https://bgwinteractive.github.io/birds-gone-wild/install.html) · [Changelog](CHANGELOG.md)
 
 </div>

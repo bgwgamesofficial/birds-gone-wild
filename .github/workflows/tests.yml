@@ -14,9 +14,16 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 20
+          cache: npm
+      - name: Install the code formatter
+        run: npm ci
       - name: Syntax check
         run: node tests/check.js
+      - name: File structure (all files present, saved for offline, safe load order)
+        run: node tests/structure.js
       - name: Smoke test (4,000 simulated frames, modes 1-5)
         run: node tests/smoke.js
       - name: Version number was raised
         run: node tests/version.js
+      - name: Code formatting (run "npm run format" to fix)
+        run: npx prettier --check .
