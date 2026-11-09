@@ -3,7 +3,10 @@
 ## What this is
 A 3D third-person flappy-bird game (toucan player, hawk enemies) built with Three.js r128.
 It ships as a static web app on GitHub Pages and installs to phone home screens (PWA).
-Live: https://bgwgamesofficial.github.io/birds-gone-wild/  (served from the `main` branch, root folder)
+Live: https://bgwinteractive.github.io/birds-gone-wild/  (served from the `main` branch, root folder)
+
+Repository: https://github.com/bgwinteractive/birds-gone-wild (moved 2026-11-08 from `bgwgamesofficial`, whose
+account was suspended; full history and all branches were carried over).
 
 ## About the owner
 The owner is not a programmer. Explain things in plain words, give exact click-by-click steps for anything
@@ -33,7 +36,7 @@ desktop browser and a Galaxy Z Fold.
 - `.github/workflows/tests.yml` – GitHub Actions runs the three tests on every push and pull request.
 - `TESTING.md` – the owner's step-by-step guide for testing a branch and releasing it.
 - `install.html` + `install/` – public "how to install" page (Android screenshots from the owner, cropped, with
-  the tap target circled). Live at https://bgwgamesofficial.github.io/birds-gone-wild/install.html
+  the tap target circled). Live at https://bgwinteractive.github.io/birds-gone-wild/install.html
 
 ## Rules of the road (IMPORTANT)
 1. `main` is the live game. Never push directly to `main` without the owner's OK for that change.
@@ -48,20 +51,20 @@ desktop browser and a Galaxy Z Fold.
    - The start screen and pause menu show `v0.4.11`, plus "· test build" anywhere except the live Pages site.
    - Add a section to `CHANGELOG.md` per update (`v0.N`), and after merging tag it (`v0.N.C`). No GitHub
      Releases until the owner declares 1.0. (Tag pushes are refused from Claude's cloud workspace; say so, don't retry.)
-   - Live now: v0.8.2 (2026-11-06). The next change starts at v0.9.1 (v0.7.x is used by the shelved `Dodge` branch).
+   - Live now: v0.8.3 (2026-11-09). The next change starts at v0.9.1 (v0.7.x is used by the shelved `Dodge` branch).
 7. Release routine the owner is used to: changelog line "live as v0.N.C" -> PR `hawk-test` -> `main` -> wait for the
    Tests check -> merge -> confirm "pages build and deployment" succeeded -> fast-forward `hawk-test` to `main`.
-   Give the owner a test link: https://raw.githack.com/bgwgamesofficial/birds-gone-wild/BRANCH/index.html
+   Give the owner a test link: https://raw.githack.com/bgwinteractive/birds-gone-wild/BRANCH/index.html
 5. Keep commits small and described in plain English.
 6. Do not add new network dependencies casually. Three.js and its post-processing add-ons load from
    cdnjs/jsdelivr (see the `<script src>` tags); bloom falls back gracefully if they fail.
 
 ## Branches
 - `main` – the live game.
-- `hawk-test` – the working/test branch. Test link: https://raw.githack.com/bgwgamesofficial/birds-gone-wild/hawk-test/index.html
+- `hawk-test` – the working/test branch. Test link: https://raw.githack.com/bgwinteractive/birds-gone-wild/hawk-test/index.html
   When the owner approves, merge `hawk-test` into `main` via a pull request.
 - `Dodge` – holding branch (2026-11-06): Boss Run dodge button + power-up buttons, v0.7.1-v0.7.3, shelved by the
-  owner to come back to later. Test link: https://raw.githack.com/bgwgamesofficial/birds-gone-wild/Dodge/index.html
+  owner to come back to later. Test link: https://raw.githack.com/bgwinteractive/birds-gone-wild/Dodge/index.html
   Do not delete.
 - `classic-modes` – holding branch: the full game with difficulty levels 1–5 as of v0.5.3. Do not delete.
   The owner may want levels 1–4 back later.

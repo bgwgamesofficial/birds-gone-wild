@@ -3,11 +3,13 @@
 Versions are `0.UPDATE.CHANGE` (e.g. v0.4.11). The last number goes up with every single change;
 the middle number goes up each time an update goes live. Each section below is one update.
 
-## v0.8 (live as v0.8.2, 2026-11-06) – Boss Run Wave Shop + the code split into files for a team
+## v0.8 (live as v0.8.3, 2026-11-09) – Boss Run Wave Shop + the code split into files for a team
 - Step 1 "Wave Shop" (v0.8.1): in Boss Run the Marketplace opens after every level with 3 random items. Reroll
   (dice button) swaps them for new ones ($4, then $8, $12 ... back to $4 next shop). The lock button keeps an
   offer for the next shop. Bought offers show "Sold". The upgrade choice still comes every 5th level. On PC: keys
   1-3 buy, R rerolls, Enter goes on. Infinite Run is unchanged.
+- New home: the game now lives at https://bgwinteractive.github.io/birds-gone-wild/ (the old account was suspended).
+  The live site no longer shows "test build", and all links point to the new address. (v0.8.3)
 - Behind the scenes (v0.8.2): the game's code is split from one huge file into 31 smaller files by topic (3D world,
   game rules, menus, sound), formatted so other programmers can read and work on it, with a developer guide
   (CONTRIBUTING.md, docs/ARCHITECTURE.md) and new automatic checks. The game plays exactly the same (checked frame
@@ -80,7 +82,7 @@ the middle number goes up each time an update goes live. Each section below is o
   kept on the `classic-modes` branch. Your level-5 best score is kept. (v0.5.4)
 - The pause button now works during every 3-2-1 countdown (start, after pause, after level-up); resuming starts a
   fresh countdown. (v0.5.4)
-- New install guide page with Android screenshots: https://bgwgamesofficial.github.io/birds-gone-wild/install.html
+- New install guide page with Android screenshots: https://bgwinteractive.github.io/birds-gone-wild/install.html
   (already live).
 
 ## v0.4 (live as v0.4.11, 2026-11-04) – butterflies, life bar, Neon, prettier night, cleaner menus

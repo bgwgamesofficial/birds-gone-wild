@@ -5,7 +5,7 @@ so you can try it without players seeing it. Only after you say "OK" does it get
 
 ## 1. Check the automatic tests (green tick)
 Every time a change is pushed, GitHub runs two tests by itself (takes about a minute).
-1. Open https://github.com/bgwgamesofficial/birds-gone-wild
+1. Open https://github.com/bgwinteractive/birds-gone-wild
 2. Click the **Actions** tab at the top.
 3. The newest run is at the top. Green tick = tests passed. Red cross = something is broken; don't merge it, tell Claude.
 
@@ -14,7 +14,7 @@ The tests only catch code errors. They cannot tell whether the game *looks* or *
 ## 2. Play the test version
 Open this address (replace `BRANCH-NAME` with the branch name Claude gives you):
 
-    https://raw.githack.com/bgwgamesofficial/birds-gone-wild/BRANCH-NAME/index.html
+    https://raw.githack.com/bgwinteractive/birds-gone-wild/BRANCH-NAME/index.html
 
 - Works on the desktop browser and on the Galaxy Z Fold (just open the link in Chrome).
 - Look at the small version number under the Start button (or in the pause menu). It should match the number
@@ -26,7 +26,7 @@ Open this address (replace `BRANCH-NAME` with the branch name Claude gives you):
 1. Tell Claude "approved" (or what to fix).
 2. Claude opens a **pull request** (a request to merge the branch into `main`). On github.com:
    **Pull requests** tab → click it → check the green tick → **Merge pull request** → **Confirm merge**.
-3. A minute or two later the live game updates: https://bgwgamesofficial.github.io/birds-gone-wild/
+3. A minute or two later the live game updates: https://bgwinteractive.github.io/birds-gone-wild/
 4. On your phone, close and reopen the game (twice if needed) and check the version number changed.
 
 ## When bumping the version
